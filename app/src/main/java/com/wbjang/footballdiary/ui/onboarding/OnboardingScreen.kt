@@ -5,7 +5,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,9 +24,8 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,18 +37,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.wbjang.footballdiary.R
 import com.wbjang.footballdiary.domain.model.League
 import com.wbjang.footballdiary.domain.model.Team
+import com.wbjang.footballdiary.ui.theme.FootballDiaryTheme
 
 @Composable
 fun OnboardingScreen(
@@ -59,28 +57,43 @@ fun OnboardingScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    OnboardingContent(
+        uiState = uiState,
+        onTeamSelected = onTeamSelected,
+        onExpandClick = { viewModel.toggleLeagueExpand(it) },
+        onFollowingClick = { viewModel.onFollowingClick(it) },
+        onConfirmFollowing = { viewModel.confirmFollowing(onTeamSelected) },
+        onDismissDialog = { viewModel.dismissDialog() }
+    )
+}
+
+@Composable
+private fun OnboardingContent(
+    uiState: OnboardingUiState,
+    onTeamSelected: () -> Unit,
+    onExpandClick: (String) -> Unit,
+    onFollowingClick: (Team) -> Unit,
+    onConfirmFollowing: () -> Unit,
+    onDismissDialog: () -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // 헤더
             OnboardingHeader()
-
-            // 리그 리스트
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(uiState.leagues, key = { it.code }) { league ->
                     LeagueItem(
                         league = league,
-                        onExpandClick = { viewModel.toggleLeagueExpand(league.code) },
-                        onFollowingClick = { team -> viewModel.onFollowingClick(team) }
+                        onExpandClick = { onExpandClick(league.code) },
+                        onFollowingClick = onFollowingClick
                     )
-                    Divider(color = colorResource(R.color.divider))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
         }
 
-        // 팔로잉 확인 다이얼로그
         uiState.pendingTeam?.let { team ->
             AlertDialog(
-                onDismissRequest = { viewModel.dismissDialog() },
+                onDismissRequest = onDismissDialog,
                 title = {
                     Text(
                         text = stringResource(R.string.dialog_following_title),
@@ -88,23 +101,18 @@ fun OnboardingScreen(
                     )
                 },
                 text = {
-                    Text(
-                        text = stringResource(R.string.dialog_following_message_format, team.name)
-                    )
+                    Text(stringResource(R.string.dialog_following_message_format, team.name))
                 },
                 confirmButton = {
                     Button(
-                        onClick = { viewModel.confirmFollowing(onTeamSelected) },
-                        enabled = !uiState.isSaving,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = colorResource(R.color.green_primary)
-                        )
+                        onClick = onConfirmFollowing,
+                        enabled = !uiState.isSaving
                     ) {
                         Text(stringResource(R.string.dialog_confirm))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { viewModel.dismissDialog() }) {
+                    TextButton(onClick = onDismissDialog) {
                         Text(stringResource(R.string.dialog_cancel))
                     }
                 }
@@ -118,7 +126,7 @@ private fun OnboardingHeader() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colorResource(R.color.green_primary))
+            .background(MaterialTheme.colorScheme.primary)
             .padding(
                 horizontal = dimensionResource(R.dimen.padding_large),
                 vertical = dimensionResource(R.dimen.padding_xlarge)
@@ -128,14 +136,14 @@ private fun OnboardingHeader() {
         Text(
             text = stringResource(R.string.onboarding_title),
             style = MaterialTheme.typography.headlineSmall,
-            color = colorResource(R.color.text_on_primary),
+            color = MaterialTheme.colorScheme.onPrimary,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
         Text(
             text = stringResource(R.string.onboarding_subtitle),
             style = MaterialTheme.typography.bodyMedium,
-            color = colorResource(R.color.text_on_primary).copy(alpha = 0.85f),
+            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
             textAlign = TextAlign.Center
         )
     }
@@ -148,7 +156,6 @@ private fun LeagueItem(
     onFollowingClick: (Team) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        // 리그 행
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -159,16 +166,14 @@ private fun LeagueItem(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 리그 엠블렘
             AsyncImage(
                 model = league.emblemUrl,
                 contentDescription = league.name,
                 modifier = Modifier
                     .size(dimensionResource(R.dimen.emblem_league))
-                    .clip(CircleShape)
+//                    .clip(CircleShape)
             )
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_medium)))
-            // 리그 이름 + 국가
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = league.name,
@@ -178,10 +183,9 @@ private fun LeagueItem(
                 Text(
                     text = league.country,
                     style = MaterialTheme.typography.bodySmall,
-                    color = colorResource(R.color.text_secondary)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            // 화살표 아이콘
             IconButton(onClick = onExpandClick) {
                 Icon(
                     imageVector = if (league.isExpanded) {
@@ -190,12 +194,11 @@ private fun LeagueItem(
                         Icons.Default.KeyboardArrowDown
                     },
                     contentDescription = null,
-                    tint = colorResource(R.color.text_secondary)
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
 
-        // 팀 목록 (확장 시)
         AnimatedVisibility(
             visible = league.isExpanded,
             enter = expandVertically(),
@@ -204,7 +207,7 @@ private fun LeagueItem(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(colorResource(R.color.background_light))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 when {
                     league.isLoading -> {
@@ -214,16 +217,14 @@ private fun LeagueItem(
                                 .padding(dimensionResource(R.dimen.padding_large)),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(
-                                color = colorResource(R.color.green_primary)
-                            )
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         }
                     }
                     league.error != null -> {
                         Text(
                             text = stringResource(R.string.error_load_teams),
                             modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
-                            color = colorResource(R.color.error),
+                            color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -233,11 +234,11 @@ private fun LeagueItem(
                                 team = team,
                                 onFollowingClick = { onFollowingClick(team) }
                             )
-                            Divider(
+                            HorizontalDivider(
                                 modifier = Modifier.padding(
                                     start = dimensionResource(R.dimen.padding_xlarge)
                                 ),
-                                color = colorResource(R.color.divider)
+                                color = MaterialTheme.colorScheme.outlineVariant
                             )
                         }
                     }
@@ -261,33 +262,99 @@ private fun TeamItem(
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 팀 엠블렘
         AsyncImage(
             model = team.crestUrl,
             contentDescription = team.name,
             modifier = Modifier
                 .size(dimensionResource(R.dimen.emblem_team))
-                .clip(CircleShape)
+//                .clip(CircleShape)
         )
         Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_medium)))
-        // 팀 이름
         Text(
             text = team.name,
             modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.bodyLarge
         )
-        // 팔로잉 버튼
         OutlinedButton(
             onClick = onFollowingClick,
-            shape = RoundedCornerShape(dimensionResource(R.dimen.btn_corner_radius)),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = colorResource(R.color.green_primary)
-            )
+            shape = RoundedCornerShape(dimensionResource(R.dimen.btn_corner_radius))
         ) {
             Text(
                 text = stringResource(R.string.btn_following),
                 style = MaterialTheme.typography.labelMedium
             )
         }
+    }
+}
+
+// Previews
+@Preview(showBackground = true)
+@Composable
+private fun PreviewOnboardingHeader() {
+    FootballDiaryTheme {
+        OnboardingHeader()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewLeagueItem() {
+    FootballDiaryTheme {
+        LeagueItem(
+            league = League(
+                code = "PL",
+                name = "프리미어리그",
+                country = "잉글랜드",
+                emblemUrl = ""
+            ),
+            onExpandClick = {},
+            onFollowingClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewTeamItem() {
+    FootballDiaryTheme {
+        TeamItem(
+            team = Team(id = 1, name = "아스널 FC", shortName = "Arsenal", crestUrl = ""),
+            onFollowingClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewOnboardingScreen() {
+    FootballDiaryTheme {
+        OnboardingContent(
+            uiState = OnboardingUiState(
+                leagues = listOf(
+                    League(
+                        code = "PL",
+                        name = "프리미어리그",
+                        country = "잉글랜드",
+                        emblemUrl = "",
+                        isExpanded = true,
+                        teams = listOf(
+                            Team(id = 1, name = "아스널 FC", shortName = "Arsenal", crestUrl = ""),
+                            Team(id = 2, name = "맨체스터 시티 FC", shortName = "Man City", crestUrl = "")
+                        )
+                    ),
+                    League(
+                        code = "PD",
+                        name = "라리가",
+                        country = "스페인",
+                        emblemUrl = ""
+                    )
+                )
+            ),
+            onTeamSelected = {},
+            onExpandClick = {},
+            onFollowingClick = {},
+            onConfirmFollowing = {},
+            onDismissDialog = {}
+        )
     }
 }
