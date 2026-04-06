@@ -1,3 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">FootballDiary</string>
+    <string name="app_name">Football Diary</string>
+
+    <!-- 온보딩 화면 -->
+    <string name="onboarding_title">좋아하는 팀을 선택하세요</string>
+    <string name="onboarding_subtitle">팔로우할 팀을 선택하면\n경기 일정과 소식을 알려드려요</string>
+    <string name="btn_following">팔로잉</string>
+
+    <!-- 팔로잉 다이얼로그 -->
+    <string name="dialog_following_title">팀 팔로잉</string>
+    <string name="dialog_following_message_format">%s을(를) 팔로잉하시겠어요?</string>
+    <string name="dialog_confirm">확인</string>
+    <string name="dialog_cancel">취소</string>
+
+    <!-- 메인 화면 탭 -->
+    <string name="tab_schedule">일정</string>
+    <string name="tab_diary">기록</string>
+    <string name="tab_settings">설정</string>
+
+    <!-- 리그 이름 -->
+    <string name="league_premier_league">프리미어리그</string>
+    <string name="league_la_liga">라리가</string>
+    <string name="league_bundesliga">분데스리가</string>
+    <string name="league_serie_a">세리에 A</string>
+    <string name="league_ligue_1">리그 1</string>
+
+    <!-- 리그 국가 -->
+    <string name="country_england">잉글랜드</string>
+    <string name="country_spain">스페인</string>
+    <string name="country_germany">독일</string>
+    <string name="country_italy">이탈리아</string>
+    <string name="country_france">프랑스</string>
+
+    <!-- 상태 메시지 -->
+    <string name="loading">불러오는 중&#8230;</string>
+    <string name="error_load_teams">팀 목록을 불러오지 못했어요</string>
+    <string name="retry">다시 시도</string>
+
+    <!-- 메인 화면 (임시) -->
+    <string name="main_following_team_format">팔로잉 팀: %s</string>
 </resources>

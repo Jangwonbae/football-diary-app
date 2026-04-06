@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 기본 패딩 -->
+    <dimen name="padding_xsmall">4dp</dimen>
+    <dimen name="padding_small">8dp</dimen>
+    <dimen name="padding_medium">16dp</dimen>
+    <dimen name="padding_large">24dp</dimen>
+    <dimen name="padding_xlarge">32dp</dimen>
+
+    <!-- 아이콘 크기 -->
+    <dimen name="icon_size_small">24dp</dimen>
+    <dimen name="icon_size_medium">40dp</dimen>
+    <dimen name="icon_size_large">56dp</dimen>
+
+    <!-- 리그 / 팀 엠블렘 -->
+    <dimen name="emblem_league">40dp</dimen>
+    <dimen name="emblem_team">36dp</dimen>
+
+    <!-- 카드 -->
+    <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
+
+    <!-- 버튼 -->
+    <dimen name="btn_corner_radius">8dp</dimen>
+    <dimen name="btn_height">40dp</dimen>
+    <dimen name="btn_following_width">80dp</dimen>
+
+    <!-- 텍스트 크기 -->
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_body">14sp</dimen>
+    <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_title">20sp</dimen>
+    <dimen name="text_size_headline">24sp</dimen>
+
+    <!-- 리스트 아이템 -->
+    <dimen name="list_item_height_league">64dp</dimen>
+    <dimen name="list_item_height_team">56dp</dimen>
+
+    <!-- 온보딩 -->
+    <dimen name="onboarding_logo_size">80dp</dimen>
+    <dimen name="onboarding_header_height">200dp</dimen>
+</resources>
