@@ -1,11 +1,19 @@
 package com.wbjang.footballdiary.domain.repository
 
+import com.wbjang.footballdiary.domain.model.Match
 import com.wbjang.footballdiary.domain.model.Team
 import kotlinx.coroutines.flow.Flow
 
 interface FootballRepository {
+    // 온보딩 - 리그 팀 목록
     suspend fun getTeamsByLeague(leagueCode: String): Result<List<Team>>
+
+    // 팔로잉 팀 저장 / 조회
     fun getFollowingTeamId(): Flow<Int?>
     fun getFollowingTeamName(): Flow<String?>
-    suspend fun saveFollowingTeam(teamId: Int, teamName: String)
+    fun getFollowingTeamCrestUrl(): Flow<String?>
+    suspend fun saveFollowingTeam(teamId: Int, teamName: String, teamCrestUrl: String)
+
+    // 경기 일정
+    suspend fun getTeamMatches(teamId: Int, dateFrom: String, dateTo: String): Result<List<Match>>
 }

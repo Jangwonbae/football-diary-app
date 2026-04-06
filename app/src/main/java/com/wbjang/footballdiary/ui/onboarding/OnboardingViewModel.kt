@@ -92,7 +92,7 @@ class OnboardingViewModel @Inject constructor(
         val team = _uiState.value.pendingTeam ?: return
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
-            repository.saveFollowingTeam(team.id, team.name)
+            repository.saveFollowingTeam(team.id, team.name, team.crestUrl)
             _uiState.update { it.copy(isSaving = false, pendingTeam = null) }
             onComplete()
         }

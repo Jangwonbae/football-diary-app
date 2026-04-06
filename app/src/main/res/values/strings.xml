@@ -39,4 +39,10 @@
 
     <!-- 메인 화면 (임시) -->
     <string name="main_following_team_format">팔로잉 팀: %s</string>
+
+    <!-- 일정 화면 -->
+    <string name="tab_schedule_calendar">캘린더</string>
+    <string name="tab_schedule_list">목록</string>
+    <string name="schedule_no_matches">예정된 경기가 없습니다</string>
+    <string name="schedule_next_match">다음 경기</string>
 </resources>

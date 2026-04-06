@@ -19,8 +19,9 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 class UserPreferencesDataStore @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val followingTeamIdKey = intPreferencesKey("following_team_id")
-    private val followingTeamNameKey = stringPreferencesKey("following_team_name")
+    private val followingTeamIdKey       = intPreferencesKey("following_team_id")
+    private val followingTeamNameKey     = stringPreferencesKey("following_team_name")
+    private val followingTeamCrestUrlKey = stringPreferencesKey("following_team_crest_url")
 
     val followingTeamId: Flow<Int?> = context.dataStore.data.map { prefs ->
         prefs[followingTeamIdKey]
@@ -30,10 +31,15 @@ class UserPreferencesDataStore @Inject constructor(
         prefs[followingTeamNameKey]
     }
 
-    suspend fun saveFollowingTeam(teamId: Int, teamName: String) {
+    val followingTeamCrestUrl: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[followingTeamCrestUrlKey]
+    }
+
+    suspend fun saveFollowingTeam(teamId: Int, teamName: String, teamCrestUrl: String) {
         context.dataStore.edit { prefs ->
-            prefs[followingTeamIdKey] = teamId
-            prefs[followingTeamNameKey] = teamName
+            prefs[followingTeamIdKey]       = teamId
+            prefs[followingTeamNameKey]     = teamName
+            prefs[followingTeamCrestUrlKey] = teamCrestUrl
         }
     }
 }
