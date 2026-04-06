@@ -2,6 +2,7 @@ package com.wbjang.footballdiary.ui.main.schedule
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -79,7 +80,10 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun ScheduleScreen(viewModel: ScheduleViewModel = hiltViewModel()) {
+fun ScheduleScreen(
+    onMatchClick: (Match) -> Unit,
+    viewModel: ScheduleViewModel = hiltViewModel()
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // 뷰 전환과 무관하게 리스트 상태 유지
@@ -148,7 +152,8 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = hiltViewModel()) {
                     matches = uiState.matches,
                     followingTeamId = uiState.followingTeamId,
                     onPreviousMonth = { viewModel.goToPreviousMonth() },
-                    onNextMonth = { viewModel.goToNextMonth() }
+                    onNextMonth = { viewModel.goToNextMonth() },
+                    onMatchClick = onMatchClick
                 )
             }
             else -> {
@@ -156,7 +161,8 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = hiltViewModel()) {
                     matches = uiState.matches,
                     followingTeamId = uiState.followingTeamId,
                     listState = listState,
-                    upcomingIndex = upcomingIndex
+                    upcomingIndex = upcomingIndex,
+                    onMatchClick = onMatchClick
                 )
             }
         }
@@ -244,7 +250,8 @@ private fun CalendarView(
     matches: List<Match>,
     followingTeamId: Int?,
     onPreviousMonth: () -> Unit,
-    onNextMonth: () -> Unit
+    onNextMonth: () -> Unit,
+    onMatchClick: (Match) -> Unit
 ) {
     val matchesByDate = matches.groupBy { it.localDate() }
     val today = LocalDate.now()
@@ -314,6 +321,7 @@ private fun CalendarView(
                             dayOfWeek = date.dayOfWeek,
                             matches = matchesByDate[date] ?: emptyList(),
                             followingTeamId = followingTeamId,
+                            onMatchClick = onMatchClick,
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -331,11 +339,17 @@ private fun CalendarDayCell(
     dayOfWeek: DayOfWeek,
     matches: List<Match>,
     followingTeamId: Int?,
+    onMatchClick: (Match) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .aspectRatio(0.8f)
+            .then(
+                if (matches.isNotEmpty())
+                    Modifier.clickable { onMatchClick(matches.first()) }
+                else Modifier
+            )
             .padding(dimensionResource(R.dimen.calendar_day_cell_padding)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -419,7 +433,8 @@ private fun MatchListView(
     matches: List<Match>,
     followingTeamId: Int?,
     listState: LazyListState,
-    upcomingIndex: Int
+    upcomingIndex: Int,
+    onMatchClick: (Match) -> Unit
 ) {
     if (matches.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -439,7 +454,8 @@ private fun MatchListView(
             MatchListCard(
                 match = match,
                 followingTeamId = followingTeamId,
-                isUpcoming = index == upcomingIndex
+                isUpcoming = index == upcomingIndex,
+                onClick = { onMatchClick(match) }
             )
         }
         item { Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium))) }
@@ -447,7 +463,7 @@ private fun MatchListView(
 }
 
 @Composable
-private fun MatchListCard(match: Match, followingTeamId: Int?, isUpcoming: Boolean) {
+private fun MatchListCard(match: Match, followingTeamId: Int?, isUpcoming: Boolean, onClick: () -> Unit) {
     val dateFormatStr = stringResource(R.string.date_format_match_datetime)
     val dateFormatter = DateTimeFormatter.ofPattern(dateFormatStr, Locale.KOREAN)
     val formattedDate = match.localDateTime().format(dateFormatter)
@@ -468,6 +484,7 @@ private fun MatchListCard(match: Match, followingTeamId: Int?, isUpcoming: Boole
     } else Modifier
 
     Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = dimensionResource(R.dimen.padding_medium), vertical = dimensionResource(R.dimen.match_card_vertical_padding))
@@ -663,21 +680,22 @@ private fun PreviewMatchListCard() {
                 awayScore = 1
             ),
             followingTeamId = 1,
-            isUpcoming = false
+            isUpcoming = false,
+            onClick = {}
         )
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun PreviewCalendarView() {
-    FootballDiaryTheme {
-        CalendarView(
-            yearMonth = YearMonth.now(),
-            matches = emptyList(),
-            followingTeamId = 1,
-            onPreviousMonth = {},
-            onNextMonth = {}
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun PreviewCalendarView() {
+//    FootballDiaryTheme {
+//        CalendarView(
+//            yearMonth = YearMonth.now(),
+//            matches = emptyList(),
+//            followingTeamId = 1,
+//            onPreviousMonth = {},
+//            onNextMonth = {}
+//        )
+//    }
+//}

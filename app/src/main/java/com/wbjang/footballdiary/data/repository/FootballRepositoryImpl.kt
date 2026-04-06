@@ -2,10 +2,18 @@ package com.wbjang.footballdiary.data.repository
 
 import com.wbjang.footballdiary.data.api.FootballApiService
 import com.wbjang.footballdiary.data.datastore.UserPreferencesDataStore
+import com.wbjang.footballdiary.domain.model.BookingEvent
+import com.wbjang.footballdiary.domain.model.CardType
+import com.wbjang.footballdiary.domain.model.GoalEvent
+import com.wbjang.footballdiary.domain.model.GoalType
+import com.wbjang.footballdiary.domain.model.LineupPlayer
 import com.wbjang.footballdiary.domain.model.Match
 import com.wbjang.footballdiary.domain.model.MatchCompetition
+import com.wbjang.footballdiary.domain.model.MatchDetail
 import com.wbjang.footballdiary.domain.model.MatchStatus
 import com.wbjang.footballdiary.domain.model.MatchTeam
+import com.wbjang.footballdiary.domain.model.SubstitutionEvent
+import com.wbjang.footballdiary.domain.model.TeamLineup
 import com.wbjang.footballdiary.domain.model.Team
 import com.wbjang.footballdiary.domain.repository.FootballRepository
 import kotlinx.coroutines.flow.Flow
@@ -37,6 +45,97 @@ class FootballRepositoryImpl @Inject constructor(
 
     override suspend fun saveFollowingTeam(teamId: Int, teamName: String, teamCrestUrl: String) {
         dataStore.saveFollowingTeam(teamId, teamName, teamCrestUrl)
+    }
+
+    override suspend fun getMatchDetail(matchId: Int): Result<MatchDetail> {
+        return runCatching {
+            val dto = apiService.getMatchDetail(matchId)
+            MatchDetail(
+                match = Match(
+                    id = dto.id,
+                    utcDate = dto.utcDate,
+                    status = MatchStatus.from(dto.status),
+                    matchday = dto.matchday,
+                    competition = dto.competition?.let {
+                        MatchCompetition(id = it.id, name = it.name, emblemUrl = it.emblem)
+                    },
+                    homeTeam = MatchTeam(
+                        id = dto.homeTeam.id,
+                        name = dto.homeTeam.name,
+                        shortName = dto.homeTeam.shortName,
+                        crestUrl = dto.homeTeam.crest
+                    ),
+                    awayTeam = MatchTeam(
+                        id = dto.awayTeam.id,
+                        name = dto.awayTeam.name,
+                        shortName = dto.awayTeam.shortName,
+                        crestUrl = dto.awayTeam.crest
+                    ),
+                    homeScore = dto.score.fullTime.home,
+                    awayScore = dto.score.fullTime.away
+                ),
+                venue = dto.venue,
+                attendance = dto.attendance,
+                goals = dto.goals.orEmpty().mapNotNull { g ->
+                    val minute = g.minute ?: return@mapNotNull null
+                    val scorerName = g.scorer?.name ?: return@mapNotNull null
+                    GoalEvent(
+                        minute = minute,
+                        injuryTime = g.injuryTime,
+                        type = when (g.type) {
+                            "OWN_GOAL" -> GoalType.OWN_GOAL
+                            "PENALTY"  -> GoalType.PENALTY
+                            else       -> GoalType.REGULAR
+                        },
+                        teamId = g.team?.id,
+                        scorerName = scorerName,
+                        assistName = g.assist?.name
+                    )
+                },
+                bookings = dto.bookings.orEmpty().mapNotNull { b ->
+                    val minute = b.minute ?: return@mapNotNull null
+                    val playerName = b.player?.name ?: return@mapNotNull null
+                    BookingEvent(
+                        minute = minute,
+                        teamId = b.team?.id,
+                        playerName = playerName,
+                        card = when (b.card) {
+                            "RED"         -> CardType.RED
+                            "YELLOW_RED"  -> CardType.YELLOW_RED
+                            else          -> CardType.YELLOW
+                        }
+                    )
+                },
+                substitutions = dto.substitutions.orEmpty().mapNotNull { s ->
+                    val minute = s.minute ?: return@mapNotNull null
+                    val playerOutName = s.playerOut?.name ?: return@mapNotNull null
+                    val playerInName = s.playerIn?.name ?: return@mapNotNull null
+                    SubstitutionEvent(
+                        minute = minute,
+                        teamId = s.team?.id,
+                        playerOutName = playerOutName,
+                        playerInName = playerInName
+                    )
+                },
+                lineups = dto.lineup.orEmpty().mapNotNull { l ->
+                    val teamId = l.id ?: return@mapNotNull null
+                    val teamName = l.name ?: return@mapNotNull null
+                    TeamLineup(
+                        teamId = teamId,
+                        teamName = teamName,
+                        formation = l.formation,
+                        startingEleven = l.startXI.orEmpty().mapNotNull { p ->
+                            val name = p.player?.name ?: return@mapNotNull null
+                            LineupPlayer(name = name, position = p.position, shirtNumber = p.shirtNumber)
+                        },
+                        bench = l.bench.orEmpty().mapNotNull { p ->
+                            val name = p.player?.name ?: return@mapNotNull null
+                            LineupPlayer(name = name, position = p.position, shirtNumber = p.shirtNumber)
+                        }
+                    )
+                }
+            )
+        }
     }
 
     override suspend fun getTeamMatches(

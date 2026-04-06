@@ -18,6 +18,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.wbjang.footballdiary.ui.main.schedule.MatchDetailScreen
+import com.wbjang.footballdiary.ui.main.schedule.MatchDetailViewModel
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,23 +60,55 @@ enum class BottomNavItem(
     )
 }
 
+private const val ROUTE_MATCH_DETAIL = "matchDetail"
+
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
     val tabNavController = rememberNavController()
+    val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val showBottomBar = currentRoute != ROUTE_MATCH_DETAIL
+
+    val selectedMatch by viewModel.selectedMatch.collectAsStateWithLifecycle()
+    val followingTeamId by viewModel.followingTeamId.collectAsStateWithLifecycle(initialValue = null)
 
     Scaffold(
         modifier = Modifier.statusBarsPadding(),
         contentWindowInsets = WindowInsets(0),
-        bottomBar = { BottomNavigationBar(navController = tabNavController) }
+        bottomBar = {
+            if (showBottomBar) BottomNavigationBar(navController = tabNavController)
+        }
     ) { paddingValues ->
         NavHost(
             navController = tabNavController,
             startDestination = BottomNavItem.Schedule.route,
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable(BottomNavItem.Schedule.route) { ScheduleScreen() }
+            composable(BottomNavItem.Schedule.route) {
+                ScheduleScreen(
+                    onMatchClick = { match ->
+                        viewModel.selectMatch(match)
+                        tabNavController.navigate(ROUTE_MATCH_DETAIL)
+                    }
+                )
+            }
             composable(BottomNavItem.Diary.route) { DiaryScreen() }
             composable(BottomNavItem.Settings.route) { SettingsScreen() }
+            composable(ROUTE_MATCH_DETAIL) {
+                val detailViewModel: MatchDetailViewModel = hiltViewModel()
+                selectedMatch?.let { match ->
+                    LaunchedEffect(match.id) {
+                        detailViewModel.loadMatchDetail(match.id)
+                    }
+                    MatchDetailScreen(
+                        match = match,
+                        followingTeamId = followingTeamId,
+                        onBack = { tabNavController.popBackStack() },
+                        onWriteReview = { /* TODO: 소감 작성 화면 */ },
+                        viewModel = detailViewModel
+                    )
+                }
+            }
         }
     }
 }
