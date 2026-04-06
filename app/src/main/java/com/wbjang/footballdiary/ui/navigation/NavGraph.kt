@@ -1,6 +1,8 @@
 package com.wbjang.footballdiary.ui.navigation
 
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,7 +16,8 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = startDestination,
+        modifier = Modifier.navigationBarsPadding()
     ) {
         composable(Screen.Onboarding.route) {
             OnboardingScreen(
