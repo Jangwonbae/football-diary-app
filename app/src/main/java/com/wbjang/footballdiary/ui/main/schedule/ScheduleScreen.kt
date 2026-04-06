@@ -47,8 +47,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.annotation.DimenRes
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -175,7 +178,7 @@ private fun TeamHeader(teamName: String, teamCrestUrl: String) {
             model = teamCrestUrl,
             contentDescription = teamName,
             modifier = Modifier
-                .size(48.dp)
+                .size(dimensionResource(R.dimen.emblem_schedule_header))
                 .clip(CircleShape)
         )
         Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_medium)))
@@ -212,8 +215,8 @@ private fun ViewModeToggle(
                 onClick = { if (isCalendarMode) onCalendarReClick() else onToggle() },
                 shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
             ) {
-                Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(4.dp))
+                Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(dimensionResource(R.dimen.icon_toggle_button)))
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_xsmall)))
 //                Text(stringResource(R.string.tab_schedule_calendar))
             }
             SegmentedButton(
@@ -221,8 +224,8 @@ private fun ViewModeToggle(
                 onClick = { if (!isCalendarMode) onListReClick() else onToggle() },
                 shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
             ) {
-                Icon(Icons.Default.List, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(4.dp))
+                Icon(Icons.Default.List, contentDescription = null, modifier = Modifier.size(dimensionResource(R.dimen.icon_toggle_button)))
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_xsmall)))
 //                Text(stringResource(R.string.tab_schedule_list))
             }
         }
@@ -284,7 +287,7 @@ private fun CalendarView(
             }
         }
 
-        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+        HorizontalDivider(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.calendar_divider_padding)))
 
         // 날짜 그리드
         val daysInMonth = yearMonth.lengthOfMonth()
@@ -330,13 +333,13 @@ private fun CalendarDayCell(
     Column(
         modifier = modifier
             .aspectRatio(0.8f)
-            .padding(2.dp),
+            .padding(dimensionResource(R.dimen.calendar_day_cell_padding)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // 날짜 숫자
         Box(
             modifier = Modifier
-                .size(26.dp)
+                .size(dimensionResource(R.dimen.calendar_day_number_size))
                 .then(
                     if (isToday) Modifier.background(MaterialTheme.colorScheme.primary, CircleShape)
                     else Modifier
@@ -360,26 +363,26 @@ private fun CalendarDayCell(
         if (matches.isNotEmpty()) {
             val match = matches.first()
             Row(
-                modifier = Modifier.padding(top = 2.dp),
+                modifier = Modifier.padding(top = dimensionResource(R.dimen.calendar_crest_top_padding)),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AsyncImage(
                     model = match.homeTeam.crestUrl,
                     contentDescription = null,
-                    modifier = Modifier.size(14.dp)
+                    modifier = Modifier.size(dimensionResource(R.dimen.emblem_calendar_crest))
                 )
                 Text(
                     text = "v",
                     style = MaterialTheme.typography.labelSmall,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7,
-                    modifier = Modifier.padding(horizontal = 1.dp),
+                    modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.calendar_crest_vs_padding)),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 AsyncImage(
                     model = match.awayTeam.crestUrl,
                     contentDescription = null,
-                    modifier = Modifier.size(14.dp)
+                    modifier = Modifier.size(dimensionResource(R.dimen.emblem_calendar_crest))
                 )
             }
             // 종료된 경기 결과 뱃지
@@ -457,13 +460,13 @@ private fun MatchListCard(match: Match, followingTeamId: Int?, isUpcoming: Boole
     }
 
     val borderMod = if (isUpcoming) {
-        Modifier.border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
+        Modifier.border(dimensionResource(R.dimen.match_card_border_width), MaterialTheme.colorScheme.primary, RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
     } else Modifier
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = dimensionResource(R.dimen.padding_medium), vertical = 4.dp)
+            .padding(horizontal = dimensionResource(R.dimen.padding_medium), vertical = dimensionResource(R.dimen.match_card_vertical_padding))
             .then(borderMod),
         shape = RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)),
         colors = CardDefaults.cardColors(
@@ -565,13 +568,13 @@ private fun MatchResultBadge(
         MatchResult.LOSS -> MaterialTheme.colorScheme.error // 빨강
         MatchResult.DRAW -> Color(0xFF757575) // 회색
     }
-    val horizontalPad = if (compact) 3.dp else 8.dp
-    val verticalPad   = if (compact) 1.dp else 4.dp
-    val fontSize      = if (compact) 11.sp else 14.sp
+    val horizontalPad = dimensionResource(if (compact) R.dimen.badge_horizontal_padding_compact else R.dimen.badge_horizontal_padding)
+    val verticalPad   = dimensionResource(if (compact) R.dimen.badge_vertical_padding_compact else R.dimen.badge_vertical_padding)
+    val fontSize      = textSizeResource(if (compact) R.dimen.text_size_badge_compact else R.dimen.text_size_badge)
 
     Box(
         modifier = Modifier
-            .background(bgColor, RoundedCornerShape(4.dp))
+            .background(bgColor, RoundedCornerShape(dimensionResource(R.dimen.badge_corner_radius)))
             .padding(horizontal = horizontalPad, vertical = verticalPad),
         contentAlignment = Alignment.Center
     ) {
@@ -595,9 +598,9 @@ private fun TeamBlock(crestUrl: String, shortName: String, modifier: Modifier = 
         AsyncImage(
             model = crestUrl,
             contentDescription = shortName,
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(dimensionResource(R.dimen.emblem_match_card))
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.match_card_team_spacer)))
         Text(
             text = shortName,
             style = MaterialTheme.typography.labelMedium,
@@ -605,6 +608,12 @@ private fun TeamBlock(crestUrl: String, shortName: String, modifier: Modifier = 
             maxLines = 1
         )
     }
+}
+
+@Composable
+private fun textSizeResource(@DimenRes id: Int): TextUnit {
+    val sizePx = LocalContext.current.resources.getDimension(id)
+    return with(LocalDensity.current) { sizePx.toSp() }
 }
 
 // Previews
