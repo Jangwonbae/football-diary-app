@@ -75,6 +75,10 @@ class ScheduleViewModel @Inject constructor(
         _uiState.update { it.copy(isCalendarMode = !it.isCalendarMode) }
     }
 
+    fun resetToCurrentMonth() {
+        _uiState.update { it.copy(currentYearMonth = YearMonth.now()) }
+    }
+
     fun goToPreviousMonth() {
         _uiState.update { it.copy(currentYearMonth = it.currentYearMonth.minusMonths(1)) }
     }

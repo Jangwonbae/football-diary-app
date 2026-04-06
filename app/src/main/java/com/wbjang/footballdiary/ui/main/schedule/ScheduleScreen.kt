@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -38,20 +39,32 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.wbjang.footballdiary.R
 import com.wbjang.footballdiary.domain.model.Match
+import com.wbjang.footballdiary.domain.model.MatchResult
 import com.wbjang.footballdiary.domain.model.MatchStatus
+import com.wbjang.footballdiary.domain.model.MatchTeam
+import com.wbjang.footballdiary.domain.model.resultFor
+import com.wbjang.footballdiary.ui.theme.FootballDiaryTheme
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -62,6 +75,34 @@ import java.util.Locale
 @Composable
 fun ScheduleScreen(viewModel: ScheduleViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // 뷰 전환과 무관하게 리스트 상태 유지
+    val listState = rememberLazyListState()
+    var hasScrolledToUpcoming by remember { mutableStateOf(false) }
+    // 재클릭 시 다음 경기로 스크롤 트리거 (값이 바뀔 때마다 스크롤 실행)
+    var scrollTrigger by remember { mutableIntStateOf(0) }
+
+    val today = LocalDate.now()
+    val upcomingIndex = remember(uiState.matches) {
+        uiState.matches.indexOfFirst { match ->
+            match.localDate() >= today && (match.isUpcoming() || match.isLive())
+        }.takeIf { it != -1 } ?: 0
+    }
+
+    // 경기 목록이 처음 로드될 때 한 번만 다음 경기로 스크롤
+    LaunchedEffect(uiState.matches.isNotEmpty()) {
+        if (uiState.matches.isNotEmpty() && !hasScrolledToUpcoming) {
+            listState.animateScrollToItem((upcomingIndex - 1).coerceAtLeast(0))
+            hasScrolledToUpcoming = true
+        }
+    }
+
+    // 리스트 버튼 재클릭 시 다음 경기로 스크롤
+    LaunchedEffect(scrollTrigger) {
+        if (scrollTrigger > 0) {
+            listState.animateScrollToItem((upcomingIndex - 1).coerceAtLeast(0))
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // 팀 헤더
@@ -75,7 +116,9 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = hiltViewModel()) {
         // 뷰 모드 토글
         ViewModeToggle(
             isCalendarMode = uiState.isCalendarMode,
-            onToggle = { viewModel.toggleViewMode() }
+            onToggle = { viewModel.toggleViewMode() },
+            onCalendarReClick = { viewModel.resetToCurrentMonth() },
+            onListReClick = { scrollTrigger++ }
         )
 
         // 콘텐츠
@@ -97,12 +140,18 @@ fun ScheduleScreen(viewModel: ScheduleViewModel = hiltViewModel()) {
                 CalendarView(
                     yearMonth = uiState.currentYearMonth,
                     matches = uiState.matches,
+                    followingTeamId = uiState.followingTeamId,
                     onPreviousMonth = { viewModel.goToPreviousMonth() },
                     onNextMonth = { viewModel.goToNextMonth() }
                 )
             }
             else -> {
-                MatchListView(matches = uiState.matches)
+                MatchListView(
+                    matches = uiState.matches,
+                    followingTeamId = uiState.followingTeamId,
+                    listState = listState,
+                    upcomingIndex = upcomingIndex
+                )
             }
         }
     }
@@ -142,7 +191,12 @@ private fun TeamHeader(teamName: String, teamCrestUrl: String) {
 // 뷰 모드 토글
 // ──────────────────────────────────────────────
 @Composable
-private fun ViewModeToggle(isCalendarMode: Boolean, onToggle: () -> Unit) {
+private fun ViewModeToggle(
+    isCalendarMode: Boolean,
+    onToggle: () -> Unit,
+    onCalendarReClick: () -> Unit,
+    onListReClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -155,21 +209,21 @@ private fun ViewModeToggle(isCalendarMode: Boolean, onToggle: () -> Unit) {
         SingleChoiceSegmentedButtonRow {
             SegmentedButton(
                 selected = isCalendarMode,
-                onClick = { if (!isCalendarMode) onToggle() },
+                onClick = { if (isCalendarMode) onCalendarReClick() else onToggle() },
                 shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
             ) {
                 Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(stringResource(R.string.tab_schedule_calendar))
+//                Text(stringResource(R.string.tab_schedule_calendar))
             }
             SegmentedButton(
                 selected = !isCalendarMode,
-                onClick = { if (isCalendarMode) onToggle() },
+                onClick = { if (!isCalendarMode) onListReClick() else onToggle() },
                 shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
             ) {
                 Icon(Icons.Default.List, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(stringResource(R.string.tab_schedule_list))
+//                Text(stringResource(R.string.tab_schedule_list))
             }
         }
     }
@@ -182,6 +236,7 @@ private fun ViewModeToggle(isCalendarMode: Boolean, onToggle: () -> Unit) {
 private fun CalendarView(
     yearMonth: YearMonth,
     matches: List<Match>,
+    followingTeamId: Int?,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit
 ) {
@@ -252,6 +307,7 @@ private fun CalendarView(
                             isPast = date < today,
                             dayOfWeek = date.dayOfWeek,
                             matches = matchesByDate[date] ?: emptyList(),
+                            followingTeamId = followingTeamId,
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -268,6 +324,7 @@ private fun CalendarDayCell(
     isPast: Boolean,
     dayOfWeek: DayOfWeek,
     matches: List<Match>,
+    followingTeamId: Int?,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -325,6 +382,16 @@ private fun CalendarDayCell(
                     modifier = Modifier.size(14.dp)
                 )
             }
+            // 종료된 경기 결과 뱃지
+            val result = followingTeamId?.let { match.resultFor(it) }
+            if (result != null && match.homeScore != null && match.awayScore != null) {
+                MatchResultBadge(
+                    homeScore = match.homeScore,
+                    awayScore = match.awayScore,
+                    result = result,
+                    compact = true
+                )
+            }
             // 2경기 이상이면 +N 표시
             if (matches.size > 1) {
                 Text(
@@ -342,22 +409,12 @@ private fun CalendarDayCell(
 // 리스트 뷰
 // ──────────────────────────────────────────────
 @Composable
-private fun MatchListView(matches: List<Match>) {
-    val today = LocalDate.now()
-
-    // 다가오는 가장 빠른 경기 인덱스
-    val upcomingIndex = matches.indexOfFirst { match ->
-        match.localDate() >= today && (match.isUpcoming() || match.isLive())
-    }.takeIf { it != -1 } ?: 0
-
-    val listState = rememberLazyListState()
-
-    LaunchedEffect(upcomingIndex) {
-        if (upcomingIndex > 0) {
-            listState.animateScrollToItem((upcomingIndex - 1).coerceAtLeast(0))
-        }
-    }
-
+private fun MatchListView(
+    matches: List<Match>,
+    followingTeamId: Int?,
+    listState: LazyListState,
+    upcomingIndex: Int
+) {
     if (matches.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
@@ -375,6 +432,7 @@ private fun MatchListView(matches: List<Match>) {
         itemsIndexed(matches) { index, match ->
             MatchListCard(
                 match = match,
+                followingTeamId = followingTeamId,
                 isUpcoming = index == upcomingIndex
             )
         }
@@ -383,12 +441,14 @@ private fun MatchListView(matches: List<Match>) {
 }
 
 @Composable
-private fun MatchListCard(match: Match, isUpcoming: Boolean) {
+private fun MatchListCard(match: Match, followingTeamId: Int?, isUpcoming: Boolean) {
     val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E) HH:mm", Locale.KOREAN)
     val formattedDate = match.localDateTime().format(dateFormatter)
 
+    val matchResult = followingTeamId?.let { match.resultFor(it) }
+
     val statusLabel = when (match.status) {
-        MatchStatus.FINISHED   -> if (match.homeScore != null) "${match.homeScore} - ${match.awayScore}" else "종료"
+        MatchStatus.FINISHED   -> null  // 뱃지로 표시
         MatchStatus.IN_PLAY    -> "진행중"
         MatchStatus.PAUSED     -> "휴식"
         MatchStatus.POSTPONED  -> "연기"
@@ -454,17 +514,30 @@ private fun MatchListCard(match: Match, isUpcoming: Boolean) {
                     modifier = Modifier.weight(1f)
                 )
 
-                // 스코어 또는 VS
-                Text(
-                    text = statusLabel,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
+                // 스코어 뱃지 또는 상태 텍스트
+                Box(
                     modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)),
-                    color = when (match.status) {
-                        MatchStatus.IN_PLAY -> MaterialTheme.colorScheme.error
-                        else -> MaterialTheme.colorScheme.onSurface
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (matchResult != null && match.homeScore != null && match.awayScore != null) {
+                        MatchResultBadge(
+                            homeScore = match.homeScore,
+                            awayScore = match.awayScore,
+                            result = matchResult,
+                            compact = false
+                        )
+                    } else {
+                        Text(
+                            text = statusLabel ?: "",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = when (match.status) {
+                                MatchStatus.IN_PLAY -> MaterialTheme.colorScheme.error
+                                else -> MaterialTheme.colorScheme.onSurface
+                            }
+                        )
                     }
-                )
+                }
 
                 // 원정 팀
                 TeamBlock(
@@ -474,6 +547,41 @@ private fun MatchListCard(match: Match, isUpcoming: Boolean) {
                 )
             }
         }
+    }
+}
+
+// ──────────────────────────────────────────────
+// 승/패/무 결과 뱃지
+// ──────────────────────────────────────────────
+@Composable
+private fun MatchResultBadge(
+    homeScore: Int,
+    awayScore: Int,
+    result: MatchResult,
+    compact: Boolean
+) {
+    val bgColor = when (result) {
+        MatchResult.WIN  -> Color(0xFF43A047) // 초록
+        MatchResult.LOSS -> MaterialTheme.colorScheme.error // 빨강
+        MatchResult.DRAW -> Color(0xFF757575) // 회색
+    }
+    val horizontalPad = if (compact) 3.dp else 8.dp
+    val verticalPad   = if (compact) 1.dp else 4.dp
+    val fontSize      = if (compact) 11.sp else 14.sp
+
+    Box(
+        modifier = Modifier
+            .background(bgColor, RoundedCornerShape(4.dp))
+            .padding(horizontal = horizontalPad, vertical = verticalPad),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "$homeScore - $awayScore",
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = fontSize,
+            lineHeight = if (compact) fontSize else TextUnit.Unspecified
+        )
     }
 }
 
@@ -495,6 +603,58 @@ private fun TeamBlock(crestUrl: String, shortName: String, modifier: Modifier = 
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
             maxLines = 1
+        )
+    }
+}
+
+// Previews
+@Preview(showBackground = true)
+@Composable
+private fun PreviewTeamHeader() {
+    FootballDiaryTheme {
+        TeamHeader(teamName = "아스널 FC", teamCrestUrl = "")
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewViewModeToggle() {
+    FootballDiaryTheme {
+        ViewModeToggle(isCalendarMode = true, onToggle = {}, onCalendarReClick = {}, onListReClick = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewMatchListCard() {
+    FootballDiaryTheme {
+        MatchListCard(
+            match = Match(
+                id = 1,
+                utcDate = "2026-04-10T15:00:00Z",
+                status = MatchStatus.FINISHED,
+                matchday = 32,
+                homeTeam = MatchTeam(1, "Arsenal FC", "Arsenal", ""),
+                awayTeam = MatchTeam(2, "Chelsea FC", "Chelsea", ""),
+                homeScore = 2,
+                awayScore = 1
+            ),
+            followingTeamId = 1,
+            isUpcoming = false
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewCalendarView() {
+    FootballDiaryTheme {
+        CalendarView(
+            yearMonth = YearMonth.now(),
+            matches = emptyList(),
+            followingTeamId = 1,
+            onPreviousMonth = {},
+            onNextMonth = {}
         )
     }
 }

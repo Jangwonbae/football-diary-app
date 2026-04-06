@@ -33,6 +33,27 @@ data class MatchTeam(
     val crestUrl: String
 )
 
+enum class MatchResult { WIN, LOSS, DRAW }
+
+fun Match.resultFor(teamId: Int): MatchResult? {
+    if (!isFinished()) return null
+    val home = homeScore ?: return null
+    val away = awayScore ?: return null
+    return when {
+        homeTeam.id == teamId -> when {
+            home > away -> MatchResult.WIN
+            home < away -> MatchResult.LOSS
+            else        -> MatchResult.DRAW
+        }
+        awayTeam.id == teamId -> when {
+            away > home -> MatchResult.WIN
+            away < home -> MatchResult.LOSS
+            else        -> MatchResult.DRAW
+        }
+        else -> null
+    }
+}
+
 enum class MatchStatus {
     SCHEDULED, TIMED, IN_PLAY, PAUSED, FINISHED,
     SUSPENDED, POSTPONED, CANCELLED, AWARDED;
