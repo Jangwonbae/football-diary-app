@@ -1,5 +1,6 @@
 package com.wbjang.footballdiary.ui.main.schedule
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -71,6 +72,7 @@ fun MatchDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val detail = uiState.matchDetail
+    val sampleSections = uiState.sampleSections
     val matchResult = followingTeamId?.let { match.resultFor(it) }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -104,7 +106,8 @@ fun MatchDetailScreen(
                 match = match,
                 matchResult = matchResult,
                 venue = detail?.venue,
-                attendance = detail?.attendance
+                attendance = detail?.attendance,
+                isVenueSample = SampleSection.VENUE in sampleSections
             )
 
             // 소감 섹션
@@ -117,12 +120,18 @@ fun MatchDetailScreen(
                 }
             } else {
                 // 라인업
-                DetailSection(title = stringResource(R.string.match_detail_section_lineup)) {
+                DetailSection(
+                    title = stringResource(R.string.match_detail_section_lineup),
+                    isSample = SampleSection.LINEUP in sampleSections
+                ) {
                     LineupContent(lineups = detail?.lineups.orEmpty(), match = match)
                 }
 
                 // 타임라인
-                DetailSection(title = stringResource(R.string.match_detail_section_timeline)) {
+                DetailSection(
+                    title = stringResource(R.string.match_detail_section_timeline),
+                    isSample = SampleSection.TIMELINE in sampleSections
+                ) {
                     TimelineContent(
                         goals = detail?.goals.orEmpty(),
                         bookings = detail?.bookings.orEmpty(),
@@ -132,8 +141,11 @@ fun MatchDetailScreen(
                 }
 
                 // 경기 통계
-                DetailSection(title = stringResource(R.string.match_detail_section_statistics)) {
-                    StatisticsContent()
+                DetailSection(
+                    title = stringResource(R.string.match_detail_section_statistics),
+                    isSample = SampleSection.STATISTICS in sampleSections
+                ) {
+                    StatisticsContent(match = match)
                 }
             }
 
@@ -150,7 +162,8 @@ private fun MatchSummaryCard(
     match: Match,
     matchResult: MatchResult?,
     venue: String?,
-    attendance: Int?
+    attendance: Int?,
+    isVenueSample: Boolean
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern(
         stringResource(R.string.date_format_match_detail), Locale.KOREAN
@@ -227,12 +240,22 @@ private fun MatchSummaryCard(
             }
             if (venueText != null) {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Text(
-                    text = venueText,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = venueText,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                    if (isVenueSample) {
+                        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_xsmall)))
+                        SampleBadge()
+                    }
+                }
             }
 
             // 결과 뱃지
@@ -369,13 +392,23 @@ private fun ReviewSection(onWriteReview: () -> Unit) {
 // 상세 섹션 공통 래퍼
 // ──────────────────────────────────────────────
 @Composable
-private fun DetailSection(title: String, content: @Composable () -> Unit) {
+private fun DetailSection(
+    title: String,
+    isSample: Boolean = false,
+    content: @Composable () -> Unit
+) {
     Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            if (isSample) {
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_xsmall)))
+                SampleBadge()
+            }
+        }
         Card(
             shape = RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -384,6 +417,27 @@ private fun DetailSection(title: String, content: @Composable () -> Unit) {
         ) {
             content()
         }
+    }
+}
+
+@Composable
+private fun SampleBadge() {
+    Box(
+        modifier = Modifier
+            .background(
+                MaterialTheme.colorScheme.secondaryContainer,
+                RoundedCornerShape(dimensionResource(R.dimen.badge_corner_radius))
+            )
+            .padding(
+                horizontal = dimensionResource(R.dimen.badge_horizontal_padding_compact),
+                vertical = dimensionResource(R.dimen.badge_vertical_padding_compact)
+            )
+    ) {
+        Text(
+            text = stringResource(R.string.match_detail_sample_badge),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
+        )
     }
 }
 
@@ -668,8 +722,98 @@ private fun SubstitutionRow(event: SubstitutionEvent, match: Match) {
 // 경기 통계
 // ──────────────────────────────────────────────
 @Composable
-private fun StatisticsContent() {
-    EmptyContent(message = stringResource(R.string.match_detail_no_statistics))
+private fun StatisticsContent(match: Match) {
+    Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))) {
+        // 팀 로고 헤더
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = match.homeTeam.crestUrl,
+                contentDescription = match.homeTeam.shortName,
+                modifier = Modifier.size(dimensionResource(R.dimen.emblem_match_detail_competition))
+            )
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_xsmall)))
+            Text(
+                text = match.homeTeam.shortName,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Start
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = match.awayTeam.shortName,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.End
+            )
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_xsmall)))
+            AsyncImage(
+                model = match.awayTeam.crestUrl,
+                contentDescription = match.awayTeam.shortName,
+                modifier = Modifier.size(dimensionResource(R.dimen.emblem_match_detail_competition))
+            )
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_small)),
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
+
+        // 통계 행
+        SampleMatchData.SAMPLE_STATISTICS.forEach { stat ->
+            StatRow(
+                label = stringResource(stat.type.labelRes()),
+                homeValue = stat.homeValue,
+                awayValue = stat.awayValue
+            )
+        }
+    }
+}
+
+@Composable
+private fun StatRow(label: String, homeValue: String, awayValue: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = dimensionResource(R.dimen.padding_xsmall)),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = homeValue,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.End
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(2f),
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = awayValue,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.Start
+        )
+    }
+}
+
+@StringRes
+private fun StatType.labelRes(): Int = when (this) {
+    StatType.POSSESSION      -> R.string.stat_possession
+    StatType.SHOTS           -> R.string.stat_shots
+    StatType.SHOTS_ON_TARGET -> R.string.stat_shots_on_target
+    StatType.YELLOW_CARDS    -> R.string.stat_yellow_cards
+    StatType.CORNER_KICKS    -> R.string.stat_corner_kicks
 }
 
 // ──────────────────────────────────────────────

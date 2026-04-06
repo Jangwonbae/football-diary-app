@@ -98,7 +98,7 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
                 val detailViewModel: MatchDetailViewModel = hiltViewModel()
                 selectedMatch?.let { match ->
                     LaunchedEffect(match.id) {
-                        detailViewModel.loadMatchDetail(match.id)
+                        detailViewModel.loadMatchDetail(match.id, match)
                     }
                     MatchDetailScreen(
                         match = match,

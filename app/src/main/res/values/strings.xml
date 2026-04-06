@@ -76,6 +76,7 @@
     <string name="match_detail_no_lineup">라인업 정보가 없습니다</string>
     <string name="match_detail_no_timeline">이벤트 정보가 없습니다</string>
     <string name="match_detail_no_statistics">이 API는 통계 정보를 제공하지 않습니다</string>
+    <string name="match_detail_sample_badge">샘플</string>
     <string name="match_detail_starting_eleven">선발</string>
     <string name="match_detail_bench">후보</string>
     <string name="match_detail_formation_format">포메이션: %s</string>
