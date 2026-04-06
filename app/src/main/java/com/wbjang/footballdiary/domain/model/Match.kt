@@ -10,6 +10,7 @@ data class Match(
     val utcDate: String,       // "2026-04-10T15:00:00Z"
     val status: MatchStatus,
     val matchday: Int?,
+    val competition: MatchCompetition?,
     val homeTeam: MatchTeam,
     val awayTeam: MatchTeam,
     val homeScore: Int?,
@@ -25,6 +26,12 @@ data class Match(
     fun isFinished(): Boolean = status == MatchStatus.FINISHED
     fun isLive(): Boolean = status == MatchStatus.IN_PLAY || status == MatchStatus.PAUSED
 }
+
+data class MatchCompetition(
+    val id: Int,
+    val name: String,
+    val emblemUrl: String?
+)
 
 data class MatchTeam(
     val id: Int,

@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -52,6 +51,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.annotation.DimenRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,6 +69,8 @@ import com.wbjang.footballdiary.domain.model.MatchStatus
 import com.wbjang.footballdiary.domain.model.MatchTeam
 import com.wbjang.footballdiary.domain.model.resultFor
 import com.wbjang.footballdiary.ui.theme.FootballDiaryTheme
+import com.wbjang.footballdiary.ui.theme.ResultDraw
+import com.wbjang.footballdiary.ui.theme.ResultWin
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -224,7 +227,7 @@ private fun ViewModeToggle(
                 onClick = { if (!isCalendarMode) onListReClick() else onToggle() },
                 shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
             ) {
-                Icon(Icons.Default.List, contentDescription = null, modifier = Modifier.size(dimensionResource(R.dimen.icon_toggle_button)))
+                Icon(Icons.AutoMirrored.Filled.List, contentDescription = null, modifier = Modifier.size(dimensionResource(R.dimen.icon_toggle_button)))
                 Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_xsmall)))
 //                Text(stringResource(R.string.tab_schedule_list))
             }
@@ -259,7 +262,7 @@ private fun CalendarView(
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
             }
             Text(
-                text = yearMonth.format(DateTimeFormatter.ofPattern("yyyy년 M월")),
+                text = yearMonth.format(DateTimeFormatter.ofPattern(stringResource(R.string.date_format_year_month))),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -373,7 +376,7 @@ private fun CalendarDayCell(
                     modifier = Modifier.size(dimensionResource(R.dimen.emblem_calendar_crest))
                 )
                 Text(
-                    text = "v",
+                    text = stringResource(R.string.match_vs_separator),
                     style = MaterialTheme.typography.labelSmall,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7,
                     modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.calendar_crest_vs_padding)),
@@ -445,18 +448,19 @@ private fun MatchListView(
 
 @Composable
 private fun MatchListCard(match: Match, followingTeamId: Int?, isUpcoming: Boolean) {
-    val dateFormatter = DateTimeFormatter.ofPattern("M월 d일 (E) HH:mm", Locale.KOREAN)
+    val dateFormatStr = stringResource(R.string.date_format_match_datetime)
+    val dateFormatter = DateTimeFormatter.ofPattern(dateFormatStr, Locale.KOREAN)
     val formattedDate = match.localDateTime().format(dateFormatter)
 
     val matchResult = followingTeamId?.let { match.resultFor(it) }
 
     val statusLabel = when (match.status) {
         MatchStatus.FINISHED   -> null  // 뱃지로 표시
-        MatchStatus.IN_PLAY    -> "진행중"
-        MatchStatus.PAUSED     -> "휴식"
-        MatchStatus.POSTPONED  -> "연기"
-        MatchStatus.CANCELLED  -> "취소"
-        else                   -> "VS"
+        MatchStatus.IN_PLAY    -> stringResource(R.string.match_status_in_play)
+        MatchStatus.PAUSED     -> stringResource(R.string.match_status_paused)
+        MatchStatus.POSTPONED  -> stringResource(R.string.match_status_postponed)
+        MatchStatus.CANCELLED  -> stringResource(R.string.match_status_cancelled)
+        else                   -> stringResource(R.string.match_status_vs)
     }
 
     val borderMod = if (isUpcoming) {
@@ -517,11 +521,20 @@ private fun MatchListCard(match: Match, followingTeamId: Int?, isUpcoming: Boole
                     modifier = Modifier.weight(1f)
                 )
 
-                // 스코어 뱃지 또는 상태 텍스트
-                Box(
+                // 대회 아이콘 + 스코어 뱃지 또는 상태 텍스트
+                Column(
                     modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)),
-                    contentAlignment = Alignment.Center
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
+                    match.competition?.emblemUrl?.let { url ->
+                        AsyncImage(
+                            model = url,
+                            contentDescription = match.competition.name,
+                            modifier = Modifier.size(dimensionResource(R.dimen.emblem_competition))
+                        )
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_xsmall)))
+                    }
                     if (matchResult != null && match.homeScore != null && match.awayScore != null) {
                         MatchResultBadge(
                             homeScore = match.homeScore,
@@ -564,9 +577,9 @@ private fun MatchResultBadge(
     compact: Boolean
 ) {
     val bgColor = when (result) {
-        MatchResult.WIN  -> Color(0xFF43A047) // 초록
-        MatchResult.LOSS -> MaterialTheme.colorScheme.error // 빨강
-        MatchResult.DRAW -> Color(0xFF757575) // 회색
+        MatchResult.WIN  -> ResultWin
+        MatchResult.LOSS -> MaterialTheme.colorScheme.error
+        MatchResult.DRAW -> ResultDraw
     }
     val horizontalPad = dimensionResource(if (compact) R.dimen.badge_horizontal_padding_compact else R.dimen.badge_horizontal_padding)
     val verticalPad   = dimensionResource(if (compact) R.dimen.badge_vertical_padding_compact else R.dimen.badge_vertical_padding)
@@ -643,6 +656,7 @@ private fun PreviewMatchListCard() {
                 utcDate = "2026-04-10T15:00:00Z",
                 status = MatchStatus.FINISHED,
                 matchday = 32,
+                competition = null,
                 homeTeam = MatchTeam(1, "Arsenal FC", "Arsenal", ""),
                 awayTeam = MatchTeam(2, "Chelsea FC", "Chelsea", ""),
                 homeScore = 2,

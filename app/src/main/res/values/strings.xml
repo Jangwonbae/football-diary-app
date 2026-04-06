@@ -45,4 +45,16 @@
     <string name="tab_schedule_list">목록</string>
     <string name="schedule_no_matches">예정된 경기가 없습니다</string>
     <string name="schedule_next_match">다음 경기</string>
+
+    <!-- 경기 상태 -->
+    <string name="match_status_in_play">진행중</string>
+    <string name="match_status_paused">휴식</string>
+    <string name="match_status_postponed">연기</string>
+    <string name="match_status_cancelled">취소</string>
+    <string name="match_status_vs">VS</string>
+    <string name="match_vs_separator">v</string>
+
+    <!-- 날짜 포맷 -->
+    <string name="date_format_year_month">yyyy년 M월</string>
+    <string name="date_format_match_datetime">M월 d일 (E) HH:mm</string>
 </resources>

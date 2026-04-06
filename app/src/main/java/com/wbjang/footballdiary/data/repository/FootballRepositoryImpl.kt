@@ -3,6 +3,7 @@ package com.wbjang.footballdiary.data.repository
 import com.wbjang.footballdiary.data.api.FootballApiService
 import com.wbjang.footballdiary.data.datastore.UserPreferencesDataStore
 import com.wbjang.footballdiary.domain.model.Match
+import com.wbjang.footballdiary.domain.model.MatchCompetition
 import com.wbjang.footballdiary.domain.model.MatchStatus
 import com.wbjang.footballdiary.domain.model.MatchTeam
 import com.wbjang.footballdiary.domain.model.Team
@@ -52,6 +53,9 @@ class FootballRepositoryImpl @Inject constructor(
                         utcDate = dto.utcDate,
                         status = MatchStatus.from(dto.status),
                         matchday = dto.matchday,
+                        competition = dto.competition?.let {
+                            MatchCompetition(id = it.id, name = it.name, emblemUrl = it.emblem)
+                        },
                         homeTeam = MatchTeam(
                             id = dto.homeTeam.id,
                             name = dto.homeTeam.name,

@@ -19,6 +19,7 @@
     <dimen name="emblem_schedule_header">48dp</dimen>
     <dimen name="emblem_match_card">40dp</dimen>
     <dimen name="emblem_calendar_crest">14dp</dimen>
+    <dimen name="emblem_competition">30dp</dimen>
 
     <!-- 카드 -->
     <dimen name="card_corner_radius">12dp</dimen>

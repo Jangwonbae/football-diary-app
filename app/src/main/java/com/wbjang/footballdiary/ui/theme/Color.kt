@@ -36,6 +36,10 @@ val GreyVariant50 = Color(0xFF72787E)
 val GreyVariant80 = Color(0xFFC2C7CF)
 val GreyVariant90 = Color(0xFFDFE2EB)
 
+// ── 경기 결과 뱃지 ──────────────────────────────────────────
+val ResultWin  = Color(0xFF43A047) // 승리 - 초록
+val ResultDraw = Color(0xFF757575) // 무승부 - 회색
+
 // ── 밤 테마 (추후 설정) ──────────────────────────────────────
 val DarkBlue20  = Color(0xFF003258)
 val DarkBlue80  = Color(0xFF9ECAFF)
