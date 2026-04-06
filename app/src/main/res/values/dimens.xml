@@ -39,4 +39,7 @@
     <!-- 온보딩 -->
     <dimen name="onboarding_logo_size">80dp</dimen>
     <dimen name="onboarding_header_height">200dp</dimen>
+
+    <!-- 하단 네비게이션 바 -->
+    <dimen name="bottom_nav_height">60dp</dimen>
 </resources>
