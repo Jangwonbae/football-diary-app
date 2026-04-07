@@ -455,68 +455,29 @@ private fun ReviewSection(
                 }
             } else {
                 // 소감 표시
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(dimensionResource(R.dimen.padding_medium)),
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
-                ) {
-                    // 별점 + ... 메뉴
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                var showMenu by remember { mutableStateOf(false) }
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(dimensionResource(R.dimen.padding_medium)),
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
                     ) {
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            horizontalArrangement = Arrangement.spacedBy(
-                                dimensionResource(R.dimen.match_detail_review_star_gap)
+                    // 별점
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(
+                            dimensionResource(R.dimen.match_detail_review_star_gap)
+                        )
+                    ) {
+                        for (star in 1..5) {
+                            Icon(
+                                imageVector = if (star <= review.rating) Icons.Filled.Star
+                                else Icons.Outlined.StarOutline,
+                                contentDescription = null,
+                                tint = if (star <= review.rating) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(dimensionResource(R.dimen.match_detail_review_star_size))
                             )
-                        ) {
-                            for (star in 1..5) {
-                                Icon(
-                                    imageVector = if (star <= review.rating) Icons.Filled.Star
-                                    else Icons.Outlined.StarOutline,
-                                    contentDescription = null,
-                                    tint = if (star <= review.rating) MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(dimensionResource(R.dimen.match_detail_review_star_size))
-                                )
-                            }
-                        }
-
-                        // ... 드롭다운 메뉴
-                        var showMenu by remember { mutableStateOf(false) }
-                        Box {
-                            IconButton(onClick = { showMenu = true }) {
-                                Icon(
-                                    imageVector = Icons.Default.MoreVert,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            DropdownMenu(
-                                expanded = showMenu,
-                                onDismissRequest = { showMenu = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            text = stringResource(R.string.match_detail_delete_review),
-                                            color = MaterialTheme.colorScheme.error
-                                        )
-                                    },
-                                    onClick = {
-                                        showMenu = false
-                                        onDeleteReview()
-                                    },
-                                    contentPadding = PaddingValues(
-                                        start = dimensionResource(R.dimen.padding_medium),
-                                        end = dimensionResource(R.dimen.padding_small),
-                                        top = dimensionResource(R.dimen.padding_small),
-                                        bottom = dimensionResource(R.dimen.padding_small)
-                                    )
-                                )
-                            }
                         }
                     }
 
@@ -547,6 +508,41 @@ private fun ReviewSection(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                }
+
+                    // ... 드롭다운 메뉴 (우측 상단)
+                    Box(modifier = Modifier.align(Alignment.TopEnd)) {
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = stringResource(R.string.match_detail_delete_review),
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                },
+                                onClick = {
+                                    showMenu = false
+                                    onDeleteReview()
+                                },
+                                contentPadding = PaddingValues(
+                                    start = dimensionResource(R.dimen.padding_medium),
+                                    end = dimensionResource(R.dimen.padding_small),
+                                    top = dimensionResource(R.dimen.padding_small),
+                                    bottom = dimensionResource(R.dimen.padding_small)
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }
