@@ -113,8 +113,10 @@
     <!-- 다이어리 화면 -->
     <string name="diary_empty_title">작성된 소감이 없습니다</string>
     <string name="diary_empty_subtitle">경기를 관람한 후 소감을 남겨보세요</string>
-    <string name="diary_sort_match_date">경기일정순</string>
-    <string name="diary_sort_written_date">작성일순</string>
+    <string name="diary_sort_field_match_date">경기일</string>
+    <string name="diary_sort_field_written_date">작성일</string>
+    <string name="diary_sort_dir_desc">최신순</string>
+    <string name="diary_sort_dir_asc">오래된순</string>
     <string name="diary_season_all">전체</string>
 
     <!-- 소감 작성 화면 -->

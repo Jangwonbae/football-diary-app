@@ -12,14 +12,16 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
-enum class ReviewSortOrder { MATCH_DATE, WRITTEN_DATE }
+enum class ReviewSortField { MATCH_DATE, WRITTEN_DATE }
+enum class ReviewSortDirection { DESC, ASC }
 
 @HiltViewModel
 class DiaryViewModel @Inject constructor(
     repository: FootballRepository
 ) : ViewModel() {
 
-    val sortOrder = MutableStateFlow(ReviewSortOrder.MATCH_DATE)
+    val sortField = MutableStateFlow(ReviewSortField.MATCH_DATE)
+    val sortDirection = MutableStateFlow(ReviewSortDirection.DESC)
     val selectedSeason = MutableStateFlow<String?>(null) // null = 전체
 
     val followingTeamId: StateFlow<Int?> = repository.getFollowingTeamId()
@@ -45,17 +47,18 @@ class DiaryViewModel @Inject constructor(
         .combine(selectedSeason) { list, season ->
             if (season == null) list else list.filter { it.seasonLabel == season }
         }
-        .combine(sortOrder) { list, order ->
-            when (order) {
-                ReviewSortOrder.MATCH_DATE   -> list.sortedByDescending { it.utcDate }
-                ReviewSortOrder.WRITTEN_DATE -> list.sortedByDescending { it.createdAt }
+        .combine(sortField.combine(sortDirection) { f, d -> f to d }) { list, (field, dir) ->
+            when {
+                field == ReviewSortField.MATCH_DATE   && dir == ReviewSortDirection.DESC -> list.sortedByDescending { it.utcDate }
+                field == ReviewSortField.MATCH_DATE   && dir == ReviewSortDirection.ASC  -> list.sortedBy { it.utcDate }
+                field == ReviewSortField.WRITTEN_DATE && dir == ReviewSortDirection.DESC -> list.sortedByDescending { it.createdAt }
+                else                                                                     -> list.sortedBy { it.createdAt }
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun setSortOrder(order: ReviewSortOrder) {
-        sortOrder.value = order
-    }
+    fun setSortField(field: ReviewSortField) { sortField.value = field }
+    fun setSortDirection(dir: ReviewSortDirection) { sortDirection.value = dir }
 
     fun setSelectedSeason(season: String?) {
         selectedSeason.value = season

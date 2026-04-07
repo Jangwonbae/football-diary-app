@@ -67,30 +67,34 @@ fun DiaryScreen(
 ) {
     val reviews by viewModel.reviews.collectAsStateWithLifecycle()
     val followingTeamId by viewModel.followingTeamId.collectAsStateWithLifecycle()
-    val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
+    val sortField by viewModel.sortField.collectAsStateWithLifecycle()
+    val sortDirection by viewModel.sortDirection.collectAsStateWithLifecycle()
     val selectedSeason by viewModel.selectedSeason.collectAsStateWithLifecycle()
     val availableSeasons by viewModel.availableSeasons.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.fillMaxSize()) {
         // 정렬 + 시즌 필터
+        val chipPadding = dimensionResource(R.dimen.padding_small)
+        val horizontalPadding = dimensionResource(R.dimen.padding_medium)
+        val topPadding = dimensionResource(R.dimen.padding_small)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-                .padding(top = dimensionResource(R.dimen.padding_small)),
+                .padding(horizontal = horizontalPadding)
+                .padding(top = topPadding),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))) {
+            Row(horizontalArrangement = Arrangement.spacedBy(chipPadding)) {
                 FilterChip(
-                    selected = sortOrder == ReviewSortOrder.MATCH_DATE,
-                    onClick = { viewModel.setSortOrder(ReviewSortOrder.MATCH_DATE) },
-                    label = { Text(text = stringResource(R.string.diary_sort_match_date)) }
+                    selected = sortField == ReviewSortField.MATCH_DATE,
+                    onClick = { viewModel.setSortField(ReviewSortField.MATCH_DATE) },
+                    label = { Text(stringResource(R.string.diary_sort_field_match_date)) }
                 )
                 FilterChip(
-                    selected = sortOrder == ReviewSortOrder.WRITTEN_DATE,
-                    onClick = { viewModel.setSortOrder(ReviewSortOrder.WRITTEN_DATE) },
-                    label = { Text(text = stringResource(R.string.diary_sort_written_date)) }
+                    selected = sortField == ReviewSortField.WRITTEN_DATE,
+                    onClick = { viewModel.setSortField(ReviewSortField.WRITTEN_DATE) },
+                    label = { Text(stringResource(R.string.diary_sort_field_written_date)) }
                 )
             }
             if (availableSeasons.isNotEmpty()) {
@@ -100,6 +104,22 @@ fun DiaryScreen(
                     onSeasonSelected = { viewModel.setSelectedSeason(it) }
                 )
             }
+        }
+        Row(
+            modifier = Modifier
+                .padding(horizontal = horizontalPadding),
+            horizontalArrangement = Arrangement.spacedBy(chipPadding)
+        ) {
+            FilterChip(
+                selected = sortDirection == ReviewSortDirection.DESC,
+                onClick = { viewModel.setSortDirection(ReviewSortDirection.DESC) },
+                label = { Text(stringResource(R.string.diary_sort_dir_desc)) }
+            )
+            FilterChip(
+                selected = sortDirection == ReviewSortDirection.ASC,
+                onClick = { viewModel.setSortDirection(ReviewSortDirection.ASC) },
+                label = { Text(stringResource(R.string.diary_sort_dir_asc)) }
+            )
         }
 
         if (reviews.isEmpty()) {
