@@ -457,26 +457,22 @@ private fun ReviewSection(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (review.rating > 0) {
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                horizontalArrangement = Arrangement.spacedBy(
-                                    dimensionResource(R.dimen.match_detail_review_star_gap)
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            horizontalArrangement = Arrangement.spacedBy(
+                                dimensionResource(R.dimen.match_detail_review_star_gap)
+                            )
+                        ) {
+                            for (star in 1..5) {
+                                Icon(
+                                    imageVector = if (star <= review.rating) Icons.Filled.Star
+                                    else Icons.Outlined.StarOutline,
+                                    contentDescription = null,
+                                    tint = if (star <= review.rating) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(dimensionResource(R.dimen.match_detail_review_star_size))
                                 )
-                            ) {
-                                for (star in 1..5) {
-                                    Icon(
-                                        imageVector = if (star <= review.rating) Icons.Filled.Star
-                                        else Icons.Outlined.StarOutline,
-                                        contentDescription = null,
-                                        tint = if (star <= review.rating) MaterialTheme.colorScheme.primary
-                                        else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(dimensionResource(R.dimen.match_detail_review_star_size))
-                                    )
-                                }
                             }
-                        } else {
-                            Spacer(modifier = Modifier.weight(1f))
                         }
 
                         // ... 드롭다운 메뉴
