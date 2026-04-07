@@ -2,7 +2,9 @@ package com.wbjang.footballdiary.ui.main.schedule
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -21,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.SwapVert
@@ -30,6 +33,8 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,6 +47,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,6 +58,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -381,6 +390,7 @@ private fun ReviewSection(
     onDeleteConfirm: () -> Unit,
     onDeleteDismiss: () -> Unit
 ) {
+    val isViewEmpty = review == null
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = onDeleteDismiss,
@@ -409,12 +419,13 @@ private fun ReviewSection(
             fontWeight = FontWeight.Bold
         )
         Card(
+            onClick = { if (!isViewEmpty) onWriteReview(review) else onWriteReview(null)},
             shape = RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(R.dimen.card_elevation)),
             modifier = Modifier.fillMaxWidth()
         ) {
-            if (review == null) {
+            if (isViewEmpty) {
                 // 소감 없음
                 Column(
                     modifier = Modifier
@@ -429,9 +440,9 @@ private fun ReviewSection(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
-                    Button(onClick = { onWriteReview(null) }) {
-                        Text(text = stringResource(R.string.match_detail_write_review))
-                    }
+//                    Button(onClick = { onWriteReview(null) }) {
+//                        Text(text = stringResource(R.string.match_detail_write_review))
+//                    }
                 }
             } else {
                 // 소감 표시
@@ -441,21 +452,64 @@ private fun ReviewSection(
                         .padding(dimensionResource(R.dimen.padding_medium)),
                     verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
                 ) {
-                    // 별점
-                    if (review.rating > 0) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(
-                                dimensionResource(R.dimen.match_detail_review_star_gap)
-                            )
-                        ) {
-                            for (star in 1..5) {
+                    // 별점 + ... 메뉴
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (review.rating > 0) {
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    dimensionResource(R.dimen.match_detail_review_star_gap)
+                                )
+                            ) {
+                                for (star in 1..5) {
+                                    Icon(
+                                        imageVector = if (star <= review.rating) Icons.Filled.Star
+                                        else Icons.Outlined.StarOutline,
+                                        contentDescription = null,
+                                        tint = if (star <= review.rating) MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(dimensionResource(R.dimen.match_detail_review_star_size))
+                                    )
+                                }
+                            }
+                        } else {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+
+                        // ... 드롭다운 메뉴
+                        var showMenu by remember { mutableStateOf(false) }
+                        Box {
+                            IconButton(onClick = { showMenu = true }) {
                                 Icon(
-                                    imageVector = if (star <= review.rating) Icons.Filled.Star
-                                    else Icons.Outlined.StarOutline,
+                                    imageVector = Icons.Default.MoreVert,
                                     contentDescription = null,
-                                    tint = if (star <= review.rating) MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(dimensionResource(R.dimen.match_detail_review_star_size))
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = stringResource(R.string.match_detail_delete_review),
+                                            color = MaterialTheme.colorScheme.error
+                                        )
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onDeleteReview()
+                                    },
+                                    contentPadding = PaddingValues(
+                                        start = dimensionResource(R.dimen.padding_medium),
+                                        end = dimensionResource(R.dimen.padding_small),
+                                        top = dimensionResource(R.dimen.padding_small),
+                                        bottom = dimensionResource(R.dimen.padding_small)
+                                    )
                                 )
                             }
                         }
@@ -490,9 +544,10 @@ private fun ReviewSection(
                     }
 
                     // 작성 시각
-                    val dateFormatter = java.time.format.DateTimeFormatter.ofPattern(
-                        stringResource(R.string.date_format_review_written), Locale.KOREAN
-                    )
+                    val dateFormat = stringResource(R.string.date_format_review_written)
+                    val dateFormatter = remember(dateFormat) {
+                        DateTimeFormatter.ofPattern(dateFormat, Locale.KOREAN)
+                    }
                     val writtenAt = java.time.Instant.ofEpochMilli(review.createdAt)
                         .atZone(java.time.ZoneId.systemDefault())
                         .format(dateFormatter)
@@ -501,22 +556,6 @@ private fun ReviewSection(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-
-                    // 수정 / 삭제 버튼
-                    Row(
-                        modifier = Modifier.align(Alignment.End),
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
-                    ) {
-                        OutlinedButton(onClick = onDeleteReview) {
-                            Text(
-                                text = stringResource(R.string.match_detail_delete_review),
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }
-                        OutlinedButton(onClick = { onWriteReview(review) }) {
-                            Text(text = stringResource(R.string.match_detail_edit_review))
-                        }
-                    }
                 }
             }
         }
@@ -979,3 +1018,54 @@ private fun teamNameById(teamId: Int?, match: Match): String? = when (teamId) {
 
 private fun minuteText(minute: Int, injuryTime: Int?): String =
     if (injuryTime != null && injuryTime > 0) "$minute+$injuryTime'" else "$minute'"
+
+// ──────────────────────────────────────────────
+// Previews
+// ──────────────────────────────────────────────
+@Preview(showBackground = true)
+@Composable
+private fun PreviewReviewSection() {
+    com.wbjang.footballdiary.ui.theme.FootballDiaryTheme {
+        Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))) {
+            ReviewSection(
+                review = com.wbjang.footballdiary.domain.model.Review(
+                    id = 1,
+                    matchId = 101,
+                    utcDate = "2024-03-20T20:00:00Z",
+                    homeTeamId = 1,
+                    homeTeamName = "아스널 FC",
+                    homeTeamCrestUrl = "",
+                    awayTeamId = 2,
+                    awayTeamName = "맨체스터 시티 FC",
+                    awayTeamCrestUrl = "",
+                    homeScore = 2,
+                    awayScore = 1,
+                    matchday = 28,
+                    competition = "Premier League",
+                    competitionEmblemUrl = "",
+                    venue = "Emirates Stadium",
+                    rating = 4.5f,
+                    emotionTags = listOf("승리", "역전승", "짜릿함"),
+                    content = "정말 환상적인 경기였습니다! 마지막 분에 터진 결승골은 잊을 수 없을 거예요.",
+                    createdAt = System.currentTimeMillis()
+                ),
+                onWriteReview = {},
+                onDeleteReview = {},
+                showDeleteDialog = false,
+                onDeleteConfirm = {},
+                onDeleteDismiss = {}
+            )
+            
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_large)))
+            
+            ReviewSection(
+                review = null,
+                onWriteReview = {},
+                onDeleteReview = {},
+                showDeleteDialog = false,
+                onDeleteConfirm = {},
+                onDeleteDismiss = {}
+            )
+        }
+    }
+}
