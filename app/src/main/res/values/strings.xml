@@ -126,6 +126,12 @@
     <string name="write_review_content_label">소감</string>
     <string name="write_review_hint">이 경기를 보며 어떤 감정이었나요?</string>
     <string name="write_review_save">저장하기</string>
+    <string name="write_review_save_action">저장</string>
+    <string name="write_review_content_required">소감을 작성해주세요</string>
+    <string name="write_review_discard_title">작성 취소</string>
+    <string name="write_review_discard_message">작성한 내용이 저장되지 않습니다.\n취소하시겠어요?</string>
+    <string name="write_review_discard_confirm">저장 안 함</string>
+    <string name="write_review_discard_cancel">계속 작성</string>
 
     <!-- 경기 결과 -->
     <string name="match_result_win">승리</string>

@@ -1,5 +1,7 @@
 package com.wbjang.footballdiary.ui.main.diary
 
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -19,7 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
-import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -36,8 +39,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -62,6 +67,8 @@ fun WriteReviewScreen(
     viewModel: WriteReviewViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    var showDiscardDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         existingReview?.let { viewModel.initWithReview(it) }
@@ -69,6 +76,64 @@ fun WriteReviewScreen(
 
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) onBack()
+    }
+
+    val initialContent = existingReview?.content ?: ""
+    val initialTags = existingReview?.emotionTags ?: emptyList()
+    val initialRating = existingReview?.rating?.toInt() ?: 0
+
+    val isDirty = uiState.content != initialContent ||
+                  uiState.selectedTags != initialTags ||
+                  uiState.rating != initialRating
+
+    val onBackPressed = {
+        if (isDirty) showDiscardDialog = true else onBack()
+    }
+
+    val onSave = {
+        if (uiState.content.isBlank()) {
+            Toast.makeText(context, context.getString(R.string.write_review_content_required), Toast.LENGTH_SHORT).show()
+        } else {
+            viewModel.saveReview(
+                matchId = match.id,
+                utcDate = match.utcDate,
+                homeTeamId = match.homeTeam.id,
+                homeTeamName = match.homeTeam.name,
+                homeTeamCrestUrl = match.homeTeam.crestUrl,
+                awayTeamId = match.awayTeam.id,
+                awayTeamName = match.awayTeam.name,
+                awayTeamCrestUrl = match.awayTeam.crestUrl,
+                homeScore = match.homeScore,
+                awayScore = match.awayScore,
+                matchday = match.matchday,
+                competition = match.competition?.name,
+                competitionEmblemUrl = match.competition?.emblemUrl,
+                venue = matchDetail?.venue
+            )
+        }
+    }
+
+    BackHandler(onBack = onBackPressed)
+
+    if (showDiscardDialog) {
+        AlertDialog(
+            onDismissRequest = { showDiscardDialog = false },
+            title = { Text(text = stringResource(R.string.write_review_discard_title)) },
+            text = { Text(text = stringResource(R.string.write_review_discard_message)) },
+            confirmButton = {
+                TextButton(onClick = onBack) {
+                    Text(
+                        text = stringResource(R.string.write_review_discard_confirm),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardDialog = false }) {
+                    Text(text = stringResource(R.string.write_review_discard_cancel))
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -83,10 +148,19 @@ fun WriteReviewScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = onBackPressed) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null
+                        )
+                    }
+                },
+                actions = {
+                    TextButton(onClick = onSave) {
+                        Text(
+                            text = stringResource(R.string.write_review_save_action),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 },
@@ -98,6 +172,7 @@ fun WriteReviewScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(dimensionResource(R.dimen.padding_medium)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large))
@@ -130,31 +205,6 @@ fun WriteReviewScreen(
                 content = uiState.content,
                 onContentChange = viewModel::setContent
             )
-
-            // 저장 버튼
-            Button(
-                onClick = {
-                    viewModel.saveReview(
-                        matchId = match.id,
-                        utcDate = match.utcDate,
-                        homeTeamId = match.homeTeam.id,
-                        homeTeamName = match.homeTeam.name,
-                        homeTeamCrestUrl = match.homeTeam.crestUrl,
-                        awayTeamId = match.awayTeam.id,
-                        awayTeamName = match.awayTeam.name,
-                        awayTeamCrestUrl = match.awayTeam.crestUrl,
-                        homeScore = match.homeScore,
-                        awayScore = match.awayScore,
-                        matchday = match.matchday,
-                        competition = match.competition?.name,
-                        competitionEmblemUrl = match.competition?.emblemUrl,
-                        venue = matchDetail?.venue
-                    )
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = stringResource(R.string.write_review_save))
-            }
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
         }
