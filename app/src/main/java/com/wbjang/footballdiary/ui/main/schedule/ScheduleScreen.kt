@@ -220,22 +220,22 @@ private fun ViewModeToggle(
     ) {
         SingleChoiceSegmentedButtonRow {
             SegmentedButton(
-                selected = isCalendarMode,
-                onClick = { if (isCalendarMode) onCalendarReClick() else onToggle() },
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
-            ) {
-                Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(dimensionResource(R.dimen.icon_toggle_button)))
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_xsmall)))
-//                Text(stringResource(R.string.tab_schedule_calendar))
-            }
-            SegmentedButton(
                 selected = !isCalendarMode,
                 onClick = { if (!isCalendarMode) onListReClick() else onToggle() },
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
             ) {
                 Icon(Icons.AutoMirrored.Filled.List, contentDescription = null, modifier = Modifier.size(dimensionResource(R.dimen.icon_toggle_button)))
                 Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_xsmall)))
 //                Text(stringResource(R.string.tab_schedule_list))
+            }
+            SegmentedButton(
+                selected = isCalendarMode,
+                onClick = { if (isCalendarMode) onCalendarReClick() else onToggle() },
+                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
+            ) {
+                Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(dimensionResource(R.dimen.icon_toggle_button)))
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_xsmall)))
+//                Text(stringResource(R.string.tab_schedule_calendar))
             }
         }
     }

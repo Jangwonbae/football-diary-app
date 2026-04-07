@@ -68,4 +68,17 @@
 
     <!-- 하단 네비게이션 바 -->
     <dimen name="bottom_nav_height">60dp</dimen>
+
+    <!-- 경기 상세 - 소감 표시 -->
+    <dimen name="match_detail_review_star_size">20dp</dimen>
+    <dimen name="match_detail_review_star_gap">2dp</dimen>
+
+    <!-- 소감 작성 화면 -->
+    <dimen name="write_review_star_gap">4dp</dimen>
+    <dimen name="write_review_star_button_size">40dp</dimen>
+    <dimen name="write_review_star_icon_size">32dp</dimen>
+    <dimen name="write_review_chip_close_button_size">18dp</dimen>
+    <dimen name="write_review_chip_close_icon_size">14dp</dimen>
+    <dimen name="write_review_tag_vertical_gap">4dp</dimen>
+    <dimen name="write_review_content_height">180dp</dimen>
 </resources>

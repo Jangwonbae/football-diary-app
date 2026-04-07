@@ -2,6 +2,7 @@ package com.wbjang.footballdiary.domain.repository
 
 import com.wbjang.footballdiary.domain.model.Match
 import com.wbjang.footballdiary.domain.model.MatchDetail
+import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.model.Team
 import kotlinx.coroutines.flow.Flow
 
@@ -20,4 +21,10 @@ interface FootballRepository {
 
     // 경기 상세
     suspend fun getMatchDetail(matchId: Int): Result<MatchDetail>
+
+    // 소감
+    suspend fun saveReview(review: Review)
+    fun getReviewByMatchId(matchId: Int): Flow<Review?>
+    fun getAllReviews(): Flow<List<Review>>
+    suspend fun deleteReview(matchId: Int)
 }

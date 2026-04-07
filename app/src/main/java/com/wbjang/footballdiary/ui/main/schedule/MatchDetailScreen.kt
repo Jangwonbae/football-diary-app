@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -20,7 +22,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.SwapVert
+import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,7 +37,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -53,6 +61,7 @@ import com.wbjang.footballdiary.domain.model.GoalType
 import com.wbjang.footballdiary.domain.model.Match
 import com.wbjang.footballdiary.domain.model.MatchDetail
 import com.wbjang.footballdiary.domain.model.MatchResult
+import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.model.SubstitutionEvent
 import com.wbjang.footballdiary.domain.model.TeamLineup
 import com.wbjang.footballdiary.domain.model.resultFor
@@ -61,16 +70,18 @@ import com.wbjang.footballdiary.ui.theme.ResultWin
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MatchDetailScreen(
     match: Match,
     followingTeamId: Int?,
     onBack: () -> Unit,
-    onWriteReview: () -> Unit,
+    onWriteReview: (existingReview: Review?) -> Unit,
     viewModel: MatchDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val review by viewModel.review.collectAsStateWithLifecycle()
+    val showDeleteDialog by viewModel.showDeleteDialog.collectAsStateWithLifecycle()
     val detail = uiState.matchDetail
     val sampleSections = uiState.sampleSections
     val matchResult = followingTeamId?.let { match.resultFor(it) }
@@ -111,7 +122,14 @@ fun MatchDetailScreen(
             )
 
             // 소감 섹션
-            ReviewSection(onWriteReview = onWriteReview)
+            ReviewSection(
+                review = review,
+                onWriteReview = onWriteReview,
+                onDeleteReview = viewModel::requestDeleteReview,
+                showDeleteDialog = showDeleteDialog,
+                onDeleteConfirm = viewModel::confirmDeleteReview,
+                onDeleteDismiss = viewModel::dismissDeleteDialog
+            )
 
             // 경기 상세 섹션
             if (uiState.isLoading) {
@@ -353,8 +371,37 @@ private fun ScoreBlock(match: Match, matchResult: MatchResult?) {
 // ──────────────────────────────────────────────
 // 소감 섹션
 // ──────────────────────────────────────────────
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ReviewSection(onWriteReview: () -> Unit) {
+private fun ReviewSection(
+    review: Review?,
+    onWriteReview: (existingReview: Review?) -> Unit,
+    onDeleteReview: () -> Unit,
+    showDeleteDialog: Boolean,
+    onDeleteConfirm: () -> Unit,
+    onDeleteDismiss: () -> Unit
+) {
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = onDeleteDismiss,
+            title = { Text(text = stringResource(R.string.match_detail_delete_dialog_title)) },
+            text = { Text(text = stringResource(R.string.match_detail_delete_dialog_message)) },
+            confirmButton = {
+                TextButton(onClick = onDeleteConfirm) {
+                    Text(
+                        text = stringResource(R.string.match_detail_delete_dialog_confirm),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDeleteDismiss) {
+                    Text(text = stringResource(R.string.dialog_cancel))
+                }
+            }
+        )
+    }
+
     Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))) {
         Text(
             text = stringResource(R.string.match_detail_section_review),
@@ -367,21 +414,96 @@ private fun ReviewSection(onWriteReview: () -> Unit) {
             elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(R.dimen.card_elevation)),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_large)),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
-            ) {
-                Text(
-                    text = stringResource(R.string.match_detail_no_review),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-                Button(onClick = onWriteReview) {
-                    Text(text = stringResource(R.string.match_detail_write_review))
+            if (review == null) {
+                // 소감 없음
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(R.dimen.padding_large)),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+                ) {
+                    Text(
+                        text = stringResource(R.string.match_detail_no_review),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                    Button(onClick = { onWriteReview(null) }) {
+                        Text(text = stringResource(R.string.match_detail_write_review))
+                    }
+                }
+            } else {
+                // 소감 표시
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(R.dimen.padding_medium)),
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+                ) {
+                    // 별점
+                    if (review.rating > 0) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(
+                                dimensionResource(R.dimen.match_detail_review_star_gap)
+                            )
+                        ) {
+                            for (star in 1..5) {
+                                Icon(
+                                    imageVector = if (star <= review.rating) Icons.Filled.Star
+                                    else Icons.Outlined.StarOutline,
+                                    contentDescription = null,
+                                    tint = if (star <= review.rating) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(dimensionResource(R.dimen.match_detail_review_star_size))
+                                )
+                            }
+                        }
+                    }
+
+                    // 감정 태그
+                    if (review.emotionTags.isNotEmpty()) {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(
+                                dimensionResource(R.dimen.padding_xsmall)
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(
+                                dimensionResource(R.dimen.padding_xsmall)
+                            )
+                        ) {
+                            review.emotionTags.forEach { tag ->
+                                AssistChip(
+                                    onClick = {},
+                                    label = { Text(text = tag, style = MaterialTheme.typography.labelSmall) }
+                                )
+                            }
+                        }
+                    }
+
+                    // 소감 내용
+                    if (review.content.isNotBlank()) {
+                        Text(
+                            text = review.content,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    // 수정 / 삭제 버튼
+                    Row(
+                        modifier = Modifier.align(Alignment.End),
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+                    ) {
+                        OutlinedButton(onClick = onDeleteReview) {
+                            Text(
+                                text = stringResource(R.string.match_detail_delete_review),
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                        OutlinedButton(onClick = { onWriteReview(review) }) {
+                            Text(text = stringResource(R.string.match_detail_edit_review))
+                        }
+                    }
                 }
             }
         }

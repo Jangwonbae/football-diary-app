@@ -34,6 +34,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wbjang.footballdiary.R
 import com.wbjang.footballdiary.ui.main.diary.DiaryScreen
+import com.wbjang.footballdiary.ui.main.diary.WriteReviewScreen
 import com.wbjang.footballdiary.ui.main.schedule.ScheduleScreen
 import com.wbjang.footballdiary.ui.main.settings.SettingsScreen
 import com.wbjang.footballdiary.ui.theme.FootballDiaryTheme
@@ -61,15 +62,18 @@ enum class BottomNavItem(
 }
 
 private const val ROUTE_MATCH_DETAIL = "matchDetail"
+private const val ROUTE_WRITE_REVIEW = "writeReview"
 
 @Composable
 fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
     val tabNavController = rememberNavController()
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val showBottomBar = currentRoute != ROUTE_MATCH_DETAIL
+    val showBottomBar = currentRoute != ROUTE_MATCH_DETAIL && currentRoute != ROUTE_WRITE_REVIEW
 
     val selectedMatch by viewModel.selectedMatch.collectAsStateWithLifecycle()
+    val selectedMatchDetail by viewModel.selectedMatchDetail.collectAsStateWithLifecycle()
+    val selectedReview by viewModel.selectedReview.collectAsStateWithLifecycle()
     val followingTeamId by viewModel.followingTeamId.collectAsStateWithLifecycle(initialValue = null)
 
     Scaffold(
@@ -94,17 +98,35 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
             }
             composable(BottomNavItem.Diary.route) { DiaryScreen() }
             composable(BottomNavItem.Settings.route) { SettingsScreen() }
+            composable(ROUTE_WRITE_REVIEW) {
+                val match = selectedMatch
+                if (match != null) {
+                    WriteReviewScreen(
+                        match = match,
+                        matchDetail = selectedMatchDetail,
+                        existingReview = selectedReview,
+                        onBack = { tabNavController.popBackStack() }
+                    )
+                }
+            }
             composable(ROUTE_MATCH_DETAIL) {
                 val detailViewModel: MatchDetailViewModel = hiltViewModel()
                 selectedMatch?.let { match ->
                     LaunchedEffect(match.id) {
                         detailViewModel.loadMatchDetail(match.id, match)
                     }
+                    val detailState by detailViewModel.uiState.collectAsStateWithLifecycle()
+                    LaunchedEffect(detailState.matchDetail) {
+                        detailState.matchDetail?.let { viewModel.selectMatchDetail(it) }
+                    }
                     MatchDetailScreen(
                         match = match,
                         followingTeamId = followingTeamId,
                         onBack = { tabNavController.popBackStack() },
-                        onWriteReview = { /* TODO: 소감 작성 화면 */ },
+                        onWriteReview = { existingReview ->
+                            viewModel.selectReview(existingReview)
+                            tabNavController.navigate(ROUTE_WRITE_REVIEW)
+                        },
                         viewModel = detailViewModel
                     )
                 }

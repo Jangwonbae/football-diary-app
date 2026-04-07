@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="preset_emotion_tags">
+        <item>기쁨</item>
+        <item>설렘</item>
+        <item>흥분</item>
+        <item>짜릿함</item>
+        <item>긴장</item>
+        <item>아쉬움</item>
+        <item>슬픔</item>
+        <item>응원</item>
+    </string-array>
+</resources>

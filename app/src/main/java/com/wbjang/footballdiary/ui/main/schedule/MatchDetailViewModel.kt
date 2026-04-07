@@ -4,11 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wbjang.footballdiary.domain.model.Match
 import com.wbjang.footballdiary.domain.model.MatchDetail
+import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.repository.FootballRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,7 +35,27 @@ class MatchDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(MatchDetailUiState())
     val uiState: StateFlow<MatchDetailUiState> = _uiState.asStateFlow()
 
+    private val _matchId = MutableStateFlow<Int?>(null)
+    val review: StateFlow<Review?> = _matchId
+        .flatMapLatest { id ->
+            if (id != null) repository.getReviewByMatchId(id) else flowOf(null)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    private val _showDeleteDialog = MutableStateFlow(false)
+    val showDeleteDialog: StateFlow<Boolean> = _showDeleteDialog.asStateFlow()
+
+    fun requestDeleteReview() { _showDeleteDialog.value = true }
+    fun dismissDeleteDialog() { _showDeleteDialog.value = false }
+    fun confirmDeleteReview() {
+        viewModelScope.launch {
+            _matchId.value?.let { repository.deleteReview(it) }
+            _showDeleteDialog.value = false
+        }
+    }
+
     fun loadMatchDetail(matchId: Int, match: Match) {
+        _matchId.value = matchId
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 

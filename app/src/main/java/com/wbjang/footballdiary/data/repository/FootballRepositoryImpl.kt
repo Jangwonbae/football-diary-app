@@ -2,6 +2,8 @@ package com.wbjang.footballdiary.data.repository
 
 import com.wbjang.footballdiary.data.api.FootballApiService
 import com.wbjang.footballdiary.data.datastore.UserPreferencesDataStore
+import com.wbjang.footballdiary.data.local.dao.ReviewDao
+import com.wbjang.footballdiary.data.local.entity.ReviewEntity
 import com.wbjang.footballdiary.domain.model.BookingEvent
 import com.wbjang.footballdiary.domain.model.CardType
 import com.wbjang.footballdiary.domain.model.GoalEvent
@@ -12,16 +14,19 @@ import com.wbjang.footballdiary.domain.model.MatchCompetition
 import com.wbjang.footballdiary.domain.model.MatchDetail
 import com.wbjang.footballdiary.domain.model.MatchStatus
 import com.wbjang.footballdiary.domain.model.MatchTeam
+import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.model.SubstitutionEvent
 import com.wbjang.footballdiary.domain.model.TeamLineup
 import com.wbjang.footballdiary.domain.model.Team
 import com.wbjang.footballdiary.domain.repository.FootballRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class FootballRepositoryImpl @Inject constructor(
     private val apiService: FootballApiService,
-    private val dataStore: UserPreferencesDataStore
+    private val dataStore: UserPreferencesDataStore,
+    private val reviewDao: ReviewDao
 ) : FootballRepository {
 
     override suspend fun getTeamsByLeague(leagueCode: String): Result<List<Team>> {
@@ -137,6 +142,48 @@ class FootballRepositoryImpl @Inject constructor(
             )
         }
     }
+
+    override suspend fun saveReview(review: Review) {
+        reviewDao.insertReview(
+            ReviewEntity(
+                matchId = review.matchId,
+                homeTeamName = review.homeTeamName,
+                awayTeamName = review.awayTeamName,
+                homeScore = review.homeScore,
+                awayScore = review.awayScore,
+                competition = review.competition,
+                venue = review.venue,
+                rating = review.rating,
+                emotionTags = review.emotionTags.joinToString(","),
+                content = review.content
+            )
+        )
+    }
+
+    override fun getReviewByMatchId(matchId: Int): Flow<Review?> =
+        reviewDao.getReviewByMatchId(matchId).map { it?.toDomain() }
+
+    override fun getAllReviews(): Flow<List<Review>> =
+        reviewDao.getAllReviews().map { list -> list.map { it.toDomain() } }
+
+    override suspend fun deleteReview(matchId: Int) {
+        reviewDao.deleteReviewByMatchId(matchId)
+    }
+
+    private fun ReviewEntity.toDomain() = Review(
+        id = id,
+        matchId = matchId,
+        homeTeamName = homeTeamName,
+        awayTeamName = awayTeamName,
+        homeScore = homeScore,
+        awayScore = awayScore,
+        competition = competition,
+        venue = venue,
+        rating = rating,
+        emotionTags = if (emotionTags.isBlank()) emptyList() else emotionTags.split(","),
+        content = content,
+        createdAt = createdAt
+    )
 
     override suspend fun getTeamMatches(
         teamId: Int,

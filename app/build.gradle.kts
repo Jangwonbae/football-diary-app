@@ -81,6 +81,10 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.compose)
     //icons
     implementation(libs.androidx.compose.material.icons.extended)
+    // Room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     // Test
     testImplementation(libs.junit)

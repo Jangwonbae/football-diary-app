@@ -70,6 +70,11 @@
     <string name="match_detail_section_review">나의 소감</string>
     <string name="match_detail_no_review">아직 작성된 소감이 없습니다</string>
     <string name="match_detail_write_review">소감 작성하기</string>
+    <string name="match_detail_edit_review">수정하기</string>
+    <string name="match_detail_delete_review">삭제하기</string>
+    <string name="match_detail_delete_dialog_title">소감 삭제</string>
+    <string name="match_detail_delete_dialog_message">작성된 소감을 삭제할까요?</string>
+    <string name="match_detail_delete_dialog_confirm">삭제</string>
     <string name="match_detail_section_lineup">라인업</string>
     <string name="match_detail_section_timeline">타임라인</string>
     <string name="match_detail_section_statistics">경기 통계</string>
@@ -88,6 +93,18 @@
     <string name="stat_shots_on_target">유효슈팅</string>
     <string name="stat_yellow_cards">경고</string>
     <string name="stat_corner_kicks">코너킥</string>
+
+    <!-- 소감 작성 화면 -->
+    <string name="write_review_title">소감 작성</string>
+    <string name="write_review_score_separator">:</string>
+    <string name="write_review_rating_label">경기 평점</string>
+    <string name="write_review_emotion_tags_label">감정 태그</string>
+    <string name="write_review_tag_input_hint">태그 직접 입력</string>
+    <string name="write_review_tag_add">추가</string>
+    <string name="write_review_competition_venue_format">%1$s · %2$s</string>
+    <string name="write_review_content_label">소감</string>
+    <string name="write_review_hint">이 경기를 보며 어떤 감정이었나요?</string>
+    <string name="write_review_save">저장하기</string>
 
     <!-- 경기 결과 -->
     <string name="match_result_win">승리</string>
