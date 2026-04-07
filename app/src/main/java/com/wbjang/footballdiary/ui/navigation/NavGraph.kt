@@ -30,7 +30,13 @@ fun NavGraph(
         }
 
         composable(Screen.Main.route) {
-            MainScreen()
+            MainScreen(
+                onNavigateToOnboarding = {
+                    navController.navigate(Screen.Onboarding.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }

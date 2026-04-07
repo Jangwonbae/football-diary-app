@@ -4,6 +4,7 @@ import com.wbjang.footballdiary.domain.model.Match
 import com.wbjang.footballdiary.domain.model.MatchDetail
 import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.model.Team
+import com.wbjang.footballdiary.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
 
 interface FootballRepository {
@@ -27,4 +28,8 @@ interface FootballRepository {
     fun getReviewByMatchId(matchId: Int): Flow<Review?>
     fun getAllReviews(): Flow<List<Review>>
     suspend fun deleteReview(matchId: Int)
+
+    // 테마
+    fun getThemeMode(): Flow<ThemeMode>
+    suspend fun saveThemeMode(mode: ThemeMode)
 }

@@ -95,6 +95,22 @@
     <string name="stat_yellow_cards">경고</string>
     <string name="stat_corner_kicks">코너킥</string>
 
+    <!-- 설정 화면 -->
+    <string name="settings_title">설정</string>
+    <string name="settings_section_team">팀</string>
+    <string name="settings_following_team_change">팔로잉 팀 변경</string>
+    <string name="settings_following_team_desc">팔로잉 팀을 변경합니다</string>
+    <string name="settings_section_app">앱</string>
+    <string name="settings_notification">알림 설정</string>
+    <string name="settings_notification_desc">경기 시작 전 알림을 관리합니다</string>
+    <string name="settings_widget">일정 위젯 만들기</string>
+    <string name="settings_widget_desc">홈 화면에 경기 일정을 추가합니다</string>
+    <string name="settings_theme">테마</string>
+    <string name="settings_theme_system">시스템 기본값</string>
+    <string name="settings_theme_light">라이트 모드</string>
+    <string name="settings_theme_dark">다크 모드</string>
+    <string name="settings_theme_dialog_title">테마 설정</string>
+
     <!-- 다이어리 화면 -->
     <string name="diary_empty_title">작성된 소감이 없습니다</string>
     <string name="diary_empty_subtitle">경기를 관람한 후 소감을 남겨보세요</string>

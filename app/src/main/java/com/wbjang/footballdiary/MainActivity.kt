@@ -4,14 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.wbjang.footballdiary.domain.repository.FootballRepository
 import com.wbjang.footballdiary.ui.navigation.NavGraph
 import com.wbjang.footballdiary.ui.navigation.Screen
 import com.wbjang.footballdiary.ui.theme.FootballDiaryTheme
+import com.wbjang.footballdiary.ui.theme.ThemeMode
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -33,7 +34,14 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            FootballDiaryTheme {
+            val themeMode by repository.getThemeMode()
+                .collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
+            val isDark = when (themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+            }
+            FootballDiaryTheme(darkTheme = isDark) {
                 val navController = rememberNavController()
                 NavGraph(
                     navController = navController,

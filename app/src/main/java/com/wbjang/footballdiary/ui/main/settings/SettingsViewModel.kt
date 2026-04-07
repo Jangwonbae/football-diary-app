@@ -1,0 +1,28 @@
+package com.wbjang.footballdiary.ui.main.settings
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.wbjang.footballdiary.domain.repository.FootballRepository
+import com.wbjang.footballdiary.ui.theme.ThemeMode
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    private val repository: FootballRepository
+) : ViewModel() {
+
+    val followingTeamName: StateFlow<String?> = repository.getFollowingTeamName()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val themeMode: StateFlow<ThemeMode> = repository.getThemeMode()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.SYSTEM)
+
+    fun saveThemeMode(mode: ThemeMode) {
+        viewModelScope.launch { repository.saveThemeMode(mode) }
+    }
+}

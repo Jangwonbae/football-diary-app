@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 응답 언어
+
+항상 한국어로 대답한다.
+
 ## Build & Development Commands
 
 ```bash

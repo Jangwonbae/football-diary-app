@@ -16,6 +16,7 @@ import com.wbjang.footballdiary.domain.model.MatchStatus
 import com.wbjang.footballdiary.domain.model.MatchTeam
 import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.model.SubstitutionEvent
+import com.wbjang.footballdiary.ui.theme.ThemeMode
 import com.wbjang.footballdiary.domain.model.TeamLineup
 import com.wbjang.footballdiary.domain.model.Team
 import com.wbjang.footballdiary.domain.repository.FootballRepository
@@ -146,6 +147,7 @@ class FootballRepositoryImpl @Inject constructor(
     override suspend fun saveReview(review: Review) {
         reviewDao.insertReview(
             ReviewEntity(
+                id = review.id,
                 matchId = review.matchId,
                 utcDate = review.utcDate,
                 homeTeamId = review.homeTeamId,
@@ -176,6 +178,9 @@ class FootballRepositoryImpl @Inject constructor(
     override suspend fun deleteReview(matchId: Int) {
         reviewDao.deleteReviewByMatchId(matchId)
     }
+
+    override fun getThemeMode(): Flow<ThemeMode> = dataStore.themeMode
+    override suspend fun saveThemeMode(mode: ThemeMode) = dataStore.saveThemeMode(mode)
 
     private fun ReviewEntity.toDomain() = Review(
         id = id,

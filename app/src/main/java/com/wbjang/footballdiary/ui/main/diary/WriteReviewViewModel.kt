@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class WriteReviewUiState(
+    val existingReviewId: Int = 0,
     val rating: Int = 0,
     val selectedTags: List<String> = emptyList(),
     val content: String = "",
@@ -30,6 +31,7 @@ class WriteReviewViewModel @Inject constructor(
     fun initWithReview(review: Review) {
         _uiState.update {
             it.copy(
+                existingReviewId = review.id,
                 rating = review.rating.toInt(),
                 selectedTags = review.emotionTags,
                 content = review.content
@@ -82,6 +84,7 @@ class WriteReviewViewModel @Inject constructor(
             val state = _uiState.value
             repository.saveReview(
                 Review(
+                    id = state.existingReviewId,
                     matchId = matchId,
                     utcDate = utcDate,
                     homeTeamId = homeTeamId,

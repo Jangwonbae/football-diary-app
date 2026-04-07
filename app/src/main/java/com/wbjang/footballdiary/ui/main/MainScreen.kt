@@ -66,7 +66,10 @@ private const val ROUTE_MATCH_DETAIL = "matchDetail"
 private const val ROUTE_WRITE_REVIEW = "writeReview"
 
 @Composable
-fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
+fun MainScreen(
+    onNavigateToOnboarding: () -> Unit = {},
+    viewModel: MainViewModel = hiltViewModel()
+) {
     val tabNavController = rememberNavController()
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -105,7 +108,9 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
                     }
                 )
             }
-            composable(BottomNavItem.Settings.route) { SettingsScreen() }
+            composable(BottomNavItem.Settings.route) {
+                SettingsScreen(onNavigateToOnboarding = onNavigateToOnboarding)
+            }
             composable(ROUTE_WRITE_REVIEW) {
                 val match = selectedMatch
                 if (match != null) {
