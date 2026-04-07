@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 data class ScheduleUiState(
     val isLoading: Boolean = false,
-    val isCalendarMode: Boolean = true,
+    val isCalendarMode: Boolean = false,
     val followingTeamId: Int? = null,
     val followingTeamName: String? = null,
     val followingTeamCrestUrl: String? = null,
