@@ -6,8 +6,11 @@ import com.wbjang.footballdiary.domain.model.Match
 import com.wbjang.footballdiary.domain.repository.FootballRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.YearMonth
@@ -32,6 +35,10 @@ class ScheduleViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(ScheduleUiState())
     val uiState: StateFlow<ScheduleUiState> = _uiState.asStateFlow()
+
+    val reviewedMatchIds: StateFlow<Set<Int>> = repository.getAllReviews()
+        .map { reviews -> reviews.map { it.matchId }.toSet() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     init {
         viewModelScope.launch {

@@ -489,6 +489,19 @@ private fun ReviewSection(
                         )
                     }
 
+                    // 작성 시각
+                    val dateFormatter = java.time.format.DateTimeFormatter.ofPattern(
+                        stringResource(R.string.date_format_review_written), Locale.KOREAN
+                    )
+                    val writtenAt = java.time.Instant.ofEpochMilli(review.createdAt)
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .format(dateFormatter)
+                    Text(
+                        text = writtenAt,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
                     // 수정 / 삭제 버튼
                     Row(
                         modifier = Modifier.align(Alignment.End),

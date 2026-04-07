@@ -25,6 +25,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -85,6 +86,7 @@ fun ScheduleScreen(
     viewModel: ScheduleViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val reviewedMatchIds by viewModel.reviewedMatchIds.collectAsStateWithLifecycle()
 
     // 뷰 전환과 무관하게 리스트 상태 유지
     val listState = rememberLazyListState()
@@ -160,6 +162,7 @@ fun ScheduleScreen(
                 MatchListView(
                     matches = uiState.matches,
                     followingTeamId = uiState.followingTeamId,
+                    reviewedMatchIds = reviewedMatchIds,
                     listState = listState,
                     upcomingIndex = upcomingIndex,
                     onMatchClick = onMatchClick
@@ -432,6 +435,7 @@ private fun CalendarDayCell(
 private fun MatchListView(
     matches: List<Match>,
     followingTeamId: Int?,
+    reviewedMatchIds: Set<Int>,
     listState: LazyListState,
     upcomingIndex: Int,
     onMatchClick: (Match) -> Unit
@@ -454,6 +458,7 @@ private fun MatchListView(
             MatchListCard(
                 match = match,
                 followingTeamId = followingTeamId,
+                hasReview = match.id in reviewedMatchIds,
                 isUpcoming = index == upcomingIndex,
                 onClick = { onMatchClick(match) }
             )
@@ -463,7 +468,7 @@ private fun MatchListView(
 }
 
 @Composable
-private fun MatchListCard(match: Match, followingTeamId: Int?, isUpcoming: Boolean, onClick: () -> Unit) {
+private fun MatchListCard(match: Match, followingTeamId: Int?, hasReview: Boolean, isUpcoming: Boolean, onClick: () -> Unit) {
     val dateFormatStr = stringResource(R.string.date_format_match_datetime)
     val dateFormatter = DateTimeFormatter.ofPattern(dateFormatStr, Locale.KOREAN)
     val formattedDate = match.localDateTime().format(dateFormatter)
@@ -513,13 +518,26 @@ private fun MatchListCard(match: Match, followingTeamId: Int?, isUpcoming: Boole
                     else
                         MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                if (isUpcoming) {
-                    Text(
-                        text = stringResource(R.string.schedule_next_match),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_xsmall)),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (hasReview) {
+                        Icon(
+                            imageVector = Icons.Default.RateReview,
+                            contentDescription = null,
+                            modifier = Modifier.size(dimensionResource(R.dimen.icon_toggle_button)),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    if (isUpcoming) {
+                        Text(
+                            text = stringResource(R.string.schedule_next_match),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
 
@@ -680,6 +698,7 @@ private fun PreviewMatchListCard() {
                 awayScore = 1
             ),
             followingTeamId = 1,
+            hasReview = true,
             isUpcoming = false,
             onClick = {}
         )
