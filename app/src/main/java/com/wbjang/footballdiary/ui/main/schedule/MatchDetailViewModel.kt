@@ -55,6 +55,8 @@ class MatchDetailViewModel @Inject constructor(
     }
 
     fun loadMatchDetail(matchId: Int, match: Match) {
+        if (_matchId.value == matchId && _uiState.value.matchDetail != null) return
+
         _matchId.value = matchId
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
