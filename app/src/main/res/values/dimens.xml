@@ -69,6 +69,10 @@
     <!-- 하단 네비게이션 바 -->
     <dimen name="bottom_nav_height">60dp</dimen>
 
+    <!-- 다이어리 카드 -->
+    <dimen name="diary_card_team_crest">40dp</dimen>
+    <dimen name="diary_card_score_text">22sp</dimen>
+
     <!-- 경기 상세 - 소감 표시 -->
     <dimen name="match_detail_review_star_size">20dp</dimen>
     <dimen name="match_detail_review_star_gap">2dp</dimen>
