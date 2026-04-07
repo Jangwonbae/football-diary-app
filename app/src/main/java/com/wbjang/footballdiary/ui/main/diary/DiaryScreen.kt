@@ -1,5 +1,6 @@
 package com.wbjang.footballdiary.ui.main.diary
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,12 +38,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import androidx.compose.ui.graphics.Color
 import com.wbjang.footballdiary.R
+import com.wbjang.footballdiary.domain.model.MatchResult
 import com.wbjang.footballdiary.domain.model.Review
+import com.wbjang.footballdiary.domain.model.resultFor
+import com.wbjang.footballdiary.domain.model.toMatch
 import com.wbjang.footballdiary.ui.components.ExpandableTagRow
 import com.wbjang.footballdiary.ui.theme.FootballDiaryTheme
+import com.wbjang.footballdiary.ui.theme.ResultDraw
+import com.wbjang.footballdiary.ui.theme.ResultWin
 import java.time.Instant
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -51,6 +60,7 @@ fun DiaryScreen(
     viewModel: DiaryViewModel = hiltViewModel()
 ) {
     val reviews by viewModel.reviews.collectAsStateWithLifecycle()
+    val followingTeamId by viewModel.followingTeamId.collectAsStateWithLifecycle()
 
     if (reviews.isEmpty()) {
         EmptyDiary()
@@ -63,6 +73,7 @@ fun DiaryScreen(
             items(reviews, key = { it.id }) { review ->
                 ReviewCard(
                     review = review,
+                    followingTeamId = followingTeamId,
                     onClick = { onReviewClick(review) }
                 )
             }
@@ -95,14 +106,28 @@ private fun EmptyDiary() {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ReviewCard(review: Review, onClick: () -> Unit) {
-    val dateFormat = stringResource(R.string.date_format_review_written)
-    val dateFormatter = remember(dateFormat) {
-        DateTimeFormatter.ofPattern(dateFormat, Locale.KOREAN)
+private fun ReviewCard(review: Review, followingTeamId: Int?, onClick: () -> Unit) {
+    val writtenDateFormat = stringResource(R.string.date_format_review_written)
+    val writtenFormatter = remember(writtenDateFormat) {
+        DateTimeFormatter.ofPattern(writtenDateFormat, Locale.KOREAN)
     }
     val writtenAt = Instant.ofEpochMilli(review.createdAt)
         .atZone(ZoneId.systemDefault())
-        .format(dateFormatter)
+        .format(writtenFormatter)
+
+    val matchDateFormat = stringResource(R.string.date_format_match_datetime)
+    val matchFormatter = remember(matchDateFormat) {
+        DateTimeFormatter.ofPattern(matchDateFormat, Locale.KOREAN)
+    }
+    val matchStartTime = remember(review.utcDate) {
+        ZonedDateTime.parse(review.utcDate)
+            .withZoneSameInstant(ZoneId.systemDefault())
+            .format(matchFormatter)
+    }
+
+    val matchResult = remember(followingTeamId, review) {
+        followingTeamId?.let { review.toMatch().resultFor(it) }
+    }
 
     Card(
         onClick = onClick,
@@ -119,80 +144,116 @@ private fun ReviewCard(review: Review, onClick: () -> Unit) {
                 .padding(dimensionResource(R.dimen.padding_medium)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
         ) {
-            // 스코어
+            // 날짜/시간
+            Text(
+                text = matchStartTime,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
+
+            // 홈팀 · 대회+스코어 · 어웨이팀
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 // 홈팀
                 Column(
+                    modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f)
+                    verticalArrangement = Arrangement.Center
                 ) {
                     AsyncImage(
                         model = review.homeTeamCrestUrl,
                         contentDescription = review.homeTeamName,
-                        modifier = Modifier.size(dimensionResource(R.dimen.diary_card_team_crest))
+                        modifier = Modifier.size(dimensionResource(R.dimen.emblem_match_card))
                     )
-                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_xsmall)))
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.match_card_team_spacer)))
                     Text(
                         text = review.homeTeamName,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.labelMedium,
                         textAlign = TextAlign.Center,
-                        maxLines = 2,
+                        maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
 
-                // 스코어
-                Text(
-                    text = if (review.homeScore != null && review.awayScore != null) {
-                        "${review.homeScore} ${stringResource(R.string.write_review_score_separator)} ${review.awayScore}"
+                // 대회 아이콘 + 스코어
+                Column(
+                    modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    if (!review.competitionEmblemUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = review.competitionEmblemUrl,
+                            contentDescription = review.competition,
+                            modifier = Modifier.size(dimensionResource(R.dimen.emblem_competition))
+                        )
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_xsmall)))
+                    }
+                    if (review.homeScore != null && review.awayScore != null) {
+                        if (matchResult != null) {
+                            val bgColor = when (matchResult) {
+                                MatchResult.WIN  -> ResultWin
+                                MatchResult.LOSS -> MaterialTheme.colorScheme.error
+                                MatchResult.DRAW -> ResultDraw
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .background(bgColor, RoundedCornerShape(dimensionResource(R.dimen.badge_corner_radius)))
+                                    .padding(
+                                        horizontal = dimensionResource(R.dimen.badge_horizontal_padding),
+                                        vertical = dimensionResource(R.dimen.badge_vertical_padding)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "${review.homeScore} - ${review.awayScore}",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        } else {
+                            Text(
+                                text = "${review.homeScore} - ${review.awayScore}",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     } else {
-                        stringResource(R.string.match_status_vs)
-                    },
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small))
-                )
+                        Text(
+                            text = stringResource(R.string.match_status_vs),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
 
                 // 어웨이팀
                 Column(
+                    modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f)
+                    verticalArrangement = Arrangement.Center
                 ) {
                     AsyncImage(
                         model = review.awayTeamCrestUrl,
                         contentDescription = review.awayTeamName,
-                        modifier = Modifier.size(dimensionResource(R.dimen.diary_card_team_crest))
+                        modifier = Modifier.size(dimensionResource(R.dimen.emblem_match_card))
                     )
-                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_xsmall)))
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.match_card_team_spacer)))
                     Text(
                         text = review.awayTeamName,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.labelMedium,
                         textAlign = TextAlign.Center,
-                        maxLines = 2,
+                        maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-            }
-            // 대회명 · 작성 시각
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                val metaText = listOfNotNull(review.competition, writtenAt).joinToString("  ·  ")
-                Text(
-                    text = metaText,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
 
             // 별점
@@ -228,6 +289,11 @@ private fun ReviewCard(review: Review, onClick: () -> Unit) {
                     overflow = TextOverflow.Ellipsis
                 )
             }
+            Text(
+                text = writtenAt,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -259,6 +325,7 @@ private fun PreviewReviewCard() {
                 content = "정말 환상적인 경기였습니다! 마지막 분에 터진 결승골은 잊을 수 없을 거예요.",
                 createdAt = System.currentTimeMillis()
             ),
+            followingTeamId = 1,
             onClick = {}
         )
     }

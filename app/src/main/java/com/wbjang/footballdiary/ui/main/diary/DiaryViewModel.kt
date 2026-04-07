@@ -17,4 +17,7 @@ class DiaryViewModel @Inject constructor(
 
     val reviews: StateFlow<List<Review>> = repository.getAllReviews()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val followingTeamId: StateFlow<Int?> = repository.getFollowingTeamId()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 }
