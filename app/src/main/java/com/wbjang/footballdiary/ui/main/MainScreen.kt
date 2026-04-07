@@ -33,6 +33,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wbjang.footballdiary.R
+import com.wbjang.footballdiary.domain.model.toMatch
 import com.wbjang.footballdiary.ui.main.diary.DiaryScreen
 import com.wbjang.footballdiary.ui.main.diary.WriteReviewScreen
 import com.wbjang.footballdiary.ui.main.schedule.ScheduleScreen
@@ -96,7 +97,14 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
                     }
                 )
             }
-            composable(BottomNavItem.Diary.route) { DiaryScreen() }
+            composable(BottomNavItem.Diary.route) {
+                DiaryScreen(
+                    onReviewClick = { review ->
+                        viewModel.selectMatch(review.toMatch())
+                        tabNavController.navigate(ROUTE_MATCH_DETAIL)
+                    }
+                )
+            }
             composable(BottomNavItem.Settings.route) { SettingsScreen() }
             composable(ROUTE_WRITE_REVIEW) {
                 val match = selectedMatch

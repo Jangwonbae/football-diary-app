@@ -136,11 +136,18 @@ fun WriteReviewScreen(
                 onClick = {
                     viewModel.saveReview(
                         matchId = match.id,
+                        utcDate = match.utcDate,
+                        homeTeamId = match.homeTeam.id,
                         homeTeamName = match.homeTeam.name,
+                        homeTeamCrestUrl = match.homeTeam.crestUrl,
+                        awayTeamId = match.awayTeam.id,
                         awayTeamName = match.awayTeam.name,
+                        awayTeamCrestUrl = match.awayTeam.crestUrl,
                         homeScore = match.homeScore,
                         awayScore = match.awayScore,
+                        matchday = match.matchday,
                         competition = match.competition?.name,
+                        competitionEmblemUrl = match.competition?.emblemUrl,
                         venue = matchDetail?.venue
                     )
                 },

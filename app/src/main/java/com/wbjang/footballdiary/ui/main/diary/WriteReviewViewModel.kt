@@ -64,11 +64,18 @@ class WriteReviewViewModel @Inject constructor(
 
     fun saveReview(
         matchId: Int,
+        utcDate: String,
+        homeTeamId: Int,
         homeTeamName: String,
+        homeTeamCrestUrl: String,
+        awayTeamId: Int,
         awayTeamName: String,
+        awayTeamCrestUrl: String,
         homeScore: Int?,
         awayScore: Int?,
+        matchday: Int?,
         competition: String?,
+        competitionEmblemUrl: String?,
         venue: String?
     ) {
         viewModelScope.launch {
@@ -76,11 +83,18 @@ class WriteReviewViewModel @Inject constructor(
             repository.saveReview(
                 Review(
                     matchId = matchId,
+                    utcDate = utcDate,
+                    homeTeamId = homeTeamId,
                     homeTeamName = homeTeamName,
+                    homeTeamCrestUrl = homeTeamCrestUrl,
+                    awayTeamId = awayTeamId,
                     awayTeamName = awayTeamName,
+                    awayTeamCrestUrl = awayTeamCrestUrl,
                     homeScore = homeScore,
                     awayScore = awayScore,
+                    matchday = matchday,
                     competition = competition,
+                    competitionEmblemUrl = competitionEmblemUrl,
                     venue = venue,
                     rating = state.rating.toFloat(),
                     emotionTags = state.selectedTags,
