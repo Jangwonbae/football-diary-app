@@ -516,84 +516,83 @@ private fun MatchListCard(match: Match, followingTeamId: Int?, hasReview: Boolea
                     else
                         MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_xsmall)),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (hasReview) {
-                        Icon(
-                            imageVector = Icons.Default.RateReview,
-                            contentDescription = null,
-                            modifier = Modifier.size(dimensionResource(R.dimen.icon_toggle_button)),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    if (isUpcoming) {
-                        Text(
-                            text = stringResource(R.string.schedule_next_match),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                if (isUpcoming) {
+                    Text(
+                        text = stringResource(R.string.schedule_next_match),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
 
             // 홈 팀 vs 원정 팀
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // 홈 팀
-                TeamBlock(
-                    crestUrl = match.homeTeam.crestUrl,
-                    shortName = match.homeTeam.shortName,
-                    modifier = Modifier.weight(1f)
-                )
-
-                // 대회 아이콘 + 스코어 뱃지 또는 상태 텍스트
-                Column(
-                    modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    match.competition?.emblemUrl?.let { url ->
-                        AsyncImage(
-                            model = url,
-                            contentDescription = match.competition.name,
-                            modifier = Modifier.size(dimensionResource(R.dimen.emblem_competition))
-                        )
-                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_xsmall)))
-                    }
-                    if (matchResult != null && match.homeScore != null && match.awayScore != null) {
-                        MatchResultBadge(
-                            homeScore = match.homeScore,
-                            awayScore = match.awayScore,
-                            result = matchResult,
-                            compact = false
-                        )
-                    } else {
-                        Text(
-                            text = statusLabel ?: "",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = when (match.status) {
-                                MatchStatus.IN_PLAY -> MaterialTheme.colorScheme.error
-                                else -> MaterialTheme.colorScheme.onSurface
-                            }
-                        )
-                    }
-                }
+                    // 홈 팀
+                    TeamBlock(
+                        crestUrl = match.homeTeam.crestUrl,
+                        shortName = match.homeTeam.shortName,
+                        modifier = Modifier.weight(1f)
+                    )
 
-                // 원정 팀
-                TeamBlock(
-                    crestUrl = match.awayTeam.crestUrl,
-                    shortName = match.awayTeam.shortName,
-                    modifier = Modifier.weight(1f)
-                )
+                    // 대회 아이콘 + 스코어 뱃지 또는 상태 텍스트
+                    Column(
+                        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        match.competition?.emblemUrl?.let { url ->
+                            AsyncImage(
+                                model = url,
+                                contentDescription = match.competition.name,
+                                modifier = Modifier.size(dimensionResource(R.dimen.emblem_competition))
+                            )
+                            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_xsmall)))
+                        }
+                        if (matchResult != null && match.homeScore != null && match.awayScore != null) {
+                            MatchResultBadge(
+                                homeScore = match.homeScore,
+                                awayScore = match.awayScore,
+                                result = matchResult,
+                                compact = false
+                            )
+                        } else {
+                            Text(
+                                text = statusLabel ?: "",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = when (match.status) {
+                                    MatchStatus.IN_PLAY -> MaterialTheme.colorScheme.error
+                                    else -> MaterialTheme.colorScheme.onSurface
+                                }
+                            )
+                        }
+                    }
+
+                    // 원정 팀
+                    TeamBlock(
+                        crestUrl = match.awayTeam.crestUrl,
+                        shortName = match.awayTeam.shortName,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (hasReview) {
+                    Icon(
+                        imageVector = Icons.Default.RateReview,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(dimensionResource(R.dimen.icon_toggle_button))
+                            .align(Alignment.BottomEnd),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
