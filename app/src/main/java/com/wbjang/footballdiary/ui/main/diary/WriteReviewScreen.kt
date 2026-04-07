@@ -110,7 +110,8 @@ fun WriteReviewScreen(
                 matchday = match.matchday,
                 competition = match.competition?.name,
                 competitionEmblemUrl = match.competition?.emblemUrl,
-                venue = matchDetail?.venue
+                venue = matchDetail?.venue,
+                seasonLabel = matchDetail?.seasonLabel
             )
         }
     }

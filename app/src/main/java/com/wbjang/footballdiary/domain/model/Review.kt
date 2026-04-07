@@ -18,6 +18,7 @@ data class Review(
     val competition: String?,
     val competitionEmblemUrl: String?,
     val venue: String?,
+    val seasonLabel: String?,
     val rating: Float,
     val emotionTags: List<String>,
     val content: String,

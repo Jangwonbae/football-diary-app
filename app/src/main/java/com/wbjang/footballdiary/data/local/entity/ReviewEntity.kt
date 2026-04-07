@@ -22,6 +22,7 @@ data class ReviewEntity(
     val competition: String?,
     val competitionEmblemUrl: String?,
     val venue: String?,
+    val seasonLabel: String?,
     val rating: Float,
     val emotionTags: String, // 쉼표로 구분된 태그 목록
     val content: String,

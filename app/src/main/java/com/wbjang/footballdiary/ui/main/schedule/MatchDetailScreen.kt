@@ -125,6 +125,7 @@ fun MatchDetailScreen(
             // 경기 카드
             MatchSummaryCard(
                 match = match,
+                seasonLabel = detail?.seasonLabel,
                 matchResult = matchResult,
                 venue = detail?.venue,
                 attendance = detail?.attendance,
@@ -188,6 +189,7 @@ fun MatchDetailScreen(
 @Composable
 private fun MatchSummaryCard(
     match: Match,
+    seasonLabel: String?,
     matchResult: MatchResult?,
     venue: String?,
     attendance: Int?,
@@ -211,28 +213,34 @@ private fun MatchSummaryCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
         ) {
-            // 대회 이름 · 라운드 · 날짜
-            val headerText = if (match.matchday != null) {
+            // 대회 이름 · 라운드
+            val competitionName = buildString {
+                if (!seasonLabel.isNullOrBlank()) append("$seasonLabel ")
+                append(match.competition?.name ?: "")
+            }
+            val competitionText = if (match.matchday != null) {
                 stringResource(
-                    R.string.match_detail_header_format,
-                    match.competition?.name ?: "",
-                    match.matchday,
-                    formattedDate
+                    R.string.match_detail_header_round_format,
+                    competitionName,
+                    match.matchday
                 )
             } else {
-                stringResource(
-                    R.string.match_detail_header_no_round_format,
-                    match.competition?.name ?: "",
-                    formattedDate
-                )
+                competitionName
             }
             Text(
-                text = headerText,
+                text = competitionText,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
-                maxLines = 2,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis
+            )
+            // 날짜
+            Text(
+                text = formattedDate,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
             )
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -1029,6 +1037,7 @@ private fun PreviewReviewSection() {
                     competition = "Premier League",
                     competitionEmblemUrl = "",
                     venue = "Emirates Stadium",
+                    seasonLabel = "2025/2026",
                     rating = 4.5f,
                     emotionTags = listOf("승리", "역전승", "짜릿함", "승리", "역전승", "짜릿함", "승리", "역전승", "짜릿함"),
                     content = "정말 환상적인 경기였습니다! 마지막 분에 터진 결승골은 잊을 수 없을 거예요.",

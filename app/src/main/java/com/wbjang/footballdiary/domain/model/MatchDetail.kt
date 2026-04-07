@@ -2,6 +2,7 @@ package com.wbjang.footballdiary.domain.model
 
 data class MatchDetail(
     val match: Match,
+    val seasonLabel: String?,
     val venue: String?,
     val attendance: Int?,
     val goals: List<GoalEvent>,

@@ -96,6 +96,7 @@ class MatchDetailViewModel @Inject constructor(
 
             val detail = MatchDetail(
                 match         = apiDetail?.match ?: match,
+                seasonLabel   = apiDetail?.seasonLabel,
                 venue         = venue,
                 attendance    = attendance,
                 goals         = goals,

@@ -16,18 +16,23 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.FilterChip
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -63,26 +68,38 @@ fun DiaryScreen(
     val reviews by viewModel.reviews.collectAsStateWithLifecycle()
     val followingTeamId by viewModel.followingTeamId.collectAsStateWithLifecycle()
     val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
+    val selectedSeason by viewModel.selectedSeason.collectAsStateWithLifecycle()
+    val availableSeasons by viewModel.availableSeasons.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // 정렬 필터
+        // 정렬 + 시즌 필터
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = dimensionResource(R.dimen.padding_medium))
                 .padding(top = dimensionResource(R.dimen.padding_small)),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            FilterChip(
-                selected = sortOrder == ReviewSortOrder.MATCH_DATE,
-                onClick = { viewModel.setSortOrder(ReviewSortOrder.MATCH_DATE) },
-                label = { Text(text = stringResource(R.string.diary_sort_match_date)) }
-            )
-            FilterChip(
-                selected = sortOrder == ReviewSortOrder.WRITTEN_DATE,
-                onClick = { viewModel.setSortOrder(ReviewSortOrder.WRITTEN_DATE) },
-                label = { Text(text = stringResource(R.string.diary_sort_written_date)) }
-            )
+            Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))) {
+                FilterChip(
+                    selected = sortOrder == ReviewSortOrder.MATCH_DATE,
+                    onClick = { viewModel.setSortOrder(ReviewSortOrder.MATCH_DATE) },
+                    label = { Text(text = stringResource(R.string.diary_sort_match_date)) }
+                )
+                FilterChip(
+                    selected = sortOrder == ReviewSortOrder.WRITTEN_DATE,
+                    onClick = { viewModel.setSortOrder(ReviewSortOrder.WRITTEN_DATE) },
+                    label = { Text(text = stringResource(R.string.diary_sort_written_date)) }
+                )
+            }
+            if (availableSeasons.isNotEmpty()) {
+                SeasonDropdown(
+                    selectedSeason = selectedSeason,
+                    availableSeasons = availableSeasons,
+                    onSeasonSelected = { viewModel.setSelectedSeason(it) }
+                )
+            }
         }
 
         if (reviews.isEmpty()) {
@@ -101,6 +118,44 @@ fun DiaryScreen(
                     )
                 }
                 item { Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium))) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SeasonDropdown(
+    selectedSeason: String?,
+    availableSeasons: List<String>,
+    onSeasonSelected: (String?) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val allLabel = stringResource(R.string.diary_season_all)
+    Box {
+        FilterChip(
+            selected = selectedSeason != null,
+            onClick = { expanded = true },
+            label = { Text(text = selectedSeason ?: allLabel) },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.ArrowDropDown,
+                    contentDescription = null
+                )
+            }
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text(text = allLabel) },
+                onClick = { onSeasonSelected(null); expanded = false }
+            )
+            availableSeasons.forEach { season ->
+                DropdownMenuItem(
+                    text = { Text(text = season) },
+                    onClick = { onSeasonSelected(season); expanded = false }
+                )
             }
         }
     }
@@ -346,6 +401,7 @@ private fun PreviewReviewCard() {
                 competition = "Premier League",
                 competitionEmblemUrl = "",
                 venue = "Emirates Stadium",
+                seasonLabel = "2025/2026",
                 rating = 5f,
                 emotionTags = listOf("승리", "역전승", "짜릿함"),
                 content = "정말 환상적인 경기였습니다! 마지막 분에 터진 결승골은 잊을 수 없을 거예요.",

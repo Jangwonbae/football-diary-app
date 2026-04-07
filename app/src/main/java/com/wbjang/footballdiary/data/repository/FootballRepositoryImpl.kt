@@ -56,6 +56,14 @@ class FootballRepositoryImpl @Inject constructor(
     override suspend fun getMatchDetail(matchId: Int): Result<MatchDetail> {
         return runCatching {
             val dto = apiService.getMatchDetail(matchId)
+            val seasonLabel = run {
+                val startYear = dto.season?.startDate?.take(4)
+                val endYear = dto.season?.endDate?.take(4)
+                if (startYear != null && endYear != null && startYear != endYear)
+                    "$startYear/$endYear"
+                else
+                    startYear
+            }
             MatchDetail(
                 match = Match(
                     id = dto.id,
@@ -80,6 +88,7 @@ class FootballRepositoryImpl @Inject constructor(
                     homeScore = dto.score.fullTime.home,
                     awayScore = dto.score.fullTime.away
                 ),
+                seasonLabel = seasonLabel,
                 venue = dto.venue,
                 attendance = dto.attendance,
                 goals = dto.goals.orEmpty().mapNotNull { g ->
@@ -164,6 +173,7 @@ class FootballRepositoryImpl @Inject constructor(
                 competition = review.competition,
                 competitionEmblemUrl = review.competitionEmblemUrl,
                 venue = review.venue,
+                seasonLabel = review.seasonLabel,
                 rating = review.rating,
                 emotionTags = review.emotionTags.joinToString(","),
                 content = review.content
@@ -202,6 +212,7 @@ class FootballRepositoryImpl @Inject constructor(
         competition = competition,
         competitionEmblemUrl = competitionEmblemUrl,
         venue = venue,
+        seasonLabel = seasonLabel,
         rating = rating,
         emotionTags = if (emotionTags.isBlank()) emptyList() else emotionTags.split(","),
         content = content,

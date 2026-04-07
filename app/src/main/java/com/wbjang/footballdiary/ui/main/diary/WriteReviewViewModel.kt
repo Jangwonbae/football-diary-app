@@ -80,7 +80,8 @@ class WriteReviewViewModel @Inject constructor(
         matchday: Int?,
         competition: String?,
         competitionEmblemUrl: String?,
-        venue: String?
+        venue: String?,
+        seasonLabel: String?
     ) {
         viewModelScope.launch {
             val state = _uiState.value
@@ -103,6 +104,7 @@ class WriteReviewViewModel @Inject constructor(
                     competition = competition,
                     competitionEmblemUrl = competitionEmblemUrl,
                     venue = venue,
+                    seasonLabel = seasonLabel,
                     rating = state.rating.toFloat(),
                     emotionTags = state.selectedTags,
                     content = state.content

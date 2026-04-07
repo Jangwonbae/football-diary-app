@@ -63,8 +63,7 @@
     <!-- 경기 상세 화면 -->
     <string name="match_detail_title">경기 상세</string>
     <string name="match_detail_matchday_format">%d라운드</string>
-    <string name="match_detail_header_format">%1$s · %2$d라운드 · %3$s</string>
-    <string name="match_detail_header_no_round_format">%1$s · %2$s</string>
+    <string name="match_detail_header_round_format">%1$s · %2$d라운드</string>
     <string name="match_detail_venue_attendance_format">%1$s · 관중 %2$,d명</string>
     <string name="match_detail_venue_only_format">%s</string>
     <string name="match_detail_attendance_only_format">관중 %,d명</string>
@@ -116,6 +115,7 @@
     <string name="diary_empty_subtitle">경기를 관람한 후 소감을 남겨보세요</string>
     <string name="diary_sort_match_date">경기일정순</string>
     <string name="diary_sort_written_date">작성일순</string>
+    <string name="diary_season_all">전체</string>
 
     <!-- 소감 작성 화면 -->
     <string name="write_review_title">소감 작성</string>

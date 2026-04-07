@@ -8,6 +8,7 @@ data class MatchDetailResponseDto(
     @SerializedName("status") val status: String,
     @SerializedName("matchday") val matchday: Int?,
     @SerializedName("competition") val competition: CompetitionDto?,
+    @SerializedName("season") val season: SeasonDto?,
     @SerializedName("homeTeam") val homeTeam: MatchTeamDto,
     @SerializedName("awayTeam") val awayTeam: MatchTeamDto,
     @SerializedName("score") val score: MatchScoreDto,
@@ -17,6 +18,11 @@ data class MatchDetailResponseDto(
     @SerializedName("bookings") val bookings: List<BookingEventDto>?,
     @SerializedName("substitutions") val substitutions: List<SubstitutionEventDto>?,
     @SerializedName("lineup") val lineup: List<TeamLineupDto>?
+)
+
+data class SeasonDto(
+    @SerializedName("startDate") val startDate: String?,
+    @SerializedName("endDate") val endDate: String?
 )
 
 data class GoalEventDto(
