@@ -6,9 +6,11 @@ data class Review(
     val utcDate: String,
     val homeTeamId: Int,
     val homeTeamName: String,
+    val homeTeamShortName: String,
     val homeTeamCrestUrl: String,
     val awayTeamId: Int,
     val awayTeamName: String,
+    val awayTeamShortName: String,
     val awayTeamCrestUrl: String,
     val homeScore: Int?,
     val awayScore: Int?,
@@ -30,8 +32,8 @@ fun Review.toMatch() = Match(
     competition = competition?.let {
         MatchCompetition(id = 0, name = it, emblemUrl = competitionEmblemUrl ?: "")
     },
-    homeTeam = MatchTeam(id = homeTeamId, name = homeTeamName, shortName = homeTeamName, crestUrl = homeTeamCrestUrl),
-    awayTeam = MatchTeam(id = awayTeamId, name = awayTeamName, shortName = awayTeamName, crestUrl = awayTeamCrestUrl),
+    homeTeam = MatchTeam(id = homeTeamId, name = homeTeamName, shortName = homeTeamShortName, crestUrl = homeTeamCrestUrl),
+    awayTeam = MatchTeam(id = awayTeamId, name = awayTeamName, shortName = awayTeamShortName, crestUrl = awayTeamCrestUrl),
     homeScore = homeScore,
     awayScore = awayScore
 )

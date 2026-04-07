@@ -167,12 +167,12 @@ private fun ReviewCard(review: Review, followingTeamId: Int?, onClick: () -> Uni
                 ) {
                     AsyncImage(
                         model = review.homeTeamCrestUrl,
-                        contentDescription = review.homeTeamName,
+                        contentDescription = review.homeTeamShortName,
                         modifier = Modifier.size(dimensionResource(R.dimen.emblem_match_card))
                     )
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.match_card_team_spacer)))
                     Text(
-                        text = review.homeTeamName,
+                        text = review.homeTeamShortName,
                         style = MaterialTheme.typography.labelMedium,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
@@ -242,12 +242,12 @@ private fun ReviewCard(review: Review, followingTeamId: Int?, onClick: () -> Uni
                 ) {
                     AsyncImage(
                         model = review.awayTeamCrestUrl,
-                        contentDescription = review.awayTeamName,
+                        contentDescription = review.awayTeamShortName,
                         modifier = Modifier.size(dimensionResource(R.dimen.emblem_match_card))
                     )
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.match_card_team_spacer)))
                     Text(
-                        text = review.awayTeamName,
+                        text = review.awayTeamShortName,
                         style = MaterialTheme.typography.labelMedium,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
@@ -310,9 +310,11 @@ private fun PreviewReviewCard() {
                 utcDate = "2024-03-20T20:00:00Z",
                 homeTeamId = 1,
                 homeTeamName = "아스널 FC",
+                homeTeamShortName = "아스널",
                 homeTeamCrestUrl = "",
                 awayTeamId = 2,
                 awayTeamName = "맨체스터 시티 FC",
+                awayTeamShortName = "맨시티",
                 awayTeamCrestUrl = "",
                 homeScore = 2,
                 awayScore = 1,
