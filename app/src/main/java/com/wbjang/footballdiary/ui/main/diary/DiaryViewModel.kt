@@ -21,7 +21,14 @@ class DiaryViewModel @Inject constructor(
 
     val sortOrder = MutableStateFlow(ReviewSortOrder.MATCH_DATE)
 
+    val followingTeamId: StateFlow<Int?> = repository.getFollowingTeamId()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     val reviews: StateFlow<List<Review>> = repository.getAllReviews()
+        .combine(followingTeamId) { list, teamId ->
+            if (teamId == null) list
+            else list.filter { it.homeTeamId == teamId || it.awayTeamId == teamId }
+        }
         .combine(sortOrder) { list, order ->
             when (order) {
                 ReviewSortOrder.MATCH_DATE   -> list.sortedByDescending { it.utcDate }
@@ -29,9 +36,6 @@ class DiaryViewModel @Inject constructor(
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    val followingTeamId: StateFlow<Int?> = repository.getFollowingTeamId()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     fun setSortOrder(order: ReviewSortOrder) {
         sortOrder.value = order

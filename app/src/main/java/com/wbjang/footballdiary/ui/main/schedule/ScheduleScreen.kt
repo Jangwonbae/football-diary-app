@@ -190,7 +190,6 @@ private fun TeamHeader(teamName: String, teamCrestUrl: String) {
             contentDescription = teamName,
             modifier = Modifier
                 .size(dimensionResource(R.dimen.emblem_schedule_header))
-                .clip(CircleShape)
         )
         Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_medium)))
         Text(
