@@ -36,6 +36,8 @@ class ScheduleViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ScheduleUiState())
     val uiState: StateFlow<ScheduleUiState> = _uiState.asStateFlow()
 
+    var hasScrolledToUpcoming = false
+        private set
     val reviewedMatchIds: StateFlow<Set<Int>> = repository.getAllReviews()
         .map { reviews -> reviews.map { it.matchId }.toSet() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
@@ -93,4 +95,5 @@ class ScheduleViewModel @Inject constructor(
     fun goToNextMonth() {
         _uiState.update { it.copy(currentYearMonth = it.currentYearMonth.plusMonths(1)) }
     }
+    fun markScrolled() { hasScrolledToUpcoming = true }
 }

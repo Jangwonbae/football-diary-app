@@ -90,7 +90,6 @@ fun ScheduleScreen(
 
     // 뷰 전환과 무관하게 리스트 상태 유지
     val listState = rememberLazyListState()
-    var hasScrolledToUpcoming by remember { mutableStateOf(false) }
     // 재클릭 시 다음 경기로 스크롤 트리거 (값이 바뀔 때마다 스크롤 실행)
     var scrollTrigger by remember { mutableIntStateOf(0) }
 
@@ -103,9 +102,9 @@ fun ScheduleScreen(
 
     // 경기 목록이 처음 로드될 때 한 번만 다음 경기로 스크롤
     LaunchedEffect(uiState.matches.isNotEmpty()) {
-        if (uiState.matches.isNotEmpty() && !hasScrolledToUpcoming) {
+        if (uiState.matches.isNotEmpty() && !viewModel.hasScrolledToUpcoming) {
             listState.animateScrollToItem((upcomingIndex - 1).coerceAtLeast(0))
-            hasScrolledToUpcoming = true
+            viewModel.markScrolled()
         }
     }
 
