@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FilterChip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
@@ -61,23 +62,46 @@ fun DiaryScreen(
 ) {
     val reviews by viewModel.reviews.collectAsStateWithLifecycle()
     val followingTeamId by viewModel.followingTeamId.collectAsStateWithLifecycle()
+    val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
 
-    if (reviews.isEmpty()) {
-        EmptyDiary()
-    } else {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+    Column(modifier = Modifier.fillMaxSize()) {
+        // 정렬 필터
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+                .padding(top = dimensionResource(R.dimen.padding_small)),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
         ) {
-            item { Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small))) }
-            items(reviews, key = { it.id }) { review ->
-                ReviewCard(
-                    review = review,
-                    followingTeamId = followingTeamId,
-                    onClick = { onReviewClick(review) }
-                )
+            FilterChip(
+                selected = sortOrder == ReviewSortOrder.MATCH_DATE,
+                onClick = { viewModel.setSortOrder(ReviewSortOrder.MATCH_DATE) },
+                label = { Text(text = stringResource(R.string.diary_sort_match_date)) }
+            )
+            FilterChip(
+                selected = sortOrder == ReviewSortOrder.WRITTEN_DATE,
+                onClick = { viewModel.setSortOrder(ReviewSortOrder.WRITTEN_DATE) },
+                label = { Text(text = stringResource(R.string.diary_sort_written_date)) }
+            )
+        }
+
+        if (reviews.isEmpty()) {
+            EmptyDiary()
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+            ) {
+                item { Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small))) }
+                items(reviews, key = { it.id }) { review ->
+                    ReviewCard(
+                        review = review,
+                        followingTeamId = followingTeamId,
+                        onClick = { onReviewClick(review) }
+                    )
+                }
+                item { Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium))) }
             }
-            item { Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium))) }
         }
     }
 }

@@ -114,6 +114,8 @@
     <!-- 다이어리 화면 -->
     <string name="diary_empty_title">작성된 소감이 없습니다</string>
     <string name="diary_empty_subtitle">경기를 관람한 후 소감을 남겨보세요</string>
+    <string name="diary_sort_match_date">경기일정순</string>
+    <string name="diary_sort_written_date">작성일순</string>
 
     <!-- 소감 작성 화면 -->
     <string name="write_review_title">소감 작성</string>
