@@ -83,6 +83,6 @@
     <dimen name="write_review_star_icon_size">32dp</dimen>
     <dimen name="write_review_chip_close_button_size">18dp</dimen>
     <dimen name="write_review_chip_close_icon_size">14dp</dimen>
-    <dimen name="write_review_tag_vertical_gap">4dp</dimen>
+    <dimen name="write_review_tag_vertical_gap">0dp</dimen>
     <dimen name="write_review_content_height">180dp</dimen>
 </resources>

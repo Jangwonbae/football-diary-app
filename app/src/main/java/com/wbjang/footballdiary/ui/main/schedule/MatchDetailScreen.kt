@@ -75,6 +75,7 @@ import com.wbjang.footballdiary.domain.model.SubstitutionEvent
 import com.wbjang.footballdiary.domain.model.TeamLineup
 import com.wbjang.footballdiary.domain.model.resultFor
 import com.wbjang.footballdiary.ui.theme.ResultDraw
+import com.wbjang.footballdiary.ui.components.ExpandableTagRow
 import com.wbjang.footballdiary.ui.theme.ResultWin
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -513,21 +514,7 @@ private fun ReviewSection(
 
                     // 감정 태그
                     if (review.emotionTags.isNotEmpty()) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(
-                                dimensionResource(R.dimen.padding_xsmall)
-                            ),
-                            verticalArrangement = Arrangement.spacedBy(
-                                dimensionResource(R.dimen.padding_xsmall)
-                            )
-                        ) {
-                            review.emotionTags.forEach { tag ->
-                                AssistChip(
-                                    onClick = {},
-                                    label = { Text(text = tag, style = MaterialTheme.typography.labelSmall) }
-                                )
-                            }
-                        }
+                        ExpandableTagRow(tags = review.emotionTags)
                     }
 
                     // 소감 내용
@@ -1041,7 +1028,7 @@ private fun PreviewReviewSection() {
                     competitionEmblemUrl = "",
                     venue = "Emirates Stadium",
                     rating = 4.5f,
-                    emotionTags = listOf("승리", "역전승", "짜릿함"),
+                    emotionTags = listOf("승리", "역전승", "짜릿함", "승리", "역전승", "짜릿함", "승리", "역전승", "짜릿함"),
                     content = "정말 환상적인 경기였습니다! 마지막 분에 터진 결승골은 잊을 수 없을 거예요.",
                     createdAt = System.currentTimeMillis()
                 ),

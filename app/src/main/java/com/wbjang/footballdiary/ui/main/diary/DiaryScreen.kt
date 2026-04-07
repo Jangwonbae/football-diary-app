@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -40,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.wbjang.footballdiary.R
 import com.wbjang.footballdiary.domain.model.Review
+import com.wbjang.footballdiary.ui.components.ExpandableTagRow
 import com.wbjang.footballdiary.ui.theme.FootballDiaryTheme
 import java.time.Instant
 import java.time.ZoneId
@@ -216,21 +215,7 @@ private fun ReviewCard(review: Review, onClick: () -> Unit) {
 
             // 감정 태그
             if (review.emotionTags.isNotEmpty()) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(
-                        dimensionResource(R.dimen.padding_xsmall)
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(
-                        dimensionResource(R.dimen.padding_xsmall)
-                    )
-                ) {
-                    review.emotionTags.forEach { tag ->
-                        AssistChip(
-                            onClick = {},
-                            label = { Text(text = tag, style = MaterialTheme.typography.labelSmall) }
-                        )
-                    }
-                }
+                ExpandableTagRow(tags = review.emotionTags)
             }
 
             // 소감 내용 미리보기

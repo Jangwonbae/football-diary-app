@@ -132,6 +132,7 @@
     <string name="write_review_discard_message">작성한 내용이 저장되지 않습니다.\n취소하시겠어요?</string>
     <string name="write_review_discard_confirm">저장 안 함</string>
     <string name="write_review_discard_cancel">계속 작성</string>
+    <string name="tag_collapse">간략히</string>
 
     <!-- 경기 결과 -->
     <string name="match_result_win">승리</string>
