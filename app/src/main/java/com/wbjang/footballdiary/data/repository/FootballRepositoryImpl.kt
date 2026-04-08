@@ -15,6 +15,8 @@ import com.wbjang.footballdiary.domain.model.MatchDetail
 import com.wbjang.footballdiary.domain.model.MatchStatus
 import com.wbjang.footballdiary.domain.model.MatchTeam
 import com.wbjang.footballdiary.domain.model.Review
+import com.wbjang.footballdiary.domain.model.StandingEntry
+import com.wbjang.footballdiary.domain.model.StandingTeam
 import com.wbjang.footballdiary.domain.model.SubstitutionEvent
 import com.wbjang.footballdiary.ui.theme.ThemeMode
 import com.wbjang.footballdiary.domain.model.TeamLineup
@@ -51,6 +53,34 @@ class FootballRepositoryImpl @Inject constructor(
 
     override suspend fun saveFollowingTeam(teamId: Int, teamName: String, teamCrestUrl: String) {
         dataStore.saveFollowingTeam(teamId, teamName, teamCrestUrl)
+    }
+
+    override suspend fun getStandings(competitionId: Int): Result<List<StandingEntry>> {
+        return runCatching {
+            val totalTable = apiService.getStandings(competitionId)
+                .standings
+                .firstOrNull { it.type == "TOTAL" }
+                ?.table ?: emptyList()
+            totalTable.map { dto ->
+                StandingEntry(
+                    position = dto.position,
+                    team = StandingTeam(
+                        id = dto.team.id,
+                        name = dto.team.name,
+                        shortName = dto.team.shortName,
+                        crestUrl = dto.team.crest
+                    ),
+                    playedGames = dto.playedGames,
+                    won = dto.won,
+                    draw = dto.draw,
+                    lost = dto.lost,
+                    goalsFor = dto.goalsFor,
+                    goalsAgainst = dto.goalsAgainst,
+                    goalDifference = dto.goalDifference,
+                    points = dto.points
+                )
+            }
+        }
     }
 
     override suspend fun getMatchDetail(matchId: Int): Result<MatchDetail> {

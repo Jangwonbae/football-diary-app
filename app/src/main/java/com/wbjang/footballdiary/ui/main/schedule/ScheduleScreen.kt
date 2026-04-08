@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -36,6 +37,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,7 +60,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -69,6 +74,7 @@ import com.wbjang.footballdiary.domain.model.Match
 import com.wbjang.footballdiary.domain.model.MatchResult
 import com.wbjang.footballdiary.domain.model.MatchStatus
 import com.wbjang.footballdiary.domain.model.MatchTeam
+import com.wbjang.footballdiary.domain.model.StandingEntry
 import com.wbjang.footballdiary.domain.model.resultFor
 import com.wbjang.footballdiary.ui.theme.FootballDiaryTheme
 import com.wbjang.footballdiary.ui.theme.ResultDraw
@@ -124,49 +130,71 @@ fun ScheduleScreen(
 
         HorizontalDivider()
 
-        // 뷰 모드 토글
-        ViewModeToggle(
-            isCalendarMode = uiState.isCalendarMode,
-            onToggle = { viewModel.toggleViewMode() },
-            onCalendarReClick = { viewModel.resetToCurrentMonth() },
-            onListReClick = { scrollTrigger++ }
-        )
+        TabRow(selectedTabIndex = uiState.selectedTab.ordinal) {
+            Tab(
+                selected = uiState.selectedTab == ScheduleTab.SCHEDULE,
+                onClick = { viewModel.selectTab(ScheduleTab.SCHEDULE) },
+                text = { Text(stringResource(R.string.tab_schedule)) }
+            )
+            Tab(
+                selected = uiState.selectedTab == ScheduleTab.STANDINGS,
+                onClick = { viewModel.selectTab(ScheduleTab.STANDINGS) },
+                text = { Text(stringResource(R.string.tab_standings)) }
+            )
+        }
 
-        // 콘텐츠
-        when {
-            uiState.isLoading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+        if (uiState.selectedTab == ScheduleTab.SCHEDULE) {
+            // 뷰 모드 토글
+            ViewModeToggle(
+                isCalendarMode = uiState.isCalendarMode,
+                onToggle = { viewModel.toggleViewMode() },
+                onCalendarReClick = { viewModel.resetToCurrentMonth() },
+                onListReClick = { scrollTrigger++ }
+            )
+
+            // 콘텐츠
+            when {
+                uiState.isLoading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
-            }
-            uiState.error != null -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = stringResource(R.string.error_load_teams),
-                        color = MaterialTheme.colorScheme.error
+                uiState.error != null -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = stringResource(R.string.error_load_teams),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                uiState.isCalendarMode -> {
+                    CalendarView(
+                        yearMonth = uiState.currentYearMonth,
+                        matches = uiState.matches,
+                        followingTeamId = uiState.followingTeamId,
+                        onPreviousMonth = { viewModel.goToPreviousMonth() },
+                        onNextMonth = { viewModel.goToNextMonth() },
+                        onMatchClick = onMatchClick
+                    )
+                }
+                else -> {
+                    MatchListView(
+                        matches = uiState.matches,
+                        followingTeamId = uiState.followingTeamId,
+                        reviewedMatchIds = reviewedMatchIds,
+                        listState = listState,
+                        upcomingIndex = upcomingIndex,
+                        onMatchClick = onMatchClick
                     )
                 }
             }
-            uiState.isCalendarMode -> {
-                CalendarView(
-                    yearMonth = uiState.currentYearMonth,
-                    matches = uiState.matches,
-                    followingTeamId = uiState.followingTeamId,
-                    onPreviousMonth = { viewModel.goToPreviousMonth() },
-                    onNextMonth = { viewModel.goToNextMonth() },
-                    onMatchClick = onMatchClick
-                )
-            }
-            else -> {
-                MatchListView(
-                    matches = uiState.matches,
-                    followingTeamId = uiState.followingTeamId,
-                    reviewedMatchIds = reviewedMatchIds,
-                    listState = listState,
-                    upcomingIndex = upcomingIndex,
-                    onMatchClick = onMatchClick
-                )
-            }
+        } else {
+            StandingsView(
+                standings = uiState.standings,
+                followingTeamId = uiState.followingTeamId,
+                isLoading = uiState.standingsLoading,
+                error = uiState.standingsError
+            )
         }
     }
 }
@@ -659,6 +687,163 @@ private fun TeamBlock(crestUrl: String, shortName: String, modifier: Modifier = 
 private fun textSizeResource(@DimenRes id: Int): TextUnit {
     val sizePx = LocalContext.current.resources.getDimension(id)
     return with(LocalDensity.current) { sizePx.toSp() }
+}
+
+// ──────────────────────────────────────────────
+// 순위표 뷰
+// ──────────────────────────────────────────────
+@Composable
+private fun StandingsView(
+    standings: List<StandingEntry>,
+    followingTeamId: Int?,
+    isLoading: Boolean,
+    error: String?
+) {
+    when {
+        isLoading -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        error != null -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                text = stringResource(R.string.error_load_standings),
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+        standings.isEmpty() -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                text = stringResource(R.string.standings_empty),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
+            stickyHeader { StandingsHeaderRow() }
+            items(standings) { entry ->
+                StandingRow(entry = entry, isFollowing = entry.team.id == followingTeamId)
+                HorizontalDivider(thickness = 0.5.dp)
+            }
+            item { Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium))) }
+        }
+    }
+}
+
+@Composable
+private fun StandingsHeaderRow() {
+    val horizontalPadding = dimensionResource(R.dimen.padding_medium)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = horizontalPadding, vertical = dimensionResource(R.dimen.padding_small)),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        StandingsCell(
+            text = stringResource(R.string.standings_header_rank),
+            width = dimensionResource(R.dimen.standings_position_width),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.standings_crest_size)))
+        Text(
+            text = "",
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = dimensionResource(R.dimen.padding_xsmall))
+        )
+        StandingsCell(
+            text = stringResource(R.string.standings_header_played),
+            width = dimensionResource(R.dimen.standings_stat_width),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        StandingsCell(
+            text = stringResource(R.string.standings_header_won),
+            width = dimensionResource(R.dimen.standings_stat_width),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        StandingsCell(
+            text = stringResource(R.string.standings_header_drawn),
+            width = dimensionResource(R.dimen.standings_stat_width),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        StandingsCell(
+            text = stringResource(R.string.standings_header_lost),
+            width = dimensionResource(R.dimen.standings_stat_width),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        StandingsCell(
+            text = stringResource(R.string.standings_header_gd),
+            width = dimensionResource(R.dimen.standings_gd_width),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        StandingsCell(
+            text = stringResource(R.string.standings_header_points),
+            width = dimensionResource(R.dimen.standings_pts_width),
+            bold = true,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+    HorizontalDivider()
+}
+
+@Composable
+private fun StandingRow(entry: StandingEntry, isFollowing: Boolean) {
+    val horizontalPadding = dimensionResource(R.dimen.padding_medium)
+    val highlightColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+    val gdText = if (entry.goalDifference >= 0) "+${entry.goalDifference}" else entry.goalDifference.toString()
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(if (isFollowing) highlightColor else Color.Transparent)
+            .padding(horizontal = horizontalPadding, vertical = dimensionResource(R.dimen.standings_row_vertical_padding)),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        StandingsCell(
+            text = entry.position.toString(),
+            width = dimensionResource(R.dimen.standings_position_width),
+            bold = isFollowing
+        )
+        AsyncImage(
+            model = entry.team.crestUrl,
+            contentDescription = entry.team.name,
+            modifier = Modifier.size(dimensionResource(R.dimen.standings_crest_size))
+        )
+        Text(
+            text = entry.team.shortName,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = dimensionResource(R.dimen.padding_xsmall)),
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = if (isFollowing) FontWeight.Bold else FontWeight.Normal,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        StandingsCell(text = entry.playedGames.toString(), width = dimensionResource(R.dimen.standings_stat_width))
+        StandingsCell(text = entry.won.toString(), width = dimensionResource(R.dimen.standings_stat_width))
+        StandingsCell(text = entry.draw.toString(), width = dimensionResource(R.dimen.standings_stat_width))
+        StandingsCell(text = entry.lost.toString(), width = dimensionResource(R.dimen.standings_stat_width))
+        StandingsCell(text = gdText, width = dimensionResource(R.dimen.standings_gd_width))
+        StandingsCell(
+            text = entry.points.toString(),
+            width = dimensionResource(R.dimen.standings_pts_width),
+            bold = true
+        )
+    }
+}
+
+@Composable
+private fun StandingsCell(
+    text: String,
+    width: Dp,
+    bold: Boolean = false,
+    color: Color = Color.Unspecified
+) {
+    Text(
+        text = text,
+        modifier = Modifier.width(width),
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.labelSmall,
+        fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal,
+        color = color
+    )
 }
 
 // Previews

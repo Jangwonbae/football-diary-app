@@ -3,6 +3,7 @@ package com.wbjang.footballdiary.ui.main.schedule
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wbjang.footballdiary.domain.model.Match
+import com.wbjang.footballdiary.domain.model.StandingEntry
 import com.wbjang.footballdiary.domain.repository.FootballRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,8 @@ import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
+enum class ScheduleTab { SCHEDULE, STANDINGS }
+
 data class ScheduleUiState(
     val isLoading: Boolean = false,
     val isCalendarMode: Boolean = false,
@@ -25,7 +28,11 @@ data class ScheduleUiState(
     val followingTeamCrestUrl: String? = null,
     val matches: List<Match> = emptyList(),
     val currentYearMonth: YearMonth = YearMonth.now(),
-    val error: String? = null
+    val error: String? = null,
+    val selectedTab: ScheduleTab = ScheduleTab.SCHEDULE,
+    val standings: List<StandingEntry> = emptyList(),
+    val standingsLoading: Boolean = false,
+    val standingsError: String? = null
 )
 
 @HiltViewModel
@@ -73,9 +80,38 @@ class ScheduleViewModel @Inject constructor(
             repository.getTeamMatches(teamId, dateFrom, dateTo)
                 .onSuccess { matches ->
                     _uiState.update { it.copy(matches = matches, isLoading = false) }
+                    if (_uiState.value.selectedTab == ScheduleTab.STANDINGS && _uiState.value.standings.isEmpty()) {
+                        loadStandings(matches)
+                    }
                 }
                 .onFailure { e ->
                     _uiState.update { it.copy(isLoading = false, error = e.message) }
+                }
+        }
+    }
+
+    fun selectTab(tab: ScheduleTab) {
+        _uiState.update { it.copy(selectedTab = tab) }
+        if (tab == ScheduleTab.STANDINGS && _uiState.value.standings.isEmpty() && !_uiState.value.standingsLoading) {
+            loadStandings(_uiState.value.matches)
+        }
+    }
+
+    private fun loadStandings(matches: List<Match>) {
+        val competitionId = matches
+            .groupBy { it.competition?.id }
+            .filterKeys { it != null }
+            .maxByOrNull { it.value.size }
+            ?.key ?: return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(standingsLoading = true, standingsError = null) }
+            repository.getStandings(competitionId)
+                .onSuccess { standings ->
+                    _uiState.update { it.copy(standings = standings, standingsLoading = false) }
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(standingsLoading = false, standingsError = e.message) }
                 }
         }
     }

@@ -77,6 +77,14 @@
     <dimen name="match_detail_review_star_size">20dp</dimen>
     <dimen name="match_detail_review_star_gap">2dp</dimen>
 
+    <!-- 순위표 -->
+    <dimen name="standings_position_width">24dp</dimen>
+    <dimen name="standings_crest_size">20dp</dimen>
+    <dimen name="standings_stat_width">28dp</dimen>
+    <dimen name="standings_gd_width">36dp</dimen>
+    <dimen name="standings_pts_width">36dp</dimen>
+    <dimen name="standings_row_vertical_padding">8dp</dimen>
+
     <!-- 태그 칩 -->
     <dimen name="tag_chip_min_touch_target">40dp</dimen>
 

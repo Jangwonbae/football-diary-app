@@ -2,6 +2,7 @@ package com.wbjang.footballdiary.data.api
 
 import com.wbjang.footballdiary.data.api.dto.CompetitionTeamsResponse
 import com.wbjang.footballdiary.data.api.dto.MatchDetailResponseDto
+import com.wbjang.footballdiary.data.api.dto.StandingsResponse
 import com.wbjang.footballdiary.data.api.dto.TeamMatchesResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -25,4 +26,9 @@ interface FootballApiService {
     suspend fun getMatchDetail(
         @Path("matchId") matchId: Int
     ): MatchDetailResponseDto
+
+    @GET("v4/competitions/{competitionId}/standings")
+    suspend fun getStandings(
+        @Path("competitionId") competitionId: Int
+    ): StandingsResponse
 }

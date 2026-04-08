@@ -143,6 +143,18 @@
     <string name="match_result_loss">패배</string>
     <string name="match_result_draw">무승부</string>
 
+    <!-- 순위표 -->
+    <string name="tab_standings">순위표</string>
+    <string name="standings_header_rank">#</string>
+    <string name="standings_header_played">경기</string>
+    <string name="standings_header_won">승</string>
+    <string name="standings_header_drawn">무</string>
+    <string name="standings_header_lost">패</string>
+    <string name="standings_header_gd">득실</string>
+    <string name="standings_header_points">승점</string>
+    <string name="error_load_standings">순위표를 불러오지 못했어요</string>
+    <string name="standings_empty">순위 정보가 없습니다</string>
+
     <!-- 경기 상태 (상세) -->
     <string name="match_status_finished">종료</string>
     <string name="match_status_scheduled">예정</string>
