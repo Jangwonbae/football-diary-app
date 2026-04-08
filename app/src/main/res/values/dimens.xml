@@ -88,8 +88,11 @@
     <!-- 태그 칩 -->
     <dimen name="tag_chip_min_touch_target">40dp</dimen>
 
+    <!-- 입력 필드 -->
+    <dimen name="text_field_compact_height">40dp</dimen>
+
     <!-- 소감 작성 화면 -->
-    <dimen name="write_review_star_gap">4dp</dimen>
+    <dimen name="write_review_star_gap">2dp</dimen>
     <dimen name="write_review_star_button_size">40dp</dimen>
     <dimen name="write_review_star_icon_size">32dp</dimen>
     <dimen name="write_review_chip_close_button_size">18dp</dimen>

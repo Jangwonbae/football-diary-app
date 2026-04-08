@@ -6,16 +6,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,6 +26,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -32,6 +37,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,6 +50,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -53,6 +62,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wbjang.footballdiary.R
@@ -188,12 +198,12 @@ fun WriteReviewScreen(
                 .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(dimensionResource(R.dimen.padding_medium)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_large))
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
         ) {
             // 경기 정보
             MatchInfoSection(match = match, matchDetail = matchDetail)
 
-            HorizontalDivider()
+//            HorizontalDivider()
 
             // 평점
             RatingSection(
@@ -226,40 +236,49 @@ fun WriteReviewScreen(
 
 @Composable
 private fun MatchInfoSection(match: Match, matchDetail: MatchDetail?) {
-    Column(
+    Card(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+        shape = RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
-        // 스코어
-        val scoreText = if (match.homeScore != null && match.awayScore != null) {
-            "${match.homeTeam.name}  ${match.homeScore} ${stringResource(R.string.write_review_score_separator)} ${match.awayScore}  ${match.awayTeam.name}"
-        } else {
-            "${match.homeTeam.name}  ${stringResource(R.string.match_status_vs)}  ${match.awayTeam.name}"
-        }
-        Text(
-            text = scoreText,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-
-        // 대회명
-        match.competition?.name?.let { competitionName ->
-            val venueText = matchDetail?.venue
-            val infoText = if (venueText != null) {
-                stringResource(R.string.write_review_competition_venue_format, competitionName, venueText)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(dimensionResource(R.dimen.padding_small)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+        ) {
+            // 스코어
+            val scoreText = if (match.homeScore != null && match.awayScore != null) {
+                "${match.homeTeam.name}  ${match.homeScore} ${stringResource(R.string.write_review_score_separator)} ${match.awayScore}  ${match.awayTeam.name}"
             } else {
-                competitionName
+                "${match.homeTeam.name}  ${stringResource(R.string.match_status_vs)}  ${match.awayTeam.name}"
             }
             Text(
-                text = infoText,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = scoreText,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
+
+            // 대회명
+            match.competition?.name?.let { competitionName ->
+                val venueText = matchDetail?.venue
+                val infoText = if (venueText != null) {
+                    stringResource(R.string.write_review_competition_venue_format, competitionName, venueText)
+                } else {
+                    competitionName
+                }
+                Text(
+                    text = infoText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
+    
 }
 
 @Composable
@@ -297,7 +316,7 @@ private fun EmotionTagSection(
     onCustomTagAdd: (String) -> Unit,
     onTagRemove: (String) -> Unit
 ) {
-    var customTagInput by rememberSaveable { mutableStateOf("") }
+    val customTagInputState = rememberTextFieldState()
     val presetTags = stringArrayResource(R.array.preset_emotion_tags).toList()
     val customTags = selectedTags.filter { it !in presetTags }
 
@@ -357,22 +376,33 @@ private fun EmotionTagSection(
 
 
         // 커스텀 태그 입력
+        val fontScale = LocalDensity.current.fontScale
+        val compactHeight = dimensionResource(R.dimen.text_field_compact_height)
+        val fieldHeight = remember(fontScale, compactHeight) {
+            (compactHeight.value * fontScale.coerceAtLeast(1f)).dp
+        }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
         ) {
             OutlinedTextField(
-                value = customTagInput,
-                onValueChange = { customTagInput = it },
+                state = customTagInputState,
                 placeholder = { Text(text = stringResource(R.string.write_review_tag_input_hint)) },
-                singleLine = true,
-                modifier = Modifier.weight(1f)
+                lineLimits = TextFieldLineLimits.SingleLine,
+                contentPadding = PaddingValues(
+                    horizontal = dimensionResource(R.dimen.padding_medium),
+                    vertical = dimensionResource(R.dimen.padding_small)
+                ),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(fieldHeight)
             )
             TextButton(
                 onClick = {
-                    if (customTagInput.isNotBlank()) {
-                        onCustomTagAdd(customTagInput.trim())
-                        customTagInput = ""
+                    val input = customTagInputState.text.toString()
+                    if (input.isNotBlank()) {
+                        onCustomTagAdd(input.trim())
+                        customTagInputState.clearText()
                     }
                 }
             ) {
@@ -432,7 +462,7 @@ private fun PreviewMatchInfoSection() {
     )
 
     FootballDiaryTheme {
-        Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))) {
+        Column(modifier = Modifier/*.padding(dimensionResource(R.dimen.padding_medium))*/) {
             MatchInfoSection(match = sampleMatch, matchDetail = sampleDetail)
         }
     }
