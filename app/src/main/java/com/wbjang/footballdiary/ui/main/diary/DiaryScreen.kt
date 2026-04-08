@@ -28,7 +28,9 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +47,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.wbjang.footballdiary.R
 import com.wbjang.footballdiary.domain.model.MatchResult
 import com.wbjang.footballdiary.domain.model.Review
@@ -85,17 +88,19 @@ fun DiaryScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(chipPadding)) {
-                FilterChip(
-                    selected = sortField == ReviewSortField.MATCH_DATE,
-                    onClick = { viewModel.setSortField(ReviewSortField.MATCH_DATE) },
-                    label = { Text(stringResource(R.string.diary_sort_field_match_date)) }
-                )
-                FilterChip(
-                    selected = sortField == ReviewSortField.WRITTEN_DATE,
-                    onClick = { viewModel.setSortField(ReviewSortField.WRITTEN_DATE) },
-                    label = { Text(stringResource(R.string.diary_sort_field_written_date)) }
-                )
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                Row(horizontalArrangement = Arrangement.spacedBy(chipPadding)) {
+                    FilterChip(
+                        selected = sortField == ReviewSortField.MATCH_DATE,
+                        onClick = { viewModel.setSortField(ReviewSortField.MATCH_DATE) },
+                        label = { Text(stringResource(R.string.diary_sort_field_match_date)) }
+                    )
+                    FilterChip(
+                        selected = sortField == ReviewSortField.WRITTEN_DATE,
+                        onClick = { viewModel.setSortField(ReviewSortField.WRITTEN_DATE) },
+                        label = { Text(stringResource(R.string.diary_sort_field_written_date)) }
+                    )
+                }
             }
             if (availableSeasons.isNotEmpty()) {
                 SeasonDropdown(
@@ -105,21 +110,22 @@ fun DiaryScreen(
                 )
             }
         }
-        Row(
-            modifier = Modifier
-                .padding(horizontal = horizontalPadding),
-            horizontalArrangement = Arrangement.spacedBy(chipPadding)
-        ) {
-            FilterChip(
-                selected = sortDirection == ReviewSortDirection.DESC,
-                onClick = { viewModel.setSortDirection(ReviewSortDirection.DESC) },
-                label = { Text(stringResource(R.string.diary_sort_dir_desc)) }
-            )
-            FilterChip(
-                selected = sortDirection == ReviewSortDirection.ASC,
-                onClick = { viewModel.setSortDirection(ReviewSortDirection.ASC) },
-                label = { Text(stringResource(R.string.diary_sort_dir_asc)) }
-            )
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            Row(
+                modifier = Modifier.padding(horizontal = horizontalPadding),
+                horizontalArrangement = Arrangement.spacedBy(chipPadding)
+            ) {
+                FilterChip(
+                    selected = sortDirection == ReviewSortDirection.DESC,
+                    onClick = { viewModel.setSortDirection(ReviewSortDirection.DESC) },
+                    label = { Text(stringResource(R.string.diary_sort_dir_desc)) }
+                )
+                FilterChip(
+                    selected = sortDirection == ReviewSortDirection.ASC,
+                    onClick = { viewModel.setSortDirection(ReviewSortDirection.ASC) },
+                    label = { Text(stringResource(R.string.diary_sort_dir_asc)) }
+                )
+            }
         }
 
         if (reviews.isEmpty()) {
