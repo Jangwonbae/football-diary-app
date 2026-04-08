@@ -41,11 +41,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,6 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
@@ -480,11 +483,13 @@ private fun ReviewSection(
                             )
                         }
                     }
-
-                    // 감정 태그
-                    if (review.emotionTags.isNotEmpty()) {
-                        ExpandableTagRow(tags = review.emotionTags)
+                    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides dimensionResource(R.dimen.tag_chip_min_touch_target)) {
+                        // 감정 태그
+                        if (review.emotionTags.isNotEmpty()) {
+                            ExpandableTagRow(tags = review.emotionTags)
+                        }
                     }
+
 
                     // 소감 내용
                     if (review.content.isNotBlank()) {

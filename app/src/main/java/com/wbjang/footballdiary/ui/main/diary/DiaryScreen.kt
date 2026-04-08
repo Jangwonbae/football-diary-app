@@ -378,11 +378,13 @@ private fun ReviewCard(review: Review, followingTeamId: Int?, onClick: () -> Uni
                     )
                 }
             }
-
-            // 감정 태그
-            if (review.emotionTags.isNotEmpty()) {
-                ExpandableTagRow(tags = review.emotionTags)
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides dimensionResource(R.dimen.tag_chip_min_touch_target)) {
+                // 감정 태그
+                if (review.emotionTags.isNotEmpty()) {
+                    ExpandableTagRow(tags = review.emotionTags)
+                }
             }
+
 
             // 소감 내용 미리보기
             if (review.content.isNotBlank()) {

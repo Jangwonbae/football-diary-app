@@ -77,6 +77,9 @@
     <dimen name="match_detail_review_star_size">20dp</dimen>
     <dimen name="match_detail_review_star_gap">2dp</dimen>
 
+    <!-- 태그 칩 -->
+    <dimen name="tag_chip_min_touch_target">40dp</dimen>
+
     <!-- 소감 작성 화면 -->
     <dimen name="write_review_star_gap">4dp</dimen>
     <dimen name="write_review_star_button_size">40dp</dimen>
