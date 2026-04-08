@@ -20,6 +20,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -46,7 +48,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
+import java.time.temporal.ChronoUnit
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -172,8 +177,7 @@ fun ScheduleScreen(
                         yearMonth = uiState.currentYearMonth,
                         matches = uiState.matches,
                         followingTeamId = uiState.followingTeamId,
-                        onPreviousMonth = { viewModel.goToPreviousMonth() },
-                        onNextMonth = { viewModel.goToNextMonth() },
+                        onMonthChange = { viewModel.setYearMonth(it) },
                         onMatchClick = onMatchClick
                     )
                 }
@@ -273,17 +277,45 @@ private fun ViewModeToggle(
 // ──────────────────────────────────────────────
 // 캘린더 뷰
 // ──────────────────────────────────────────────
+private val CALENDAR_BASE_YEAR_MONTH = YearMonth.of(2000, 1)
+private const val CALENDAR_PAGE_COUNT = 600
+
+private fun yearMonthToPage(ym: YearMonth): Int =
+    ChronoUnit.MONTHS.between(CALENDAR_BASE_YEAR_MONTH, ym).toInt()
+        .coerceIn(0, CALENDAR_PAGE_COUNT - 1)
+
+private fun pageToYearMonth(page: Int): YearMonth =
+    CALENDAR_BASE_YEAR_MONTH.plusMonths(page.toLong())
+
 @Composable
 private fun CalendarView(
     yearMonth: YearMonth,
     matches: List<Match>,
     followingTeamId: Int?,
-    onPreviousMonth: () -> Unit,
-    onNextMonth: () -> Unit,
+    onMonthChange: (YearMonth) -> Unit,
     onMatchClick: (Match) -> Unit
 ) {
-    val matchesByDate = matches.groupBy { it.localDate() }
+    val scope = rememberCoroutineScope()
     val today = LocalDate.now()
+    val pagerState = rememberPagerState(
+        initialPage = yearMonthToPage(yearMonth),
+        pageCount = { CALENDAR_PAGE_COUNT }
+    )
+    val displayedYearMonth = pageToYearMonth(pagerState.currentPage)
+
+    // 스와이프로 페이지가 정착되면 ViewModel에 알림
+    LaunchedEffect(pagerState.settledPage) {
+        val settled = pageToYearMonth(pagerState.settledPage)
+        if (settled != yearMonth) onMonthChange(settled)
+    }
+
+    // ViewModel yearMonth 변경(화살표·resetToCurrentMonth) 시 페이저 이동
+    LaunchedEffect(yearMonth) {
+        val targetPage = yearMonthToPage(yearMonth)
+        if (pagerState.currentPage != targetPage) {
+            pagerState.animateScrollToPage(targetPage)
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // 월 네비게이션 헤더
@@ -294,15 +326,19 @@ private fun CalendarView(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            IconButton(onClick = onPreviousMonth) {
+            IconButton(onClick = {
+                scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
+            }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
             }
             Text(
-                text = yearMonth.format(DateTimeFormatter.ofPattern(stringResource(R.string.date_format_year_month))),
+                text = displayedYearMonth.format(DateTimeFormatter.ofPattern(stringResource(R.string.date_format_year_month))),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            IconButton(onClick = onNextMonth) {
+            IconButton(onClick = {
+                scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+            }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
             }
         }
@@ -328,12 +364,35 @@ private fun CalendarView(
 
         HorizontalDivider(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.calendar_divider_padding)))
 
-        // 날짜 그리드
-        val daysInMonth = yearMonth.lengthOfMonth()
-        val firstDayOffset = yearMonth.atDay(1).dayOfWeek.value - 1 // 월=0, 일=6
-        val totalCells = firstDayOffset + daysInMonth
-        val rows = (totalCells + 6) / 7
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            CalendarMonthGrid(
+                yearMonth = pageToYearMonth(page),
+                matches = matches,
+                today = today,
+                followingTeamId = followingTeamId,
+                onMatchClick = onMatchClick
+            )
+        }
+    }
+}
 
+@Composable
+private fun CalendarMonthGrid(
+    yearMonth: YearMonth,
+    matches: List<Match>,
+    today: LocalDate,
+    followingTeamId: Int?,
+    onMatchClick: (Match) -> Unit
+) {
+    val matchesByDate = remember(matches, yearMonth) { matches.groupBy { it.localDate() } }
+    val daysInMonth = yearMonth.lengthOfMonth()
+    val firstDayOffset = yearMonth.atDay(1).dayOfWeek.value - 1
+    val rows = (firstDayOffset + daysInMonth + 6) / 7
+
+    Column(modifier = Modifier.fillMaxSize()) {
         for (row in 0 until rows) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 for (col in 0 until 7) {

@@ -132,4 +132,8 @@ class ScheduleViewModel @Inject constructor(
         _uiState.update { it.copy(currentYearMonth = it.currentYearMonth.plusMonths(1)) }
     }
     fun markScrolled() { hasScrolledToUpcoming = true }
+
+    fun setYearMonth(yearMonth: YearMonth) {
+        _uiState.update { it.copy(currentYearMonth = yearMonth) }
+    }
 }
