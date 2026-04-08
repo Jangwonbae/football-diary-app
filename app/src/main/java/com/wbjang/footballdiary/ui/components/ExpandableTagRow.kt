@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ContextualFlowRow
 import androidx.compose.foundation.layout.ContextualFlowRowOverflow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.material3.AssistChip
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -28,7 +28,8 @@ fun ExpandableTagRow(tags: List<String>) {
         overflow = ContextualFlowRowOverflow.expandOrCollapseIndicator(
             expandIndicator = {
                 val remaining = totalItemCount - shownItemCount
-                AssistChip(
+                FilterChip(
+                    selected = false,
                     onClick = { isExpanded = true },
                     label = {
                         Text(
@@ -51,7 +52,8 @@ fun ExpandableTagRow(tags: List<String>) {
                 )
             }
         } else {
-            AssistChip(
+            FilterChip(
+                selected = true,
                 onClick = {},
                 label = { Text(text = tags[index], style = MaterialTheme.typography.labelSmall) }
             )
