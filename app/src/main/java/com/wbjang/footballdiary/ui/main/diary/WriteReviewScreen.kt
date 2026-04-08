@@ -159,51 +159,47 @@ fun WriteReviewScreen(
         )
     }
 
-    Scaffold(
-        contentWindowInsets = WindowInsets(0),
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.write_review_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+    Column(modifier = Modifier.fillMaxSize()) {
+        CenterAlignedTopAppBar(
+            title = {
+                Text(
+                    text = stringResource(R.string.write_review_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            navigationIcon = {
+                IconButton(onClick = onBackPressed) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = null
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackPressed) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                actions = {
-                    TextButton(onClick = onSave) {
-                        Text(
-                            text = stringResource(R.string.write_review_save_action),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                },
-                windowInsets = WindowInsets(0)
-            )
-        }
-    ) { paddingValues ->
+                }
+            },
+            actions = {
+                TextButton(onClick = onSave) {
+                    Text(
+                        text = stringResource(R.string.write_review_save_action),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            },
+            windowInsets = WindowInsets(0)
+        )
+
+        HorizontalDivider()
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .imePadding()
+//                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(dimensionResource(R.dimen.padding_medium)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
         ) {
             // 경기 정보
             MatchInfoSection(match = match, matchDetail = matchDetail)
-
-//            HorizontalDivider()
 
             // 평점
             RatingSection(
