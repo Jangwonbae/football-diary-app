@@ -30,12 +30,14 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,13 +51,18 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringArrayResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wbjang.footballdiary.R
 import com.wbjang.footballdiary.domain.model.Match
+import com.wbjang.footballdiary.domain.model.MatchCompetition
 import com.wbjang.footballdiary.domain.model.MatchDetail
+import com.wbjang.footballdiary.domain.model.MatchStatus
+import com.wbjang.footballdiary.domain.model.MatchTeam
 import com.wbjang.footballdiary.domain.model.Review
+import com.wbjang.footballdiary.ui.theme.FootballDiaryTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -90,9 +97,12 @@ fun WriteReviewScreen(
         if (isDirty) showDiscardDialog = true else onBack()
     }
 
+    val contentRequiredMessage = stringResource(R.string.write_review_content_required)
+    var contentRequiredToast by remember { mutableStateOf<Toast?>(null) }
     val onSave = {
         if (uiState.content.isBlank()) {
-            Toast.makeText(context, context.getString(R.string.write_review_content_required), Toast.LENGTH_SHORT).show()
+            contentRequiredToast?.cancel()
+            contentRequiredToast = Toast.makeText(context, contentRequiredMessage, Toast.LENGTH_SHORT).also { it.show() }
         } else {
             viewModel.saveReview(
                 matchId = match.id,
@@ -298,47 +308,53 @@ private fun EmotionTagSection(
             fontWeight = FontWeight.Bold
         )
 
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides dimensionResource(R.dimen.tag_chip_min_touch_target)) {
         // 프리셋 태그
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.write_review_tag_vertical_gap))
-        ) {
-            presetTags.forEach { tag ->
-                FilterChip(
-                    selected = tag in selectedTags,
-                    onClick = { onTagToggle(tag) },
-                    label = { Text(text = tag) }
-                )
-            }
-        }
-
-        // 커스텀 태그
-        if (customTags.isNotEmpty()) {
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.write_review_tag_vertical_gap))
             ) {
-                customTags.forEach { tag ->
-                    InputChip(
-                        selected = true,
-                        onClick = {},
-                        label = { Text(text = tag) },
-                        trailingIcon = {
-                            IconButton(
-                                onClick = { onTagRemove(tag) },
-                                modifier = Modifier.size(dimensionResource(R.dimen.write_review_chip_close_button_size))
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Close,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(dimensionResource(R.dimen.write_review_chip_close_icon_size))
-                                )
-                            }
-                        }
+                presetTags.forEach { tag ->
+                    FilterChip(
+                        selected = tag in selectedTags,
+                        onClick = { onTagToggle(tag) },
+                        label = { Text(text = tag) }
                     )
                 }
             }
         }
+
+
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides dimensionResource(R.dimen.tag_chip_min_touch_target)) {
+            // 커스텀 태그
+            if (customTags.isNotEmpty()) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.write_review_tag_vertical_gap))
+                ) {
+                    customTags.forEach { tag ->
+                        InputChip(
+                            selected = true,
+                            onClick = {},
+                            label = { Text(text = tag) },
+                            trailingIcon = {
+                                IconButton(
+                                    onClick = { onTagRemove(tag) },
+                                    modifier = Modifier.size(dimensionResource(R.dimen.write_review_chip_close_button_size))
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(dimensionResource(R.dimen.write_review_chip_close_icon_size))
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
 
         // 커스텀 태그 입력
         Row(
@@ -383,5 +399,81 @@ private fun ContentSection(content: String, onContentChange: (String) -> Unit) {
                 .height(dimensionResource(R.dimen.write_review_content_height)),
             maxLines = 10
         )
+    }
+}
+
+// ──────────────────────────────────────────────
+// Previews
+// ──────────────────────────────────────────────
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewMatchInfoSection() {
+    val sampleMatch = Match(
+        id = 1,
+        utcDate = "2024-03-20T20:00:00Z",
+        status = MatchStatus.FINISHED,
+        matchday = 28,
+        competition = MatchCompetition(1, "Premier League", null),
+        homeTeam = MatchTeam(1, "Arsenal FC", "Arsenal", ""),
+        awayTeam = MatchTeam(2, "Manchester City FC", "Man City", ""),
+        homeScore = 2,
+        awayScore = 1
+    )
+    val sampleDetail = MatchDetail(
+        match = sampleMatch,
+        seasonLabel = "2023/24",
+        venue = "Emirates Stadium",
+        attendance = 60000,
+        goals = emptyList(),
+        bookings = emptyList(),
+        substitutions = emptyList(),
+        lineups = emptyList()
+    )
+
+    FootballDiaryTheme {
+        Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))) {
+            MatchInfoSection(match = sampleMatch, matchDetail = sampleDetail)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewRatingSection() {
+    var rating by remember { mutableStateOf(3) }
+    FootballDiaryTheme {
+        Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))) {
+            RatingSection(rating = rating, onRatingChange = { rating = it })
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewEmotionTagSection() {
+    var selectedTags by remember { mutableStateOf(listOf("승리", "짜릿함")) }
+    FootballDiaryTheme {
+        Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))) {
+            EmotionTagSection(
+                selectedTags = selectedTags,
+                onTagToggle = { tag ->
+                    selectedTags = if (tag in selectedTags) selectedTags - tag else selectedTags + tag
+                },
+                onCustomTagAdd = { tag -> selectedTags = selectedTags + tag },
+                onTagRemove = { tag -> selectedTags = selectedTags - tag }
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewContentSection() {
+    var content by remember { mutableStateOf("") }
+    com.wbjang.footballdiary.ui.theme.FootballDiaryTheme {
+        Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))) {
+            ContentSection(content = content, onContentChange = { content = it })
+        }
     }
 }

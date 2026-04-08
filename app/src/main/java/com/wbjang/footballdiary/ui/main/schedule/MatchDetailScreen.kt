@@ -452,9 +452,6 @@ private fun ReviewSection(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
-//                    Button(onClick = { onWriteReview(null) }) {
-//                        Text(text = stringResource(R.string.match_detail_write_review))
-//                    }
                 }
             } else {
                 // 소감 표시
@@ -489,7 +486,6 @@ private fun ReviewSection(
                             ExpandableTagRow(tags = review.emotionTags)
                         }
                     }
-
 
                     // 소감 내용
                     if (review.content.isNotBlank()) {
