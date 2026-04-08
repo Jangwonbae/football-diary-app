@@ -88,7 +88,7 @@ fun DiaryScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 40.dp) {
                 Row(horizontalArrangement = Arrangement.spacedBy(chipPadding)) {
                     FilterChip(
                         selected = sortField == ReviewSortField.MATCH_DATE,
@@ -101,16 +101,17 @@ fun DiaryScreen(
                         label = { Text(stringResource(R.string.diary_sort_field_written_date)) }
                     )
                 }
+                if (availableSeasons.isNotEmpty()) {
+                    SeasonDropdown(
+                        selectedSeason = selectedSeason,
+                        availableSeasons = availableSeasons,
+                        onSeasonSelected = { viewModel.setSelectedSeason(it) }
+                    )
+                }
             }
-            if (availableSeasons.isNotEmpty()) {
-                SeasonDropdown(
-                    selectedSeason = selectedSeason,
-                    availableSeasons = availableSeasons,
-                    onSeasonSelected = { viewModel.setSelectedSeason(it) }
-                )
-            }
+
         }
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 40.dp) {
             Row(
                 modifier = Modifier.padding(horizontal = horizontalPadding),
                 horizontalArrangement = Arrangement.spacedBy(chipPadding)
