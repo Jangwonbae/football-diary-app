@@ -51,7 +51,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
@@ -89,10 +88,13 @@ fun WriteReviewScreen(
 
     LaunchedEffect(Unit) {
         existingReview?.let { viewModel.initWithReview(it) }
-    }
-
-    LaunchedEffect(uiState.isSaved) {
-        if (uiState.isSaved) onBack()
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is WriteReviewUiEvent.ShowToast ->
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                WriteReviewUiEvent.NavigateBack -> onBack()
+            }
+        }
     }
 
     val initialContent = existingReview?.content ?: ""
@@ -108,32 +110,27 @@ fun WriteReviewScreen(
     }
 
     val contentRequiredMessage = stringResource(R.string.write_review_content_required)
-    var contentRequiredToast by remember { mutableStateOf<Toast?>(null) }
     val onSave = {
-        if (uiState.content.isBlank()) {
-            contentRequiredToast?.cancel()
-            contentRequiredToast = Toast.makeText(context, contentRequiredMessage, Toast.LENGTH_SHORT).also { it.show() }
-        } else {
-            viewModel.saveReview(
-                matchId = match.id,
-                utcDate = match.utcDate,
-                homeTeamId = match.homeTeam.id,
-                homeTeamName = match.homeTeam.name,
-                homeTeamShortName = match.homeTeam.shortName,
-                homeTeamCrestUrl = match.homeTeam.crestUrl,
-                awayTeamId = match.awayTeam.id,
-                awayTeamName = match.awayTeam.name,
-                awayTeamShortName = match.awayTeam.shortName,
-                awayTeamCrestUrl = match.awayTeam.crestUrl,
-                homeScore = match.homeScore,
-                awayScore = match.awayScore,
-                matchday = match.matchday,
-                competition = match.competition?.name,
-                competitionEmblemUrl = match.competition?.emblemUrl,
-                venue = matchDetail?.venue,
-                seasonLabel = matchDetail?.seasonLabel
-            )
-        }
+        viewModel.saveReview(
+            matchId = match.id,
+            utcDate = match.utcDate,
+            homeTeamId = match.homeTeam.id,
+            homeTeamName = match.homeTeam.name,
+            homeTeamShortName = match.homeTeam.shortName,
+            homeTeamCrestUrl = match.homeTeam.crestUrl,
+            awayTeamId = match.awayTeam.id,
+            awayTeamName = match.awayTeam.name,
+            awayTeamShortName = match.awayTeam.shortName,
+            awayTeamCrestUrl = match.awayTeam.crestUrl,
+            homeScore = match.homeScore,
+            awayScore = match.awayScore,
+            matchday = match.matchday,
+            competition = match.competition?.name,
+            competitionEmblemUrl = match.competition?.emblemUrl,
+            venue = matchDetail?.venue,
+            seasonLabel = matchDetail?.seasonLabel,
+            contentRequiredMessage = contentRequiredMessage
+        )
     }
 
     BackHandler(onBack = onBackPressed)

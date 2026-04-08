@@ -5,8 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.repository.FootballRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -16,9 +19,13 @@ data class WriteReviewUiState(
     val existingReviewId: Int = 0,
     val rating: Int = 0,
     val selectedTags: List<String> = emptyList(),
-    val content: String = "",
-    val isSaved: Boolean = false
+    val content: String = ""
 )
+
+sealed class WriteReviewUiEvent {
+    data class ShowToast(val message: String) : WriteReviewUiEvent()
+    object NavigateBack : WriteReviewUiEvent()
+}
 
 @HiltViewModel
 class WriteReviewViewModel @Inject constructor(
@@ -27,6 +34,9 @@ class WriteReviewViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(WriteReviewUiState())
     val uiState: StateFlow<WriteReviewUiState> = _uiState.asStateFlow()
+
+    private val _uiEvent = MutableSharedFlow<WriteReviewUiEvent>(replay = 0)
+    val uiEvent: SharedFlow<WriteReviewUiEvent> = _uiEvent.asSharedFlow()
 
     fun initWithReview(review: Review) {
         _uiState.update {
@@ -81,10 +91,15 @@ class WriteReviewViewModel @Inject constructor(
         competition: String?,
         competitionEmblemUrl: String?,
         venue: String?,
-        seasonLabel: String?
+        seasonLabel: String?,
+        contentRequiredMessage: String
     ) {
         viewModelScope.launch {
             val state = _uiState.value
+            if (state.content.isBlank()) {
+                _uiEvent.emit(WriteReviewUiEvent.ShowToast(contentRequiredMessage))
+                return@launch
+            }
             repository.saveReview(
                 Review(
                     id = state.existingReviewId,
@@ -110,7 +125,7 @@ class WriteReviewViewModel @Inject constructor(
                     content = state.content
                 )
             )
-            _uiState.update { it.copy(isSaved = true) }
+            _uiEvent.emit(WriteReviewUiEvent.NavigateBack)
         }
     }
 }
