@@ -190,7 +190,7 @@ fun WriteReviewScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-//                .imePadding()
+                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(dimensionResource(R.dimen.padding_medium)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
