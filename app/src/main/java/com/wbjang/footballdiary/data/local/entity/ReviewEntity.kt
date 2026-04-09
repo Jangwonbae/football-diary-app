@@ -26,5 +26,6 @@ data class ReviewEntity(
     val rating: Float,
     val emotionTags: String, // 쉼표로 구분된 태그 목록
     val content: String,
+    val followingTeamId: Int,
     val createdAt: Long = System.currentTimeMillis()
 )

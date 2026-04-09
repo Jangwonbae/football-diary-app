@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -122,7 +123,8 @@ class WriteReviewViewModel @Inject constructor(
                     seasonLabel = seasonLabel,
                     rating = state.rating.toFloat(),
                     emotionTags = state.selectedTags,
-                    content = state.content
+                    content = state.content,
+                    followingTeamId = repository.getFollowingTeamId().first() ?: 0
                 )
             )
             _uiEvent.emit(WriteReviewUiEvent.NavigateBack)

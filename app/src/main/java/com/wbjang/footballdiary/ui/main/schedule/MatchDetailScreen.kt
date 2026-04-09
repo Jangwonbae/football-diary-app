@@ -1037,6 +1037,7 @@ private fun PreviewReviewSection() {
                     rating = 4.5f,
                     emotionTags = listOf("승리", "역전승", "짜릿함", "승리", "역전승", "짜릿함", "승리", "역전승", "짜릿함"),
                     content = "정말 환상적인 경기였습니다! 마지막 분에 터진 결승골은 잊을 수 없을 거예요.",
+                    followingTeamId = 1,
                     createdAt = System.currentTimeMillis()
                 ),
                 onWriteReview = {},

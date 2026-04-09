@@ -22,6 +22,7 @@ data class Review(
     val rating: Float,
     val emotionTags: List<String>,
     val content: String,
+    val followingTeamId: Int,
     val createdAt: Long = System.currentTimeMillis()
 )
 

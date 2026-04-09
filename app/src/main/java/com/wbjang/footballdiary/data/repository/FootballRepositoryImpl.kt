@@ -206,7 +206,8 @@ class FootballRepositoryImpl @Inject constructor(
                 seasonLabel = review.seasonLabel,
                 rating = review.rating,
                 emotionTags = review.emotionTags.joinToString(","),
-                content = review.content
+                content = review.content,
+                followingTeamId = review.followingTeamId
             )
         )
     }
@@ -246,6 +247,7 @@ class FootballRepositoryImpl @Inject constructor(
         rating = rating,
         emotionTags = if (emotionTags.isBlank()) emptyList() else emotionTags.split(","),
         content = content,
+        followingTeamId = followingTeamId,
         createdAt = createdAt
     )
 

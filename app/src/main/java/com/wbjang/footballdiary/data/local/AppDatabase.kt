@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.wbjang.footballdiary.data.local.dao.ReviewDao
 import com.wbjang.footballdiary.data.local.entity.ReviewEntity
 
-@Database(entities = [ReviewEntity::class], version = 4, exportSchema = false)
+@Database(entities = [ReviewEntity::class], version = 5, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun reviewDao(): ReviewDao
 }

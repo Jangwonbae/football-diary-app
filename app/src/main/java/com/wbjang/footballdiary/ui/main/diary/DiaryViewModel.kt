@@ -30,7 +30,7 @@ class DiaryViewModel @Inject constructor(
     private val allReviews: StateFlow<List<Review>> = repository.getAllReviews()
         .combine(followingTeamId) { list, teamId ->
             if (teamId == null) list
-            else list.filter { it.homeTeamId == teamId || it.awayTeamId == teamId }
+            else list.filter { it.followingTeamId == teamId }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
