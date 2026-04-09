@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -33,8 +32,8 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -392,7 +391,7 @@ private fun ScoreBlock(match: Match, matchResult: MatchResult?) {
 // ──────────────────────────────────────────────
 // 소감 섹션
 // ──────────────────────────────────────────────
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun ReviewSection(
     review: Review?,
@@ -455,7 +454,29 @@ private fun ReviewSection(
                 }
             } else {
                 // 소감 표시
-                var showMenu by remember { mutableStateOf(false) }
+                var showSheet by remember { mutableStateOf(false) }
+                val sheetState = rememberModalBottomSheetState()
+
+                if (showSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = { showSheet = false },
+                        sheetState = sheetState
+                    ) {
+                        Text(
+                            text = stringResource(R.string.match_detail_delete_review),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    showSheet = false
+                                    onDeleteReview()
+                                }
+                                .padding(dimensionResource(R.dimen.padding_medium))
+                        )
+                    }
+                }
+
                 Box(modifier = Modifier.fillMaxWidth()) {
                     Column(
                         modifier = Modifier
@@ -511,38 +532,16 @@ private fun ReviewSection(
                     )
                 }
 
-                    // ... 드롭다운 메뉴 (우측 상단)
-                    Box(modifier = Modifier.align(Alignment.TopEnd)) {
-                        IconButton(onClick = { showMenu = true }) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = stringResource(R.string.match_detail_delete_review),
-                                        color = MaterialTheme.colorScheme.error
-                                    )
-                                },
-                                onClick = {
-                                    showMenu = false
-                                    onDeleteReview()
-                                },
-                                contentPadding = PaddingValues(
-                                    start = dimensionResource(R.dimen.padding_medium),
-                                    end = dimensionResource(R.dimen.padding_small),
-                                    top = dimensionResource(R.dimen.padding_small),
-                                    bottom = dimensionResource(R.dimen.padding_small)
-                                )
-                            )
-                        }
+                    // 우측 상단 더보기 버튼
+                    IconButton(
+                        onClick = { showSheet = true },
+                        modifier = Modifier.align(Alignment.TopEnd)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }

@@ -33,10 +33,11 @@ private val LightColorScheme = lightColorScheme(
     surface    = Grey99,
     onSurface  = Grey10,
 
-    surfaceVariant   = GreyVariant90,
-    onSurfaceVariant = GreyVariant30,
-    outline          = GreyVariant50,
-    outlineVariant   = GreyVariant80,
+    surfaceVariant    = GreyVariant90,
+    onSurfaceVariant  = GreyVariant30,
+    outline           = GreyVariant50,
+    outlineVariant    = GreyVariant80,
+    surfaceContainer  = Grey95,
 )
 
 // 밤 테마는 추후 설정
