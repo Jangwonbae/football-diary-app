@@ -77,7 +77,11 @@ private fun OnboardingContent(
     onConfirmFollowing: () -> Unit,
     onDismissDialog: () -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         Column(modifier = Modifier.fillMaxSize()) {
             OnboardingHeader()
             LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -87,7 +91,7 @@ private fun OnboardingContent(
                         onExpandClick = { onExpandClick(league.code) },
                         onFollowingClick = onFollowingClick
                     )
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline)
                 }
             }
         }
@@ -127,7 +131,7 @@ private fun OnboardingHeader() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primary)
+            .background(MaterialTheme.colorScheme.primaryContainer)
             .statusBarsPadding()
             .padding(
                 horizontal = dimensionResource(R.dimen.padding_large),
@@ -138,14 +142,14 @@ private fun OnboardingHeader() {
         Text(
             text = stringResource(R.string.onboarding_title),
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
         Text(
             text = stringResource(R.string.onboarding_subtitle),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
+            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
             textAlign = TextAlign.Center
         )
     }
@@ -179,7 +183,8 @@ private fun LeagueItem(
                 Text(
                     text = league.name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = league.country,
@@ -239,7 +244,7 @@ private fun LeagueItem(
                                 modifier = Modifier.padding(
                                     start = dimensionResource(R.dimen.padding_xlarge)
                                 ),
-                                color = MaterialTheme.colorScheme.outlineVariant
+                                color = MaterialTheme.colorScheme.outline
                             )
                         }
                     }
@@ -274,7 +279,8 @@ private fun TeamItem(
         Text(
             text = team.name,
             modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
         )
         OutlinedButton(
             onClick = onFollowingClick,
