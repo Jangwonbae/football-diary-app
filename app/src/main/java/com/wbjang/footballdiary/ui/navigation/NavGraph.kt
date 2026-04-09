@@ -20,10 +20,17 @@ fun NavGraph(
         modifier = Modifier.navigationBarsPadding()
     ) {
         composable(Screen.Onboarding.route) {
+            val canGoBack = navController.previousBackStackEntry != null
             OnboardingScreen(
                 onTeamSelected = {
-                    navController.navigate(Screen.Main.route) {
-                        popUpTo(Screen.Onboarding.route) { inclusive = true }
+                    if (canGoBack) {
+                        // Settings에서 진입한 경우 → 뒤로 돌아가기
+                        navController.popBackStack()
+                    } else {
+                        // 최초 온보딩 → Main으로 이동하며 Onboarding 제거
+                        navController.navigate(Screen.Main.route) {
+                            popUpTo(Screen.Onboarding.route) { inclusive = true }
+                        }
                     }
                 }
             )
@@ -32,9 +39,8 @@ fun NavGraph(
         composable(Screen.Main.route) {
             MainScreen(
                 onNavigateToOnboarding = {
-                    navController.navigate(Screen.Onboarding.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
+                    // 백스택 유지 (Main이 남아있어야 Settings로 돌아올 수 있음)
+                    navController.navigate(Screen.Onboarding.route)
                 }
             )
         }
