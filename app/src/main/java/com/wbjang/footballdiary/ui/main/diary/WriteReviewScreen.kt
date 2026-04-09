@@ -3,6 +3,7 @@ package com.wbjang.footballdiary.ui.main.diary
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -37,6 +38,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.OutlinedTextField
@@ -192,15 +194,6 @@ fun WriteReviewScreen(
                 .padding(dimensionResource(R.dimen.padding_medium)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
         ) {
-
-            // 소감 작성
-            ContentSection(
-                content = uiState.content,
-                onContentChange = viewModel::setContent
-            )
-
-            HorizontalDivider()
-
             // 평점
             RatingSection(
                 rating = uiState.rating,
@@ -216,6 +209,15 @@ fun WriteReviewScreen(
                 onCustomTagAdd = viewModel::addCustomTag,
                 onTagRemove = viewModel::toggleTag
             )
+
+            HorizontalDivider()
+
+            // 소감 작성
+            ContentSection(
+                content = uiState.content,
+                onContentChange = viewModel::setContent
+            )
+
         }
     }
 }
@@ -254,12 +256,12 @@ private fun MatchScoreSection(match: Match) {
 }
 @Composable
 private fun ContentSection(content: String, onContentChange: (String) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))) {
-//        Text(
-//            text = stringResource(R.string.write_review_content_label),
-//            style = MaterialTheme.typography.titleMedium,
-//            fontWeight = FontWeight.Bold
-//        )
+    Column {
+        Text(
+            text = stringResource(R.string.write_review_content_label),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
         OutlinedTextField(
             value = content,
             onValueChange = onContentChange,
@@ -275,7 +277,7 @@ private fun ContentSection(content: String, onContentChange: (String) -> Unit) {
 }
 @Composable
 private fun RatingSection(rating: Int, onRatingChange: (Int) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))) {
+    Column {
         Text(
             text = stringResource(R.string.write_review_rating_label),
             style = MaterialTheme.typography.titleMedium,
@@ -322,7 +324,7 @@ private fun EmotionTagSection(
         )
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))) {
+    Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
@@ -387,17 +389,37 @@ private fun CustomTagDialog(
     BasicAlertDialog(onDismissRequest = onDismiss) {
         Surface(shape = MaterialTheme.shapes.extraLarge) {
             Column(
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
+                modifier = Modifier.padding(
+                    horizontal = dimensionResource(R.dimen.padding_large),
+                    vertical = dimensionResource(R.dimen.padding_medium)
+                )
             ) {
                 Text(
                     text = stringResource(R.string.write_review_tag_dialog_title),
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_medium))
                 )
-                OutlinedTextField(
+                BasicTextField(
                     state = inputState,
-                    placeholder = { Text(text = stringResource(R.string.write_review_tag_input_hint)) },
                     lineLimits = TextFieldLineLimits.SingleLine,
+                    decorator = { innerTextField ->
+                        Column {
+                            Box(modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_small))) {
+                                if (inputState.text.isEmpty()) {
+                                    Text(
+                                        text = stringResource(R.string.write_review_tag_input_hint),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                innerTextField()
+                            }
+                            HorizontalDivider()
+                        }
+                    },
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
                 Row(
