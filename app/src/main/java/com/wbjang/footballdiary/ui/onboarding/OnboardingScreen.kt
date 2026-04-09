@@ -173,7 +173,6 @@ private fun LeagueItem(
                 contentDescription = league.name,
                 modifier = Modifier
                     .size(dimensionResource(R.dimen.emblem_league))
-//                    .clip(CircleShape)
             )
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_medium)))
             Column(modifier = Modifier.weight(1f)) {

@@ -40,14 +40,32 @@ private val LightColorScheme = lightColorScheme(
     surfaceContainer  = Grey95,
 )
 
-// 밤 테마는 추후 설정
 private val DarkColorScheme = darkColorScheme(
-    primary          = Blue80,
-    onPrimary        = Blue20,
-    primaryContainer = Blue30,
-    onPrimaryContainer = Blue90,
-    background = DarkSurface,
-    surface    = DarkSurface,
+    primary              = SkyBlue,
+    onPrimary            = SkyBlueDark,
+    primaryContainer     = SkyBlueDarkContainer,
+    onPrimaryContainer   = SkyBlueLight,
+
+    secondary            = Blue80,
+    onSecondary          = Blue20,
+    secondaryContainer   = Blue30,
+    onSecondaryContainer = Blue90,
+
+    error                = Red80,
+    onError              = Red10,
+    errorContainer       = Red40,
+    onErrorContainer     = Red90,
+
+    background           = MidnightBlue,
+    onBackground         = DarkOnSurface,
+    surface              = MidnightBlueLight,
+    onSurface            = DarkOnSurface,
+
+    surfaceVariant       = MidnightBlueVariant,
+    onSurfaceVariant     = DarkOnSurfaceVariant,
+    outline              = DarkOutline,
+    outlineVariant       = DarkOutlineVariant,
+    surfaceContainer     = MidnightBlueSurface,
 )
 
 @Composable

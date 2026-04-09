@@ -40,8 +40,18 @@ val GreyVariant90 = Color(0xFFDFE2EB)
 val ResultWin  = Color(0xFF43A047) // 승리 - 초록
 val ResultDraw = Color(0xFF757575) // 무승부 - 회색
 
-// ── 밤 테마 (추후 설정) ──────────────────────────────────────
-val DarkBlue20  = Color(0xFF003258)
-val DarkBlue80  = Color(0xFF9ECAFF)
-val DarkGrey10  = Color(0xFF1A1C1E)
-val DarkSurface = Color(0xFF1C1E21)
+// ── 다크 테마 (Midnight Blue + Sky Blue) ──────────────────────
+val MidnightBlue         = Color(0xFF1B263B)  // background
+val MidnightBlueLight    = Color(0xFF1F2D42)  // surface
+val MidnightBlueSurface  = Color(0xFF243040)  // surfaceContainer
+val MidnightBlueVariant  = Color(0xFF2A3A52)  // surfaceVariant
+
+val SkyBlue              = Color(0xFF82B1FF)  // primary
+val SkyBlueDark          = Color(0xFF003060)  // onPrimary
+val SkyBlueDarkContainer = Color(0xFF004494)  // primaryContainer
+val SkyBlueLight         = Color(0xFFD6E3FF)  // onPrimaryContainer
+
+val DarkOnSurface        = Color(0xFFC8D8E8)  // onBackground, onSurface
+val DarkOnSurfaceVariant = Color(0xFF8BA8C8)  // onSurfaceVariant
+val DarkOutline          = Color(0xFF4A6080)  // outline
+val DarkOutlineVariant   = Color(0xFF2A3850)  // outlineVariant
