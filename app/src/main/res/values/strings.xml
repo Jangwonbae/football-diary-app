@@ -126,6 +126,8 @@
     <string name="write_review_emotion_tags_label">감정 태그</string>
     <string name="write_review_tag_input_hint">태그 직접 입력</string>
     <string name="write_review_tag_add">추가</string>
+    <string name="write_review_tag_direct_input">직접입력</string>
+    <string name="write_review_tag_dialog_title">태그 추가</string>
     <string name="write_review_competition_venue_format">%1$s · %2$s</string>
     <string name="write_review_content_label">소감</string>
     <string name="write_review_hint">이 경기를 보며 어떤 감정이었나요?</string>
@@ -135,7 +137,7 @@
     <string name="write_review_discard_title">작성 취소</string>
     <string name="write_review_discard_message">작성한 내용이 저장되지 않습니다.\n취소하시겠어요?</string>
     <string name="write_review_discard_confirm">저장 안 함</string>
-    <string name="write_review_discard_cancel">계속 작성</string>
+    <string name="write_review_discard_cancel">취소</string>
     <string name="tag_collapse">간략히</string>
 
     <!-- 경기 결과 -->

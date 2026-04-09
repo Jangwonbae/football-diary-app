@@ -8,12 +8,10 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,6 +24,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -38,10 +38,10 @@ import androidx.compose.material3.InputChip
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,11 +50,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -64,6 +66,7 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.wbjang.footballdiary.R
 import com.wbjang.footballdiary.domain.model.Match
 import com.wbjang.footballdiary.domain.model.MatchCompetition
@@ -158,13 +161,7 @@ fun WriteReviewScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         CenterAlignedTopAppBar(
-            title = {
-                Text(
-                    text = stringResource(R.string.write_review_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            },
+            title = { MatchScoreSection(match = match) },
             navigationIcon = {
                 IconButton(onClick = onBackPressed) {
                     Icon(
@@ -195,8 +192,14 @@ fun WriteReviewScreen(
                 .padding(dimensionResource(R.dimen.padding_medium)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
         ) {
-            // 경기 정보
-            MatchInfoSection(match = match, matchDetail = matchDetail)
+
+            // 소감 작성
+            ContentSection(
+                content = uiState.content,
+                onContentChange = viewModel::setContent
+            )
+
+            HorizontalDivider()
 
             // 평점
             RatingSection(
@@ -213,67 +216,63 @@ fun WriteReviewScreen(
                 onCustomTagAdd = viewModel::addCustomTag,
                 onTagRemove = viewModel::toggleTag
             )
-
-            HorizontalDivider()
-
-            // 소감 작성
-            ContentSection(
-                content = uiState.content,
-                onContentChange = viewModel::setContent
-            )
-
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
         }
     }
 }
 
 @Composable
-private fun MatchInfoSection(match: Match, matchDetail: MatchDetail?) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+private fun MatchScoreSection(match: Match) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
+        AsyncImage(
+            model = match.homeTeam.crestUrl,
+            contentDescription = match.homeTeam.shortName,
+            modifier = Modifier.size(dimensionResource(R.dimen.emblem_team))
+        )
+
+        // 스코어
+        val scoreText = if (match.homeScore != null && match.awayScore != null) {
+            "${match.homeScore}  ${stringResource(R.string.write_review_score_separator)}  ${match.awayScore}"
+        } else {
+            stringResource(R.string.match_status_vs)
+        }
+        Text(
+            text = scoreText,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        // 원정팀
+        AsyncImage(
+            model = match.awayTeam.crestUrl,
+            contentDescription = match.awayTeam.shortName,
+            modifier = Modifier.size(dimensionResource(R.dimen.emblem_team))
+        )
+    }
+}
+@Composable
+private fun ContentSection(content: String, onContentChange: (String) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))) {
+//        Text(
+//            text = stringResource(R.string.write_review_content_label),
+//            style = MaterialTheme.typography.titleMedium,
+//            fontWeight = FontWeight.Bold
+//        )
+        OutlinedTextField(
+            value = content,
+            onValueChange = onContentChange,
+            placeholder = { Text(text = stringResource(R.string.write_review_hint)) },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent
+            ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(R.dimen.padding_small)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
-        ) {
-            // 스코어
-            val scoreText = if (match.homeScore != null && match.awayScore != null) {
-                "${match.homeTeam.name}  ${match.homeScore} ${stringResource(R.string.write_review_score_separator)} ${match.awayScore}  ${match.awayTeam.name}"
-            } else {
-                "${match.homeTeam.name}  ${stringResource(R.string.match_status_vs)}  ${match.awayTeam.name}"
-            }
-            Text(
-                text = scoreText,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-
-            // 대회명
-            match.competition?.name?.let { competitionName ->
-                val venueText = matchDetail?.venue
-                val infoText = if (venueText != null) {
-                    stringResource(R.string.write_review_competition_venue_format, competitionName, venueText)
-                } else {
-                    competitionName
-                }
-                Text(
-                    text = infoText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
+        )
     }
-    
 }
-
 @Composable
 private fun RatingSection(rating: Int, onRatingChange: (Int) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))) {
@@ -309,23 +308,42 @@ private fun EmotionTagSection(
     onCustomTagAdd: (String) -> Unit,
     onTagRemove: (String) -> Unit
 ) {
-    val customTagInputState = rememberTextFieldState()
     val presetTags = stringArrayResource(R.array.preset_emotion_tags).toList()
     val customTags = selectedTags.filter { it !in presetTags }
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        CustomTagDialog(
+            onDismiss = { showDialog = false },
+            onConfirm = { tag ->
+                onCustomTagAdd(tag)
+                showDialog = false
+            }
+        )
+    }
 
     Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))) {
-        Text(
-            text = stringResource(R.string.write_review_emotion_tags_label),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+        ) {
+            Text(
+                text = stringResource(R.string.write_review_emotion_tags_label),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            TextButton(onClick = { showDialog = true }) {
+                Text(text = stringResource(R.string.write_review_tag_direct_input))
+            }
+        }
+
 
         CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides dimensionResource(R.dimen.tag_chip_min_touch_target)) {
-        // 프리셋 태그
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.write_review_tag_vertical_gap))
             ) {
+                // 프리셋 태그
                 presetTags.forEach { tag ->
                     FilterChip(
                         selected = tag in selectedTags,
@@ -333,130 +351,88 @@ private fun EmotionTagSection(
                         label = { Text(text = tag) }
                     )
                 }
-            }
-        }
-
-
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides dimensionResource(R.dimen.tag_chip_min_touch_target)) {
-            // 커스텀 태그
-            if (customTags.isNotEmpty()) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.write_review_tag_vertical_gap))
-                ) {
-                    customTags.forEach { tag ->
-                        InputChip(
-                            selected = true,
-                            onClick = {},
-                            label = { Text(text = tag) },
-                            trailingIcon = {
-                                IconButton(
-                                    onClick = { onTagRemove(tag) },
-                                    modifier = Modifier.size(dimensionResource(R.dimen.write_review_chip_close_button_size))
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Close,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(dimensionResource(R.dimen.write_review_chip_close_icon_size))
-                                    )
-                                }
+                // 커스텀 태그
+                customTags.forEach { tag ->
+                    InputChip(
+                        selected = true,
+                        onClick = {},
+                        label = { Text(text = tag) },
+                        trailingIcon = {
+                            IconButton(
+                                onClick = { onTagRemove(tag) },
+                                modifier = Modifier.size(dimensionResource(R.dimen.write_review_chip_close_button_size))
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(dimensionResource(R.dimen.write_review_chip_close_icon_size))
+                                )
                             }
-                        )
-                    }
+                        }
+                    )
                 }
-            }
-        }
-
-
-        // 커스텀 태그 입력
-        val fontScale = LocalDensity.current.fontScale
-        val compactHeight = dimensionResource(R.dimen.text_field_compact_height)
-        val fieldHeight = remember(fontScale, compactHeight) {
-            (compactHeight.value * fontScale.coerceAtLeast(1f)).dp
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
-        ) {
-            OutlinedTextField(
-                state = customTagInputState,
-                placeholder = { Text(text = stringResource(R.string.write_review_tag_input_hint)) },
-                lineLimits = TextFieldLineLimits.SingleLine,
-                contentPadding = PaddingValues(
-                    horizontal = dimensionResource(R.dimen.padding_medium),
-                    vertical = dimensionResource(R.dimen.padding_small)
-                ),
-                modifier = Modifier
-                    .weight(1f)
-                    .height(fieldHeight)
-            )
-            TextButton(
-                onClick = {
-                    val input = customTagInputState.text.toString()
-                    if (input.isNotBlank()) {
-                        onCustomTagAdd(input.trim())
-                        customTagInputState.clearText()
-                    }
-                }
-            ) {
-                Text(text = stringResource(R.string.write_review_tag_add))
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ContentSection(content: String, onContentChange: (String) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))) {
-        Text(
-            text = stringResource(R.string.write_review_content_label),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        OutlinedTextField(
-            value = content,
-            onValueChange = onContentChange,
-            placeholder = { Text(text = stringResource(R.string.write_review_hint)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(dimensionResource(R.dimen.write_review_content_height)),
-            maxLines = 10
-        )
+private fun CustomTagDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    val inputState = rememberTextFieldState()
+
+    BasicAlertDialog(onDismissRequest = onDismiss) {
+        Surface(shape = MaterialTheme.shapes.extraLarge) {
+            Column(
+                modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
+            ) {
+                Text(
+                    text = stringResource(R.string.write_review_tag_dialog_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_medium))
+                )
+                OutlinedTextField(
+                    state = inputState,
+                    placeholder = { Text(text = stringResource(R.string.write_review_tag_input_hint)) },
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Row(
+                    modifier = Modifier.align(Alignment.End),
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text(text = stringResource(R.string.write_review_discard_cancel))
+                    }
+                    TextButton(
+                        onClick = {
+                            val input = inputState.text.toString().trim()
+                            if (input.isNotBlank()) onConfirm(input)
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.write_review_tag_add))
+                    }
+                }
+            }
+        }
     }
 }
+
+
 
 // ──────────────────────────────────────────────
 // Previews
 // ──────────────────────────────────────────────
-
 @Preview(showBackground = true)
 @Composable
-private fun PreviewMatchInfoSection() {
-    val sampleMatch = Match(
-        id = 1,
-        utcDate = "2024-03-20T20:00:00Z",
-        status = MatchStatus.FINISHED,
-        matchday = 28,
-        competition = MatchCompetition(1, "Premier League", null),
-        homeTeam = MatchTeam(1, "Arsenal FC", "Arsenal", ""),
-        awayTeam = MatchTeam(2, "Manchester City FC", "Man City", ""),
-        homeScore = 2,
-        awayScore = 1
-    )
-    val sampleDetail = MatchDetail(
-        match = sampleMatch,
-        seasonLabel = "2023/24",
-        venue = "Emirates Stadium",
-        attendance = 60000,
-        goals = emptyList(),
-        bookings = emptyList(),
-        substitutions = emptyList(),
-        lineups = emptyList()
-    )
-
-    FootballDiaryTheme {
-        Column(modifier = Modifier/*.padding(dimensionResource(R.dimen.padding_medium))*/) {
-            MatchInfoSection(match = sampleMatch, matchDetail = sampleDetail)
+private fun PreviewContentSection() {
+    var content by remember { mutableStateOf("") }
+    com.wbjang.footballdiary.ui.theme.FootballDiaryTheme {
+        Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))) {
+            ContentSection(content = content, onContentChange = { content = it })
         }
     }
 }
@@ -492,11 +468,11 @@ private fun PreviewEmotionTagSection() {
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewContentSection() {
-    var content by remember { mutableStateOf("") }
+private fun PreviewCustomTagDialog() {
     com.wbjang.footballdiary.ui.theme.FootballDiaryTheme {
-        Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))) {
-            ContentSection(content = content, onContentChange = { content = it })
-        }
+        CustomTagDialog(
+            onDismiss = {},
+            onConfirm = {}
+        )
     }
 }
