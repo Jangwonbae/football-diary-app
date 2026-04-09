@@ -1,6 +1,7 @@
 package com.wbjang.footballdiary.ui.main.diary
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -34,6 +37,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -132,7 +136,15 @@ fun DiaryScreen(
         if (reviews.isEmpty()) {
             EmptyDiary()
         } else {
+            val listState = rememberLazyListState()
+            val resetKey = Triple(sortField, sortDirection, selectedSeason)
+
+            LaunchedEffect(resetKey) {
+                listState.scrollToItem(0)
+            }
+
             LazyColumn(
+                state = listState,
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
             ) {
@@ -141,6 +153,7 @@ fun DiaryScreen(
                     ReviewCard(
                         review = review,
                         followingTeamId = followingTeamId,
+                        resetKey = resetKey,
                         onClick = { onReviewClick(review) }
                     )
                 }
@@ -212,7 +225,7 @@ private fun EmptyDiary() {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ReviewCard(review: Review, followingTeamId: Int?, onClick: () -> Unit) {
+private fun ReviewCard(review: Review, followingTeamId: Int?, resetKey: Any, onClick: () -> Unit) {
     val writtenDateFormat = stringResource(R.string.date_format_review_written)
     val writtenFormatter = remember(writtenDateFormat) {
         DateTimeFormatter.ofPattern(writtenDateFormat, Locale.KOREAN)
@@ -382,20 +395,39 @@ private fun ReviewCard(review: Review, followingTeamId: Int?, onClick: () -> Uni
             CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides dimensionResource(R.dimen.tag_chip_min_touch_target)) {
                 // 감정 태그
                 if (review.emotionTags.isNotEmpty()) {
-                    ExpandableTagRow(tags = review.emotionTags)
+                    ExpandableTagRow(tags = review.emotionTags, resetKey = resetKey)
                 }
             }
 
 
             // 소감 내용 미리보기
             if (review.content.isNotBlank()) {
+                var isExpanded by rememberSaveable(resetKey) { mutableStateOf(false) }
+                var isOverflowing by remember { mutableStateOf(false) }
+
                 Text(
                     text = review.content,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    maxLines = if (isExpanded) Int.MAX_VALUE else 5,
+                    overflow = if (isExpanded) TextOverflow.Visible else TextOverflow.Ellipsis,
+                    onTextLayout = { if (!isExpanded) isOverflowing = it.hasVisualOverflow }
                 )
+                if (isOverflowing && !isExpanded) {
+                    Text(
+                        text = stringResource(R.string.content_expand),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable { isExpanded = true }
+                    )
+                } else if (isExpanded) {
+                    Text(
+                        text = stringResource(R.string.tag_collapse),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable { isExpanded = false }
+                    )
+                }
             }
             Text(
                 text = writtenAt,
@@ -437,6 +469,7 @@ private fun PreviewReviewCard() {
                 createdAt = System.currentTimeMillis()
             ),
             followingTeamId = 1,
+            resetKey = Unit,
             onClick = {}
         )
     }

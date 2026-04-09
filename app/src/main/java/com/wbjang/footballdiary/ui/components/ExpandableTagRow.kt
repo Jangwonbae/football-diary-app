@@ -15,6 +15,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -24,8 +25,8 @@ import com.wbjang.footballdiary.R
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ExpandableTagRow(tags: List<String>) {
-    var isExpanded by remember { mutableStateOf(false) }
+fun ExpandableTagRow(tags: List<String>, resetKey: Any = Unit) {
+    var isExpanded by rememberSaveable(resetKey) { mutableStateOf(false) }
 
     ContextualFlowRow(
         itemCount = if (isExpanded) tags.size + 1 else tags.size,

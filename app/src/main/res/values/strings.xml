@@ -139,6 +139,7 @@
     <string name="write_review_discard_confirm">저장 안 함</string>
     <string name="write_review_discard_cancel">취소</string>
     <string name="tag_collapse">간략히</string>
+    <string name="content_expand">더보기</string>
 
     <!-- 경기 결과 -->
     <string name="match_result_win">승리</string>
