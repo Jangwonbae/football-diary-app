@@ -51,7 +51,7 @@ private val DarkColorScheme = darkColorScheme(
     secondaryContainer   = Blue30,
     onSecondaryContainer = Blue90,
 
-    error                = Red80,
+    error                = DarkError,
     onError              = Red10,
     errorContainer       = Red40,
     onErrorContainer     = Red90,

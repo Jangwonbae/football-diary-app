@@ -51,6 +51,8 @@ val SkyBlueDark          = Color(0xFF003060)  // onPrimary
 val SkyBlueDarkContainer = Color(0xFF004494)  // primaryContainer
 val SkyBlueLight         = Color(0xFFD6E3FF)  // onPrimaryContainer
 
+val DarkError            = Color(0xFFFF5449)  // error
+
 val DarkOnSurface        = Color(0xFFC8D8E8)  // onBackground, onSurface
 val DarkOnSurfaceVariant = Color(0xFF8BA8C8)  // onSurfaceVariant
 val DarkOutline          = Color(0xFF4A6080)  // outline
