@@ -158,6 +158,13 @@
     <string name="error_load_standings">순위표를 불러오지 못했어요</string>
     <string name="standings_empty">순위 정보가 없습니다</string>
 
+    <!-- 위젯 -->
+    <string name="widget_description">다가오는 경기 일정을 홈 화면에서 확인하세요</string>
+    <string name="widget_upcoming_matches">다가오는 경기</string>
+    <string name="widget_no_matches">다가오는 경기가 없습니다</string>
+    <string name="widget_vs">vs</string>
+    <string name="widget_scheduled_format">● %s 예정</string>
+
     <!-- 경기 상태 (상세) -->
     <string name="match_status_finished">종료</string>
     <string name="match_status_scheduled">예정</string>

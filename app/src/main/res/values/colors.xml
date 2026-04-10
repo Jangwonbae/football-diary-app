@@ -5,4 +5,6 @@
     <color name="primary">#FF1565C0</color>
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
+    <color name="widget_text_primary">#FF1A1C1E</color>
+    <color name="widget_text_secondary">#FF535F70</color>
 </resources>
