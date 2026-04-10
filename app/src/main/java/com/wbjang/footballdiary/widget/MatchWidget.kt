@@ -10,6 +10,8 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.action.actionStartActivity
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -28,6 +30,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import com.wbjang.footballdiary.MainActivity
 import com.wbjang.footballdiary.R
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -58,7 +61,8 @@ fun WidgetContent(match: WidgetMatch?, teamName: String) {
         modifier = GlanceModifier
             .fillMaxWidth()
             .background(ImageProvider(R.drawable.widget_background))
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .clickable(actionStartActivity<MainActivity>()),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
