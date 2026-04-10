@@ -3,7 +3,7 @@ package com.wbjang.footballdiary.ui.main.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wbjang.footballdiary.domain.repository.FootballRepository
-import com.wbjang.footballdiary.ui.theme.ThemeMode
+import com.wbjang.footballdiary.domain.model.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

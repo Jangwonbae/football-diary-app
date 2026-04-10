@@ -20,7 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import com.wbjang.footballdiary.ui.main.MainViewModel
 import com.wbjang.footballdiary.ui.navigation.NavGraph
 import com.wbjang.footballdiary.ui.theme.FootballDiaryTheme
-import com.wbjang.footballdiary.ui.theme.ThemeMode
+import com.wbjang.footballdiary.domain.model.ThemeMode
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

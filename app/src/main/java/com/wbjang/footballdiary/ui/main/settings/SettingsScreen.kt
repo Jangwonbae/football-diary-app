@@ -41,7 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wbjang.footballdiary.R
-import com.wbjang.footballdiary.ui.theme.ThemeMode
+import com.wbjang.footballdiary.domain.model.ThemeMode
 
 @Composable
 fun SettingsScreen(

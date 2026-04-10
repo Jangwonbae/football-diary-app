@@ -7,7 +7,7 @@ import com.wbjang.footballdiary.domain.model.MatchDetail
 import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.repository.FootballRepository
 import com.wbjang.footballdiary.ui.navigation.Screen
-import com.wbjang.footballdiary.ui.theme.ThemeMode
+import com.wbjang.footballdiary.domain.model.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

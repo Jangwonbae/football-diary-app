@@ -18,7 +18,7 @@ import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.model.StandingEntry
 import com.wbjang.footballdiary.domain.model.StandingTeam
 import com.wbjang.footballdiary.domain.model.SubstitutionEvent
-import com.wbjang.footballdiary.ui.theme.ThemeMode
+import com.wbjang.footballdiary.domain.model.ThemeMode
 import com.wbjang.footballdiary.domain.model.TeamLineup
 import com.wbjang.footballdiary.domain.model.Team
 import com.wbjang.footballdiary.domain.repository.FootballRepository

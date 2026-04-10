@@ -5,7 +5,7 @@ import com.wbjang.footballdiary.domain.model.MatchDetail
 import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.model.StandingEntry
 import com.wbjang.footballdiary.domain.model.Team
-import com.wbjang.footballdiary.ui.theme.ThemeMode
+import com.wbjang.footballdiary.domain.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
 
 interface FootballRepository {
