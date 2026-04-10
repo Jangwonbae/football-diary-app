@@ -29,6 +29,8 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.wbjang.footballdiary.R
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class MatchWidget : GlanceAppWidget() {
 
@@ -51,6 +53,14 @@ fun WidgetContent(match: WidgetMatch?, teamName: String) {
     val context = LocalContext.current
     val textPrimary = ColorProvider(R.color.widget_text_primary)
     val textSecondary = ColorProvider(R.color.widget_text_secondary)
+
+    val formattedDate = match?.let {
+        try {
+            val dateFormatStr = context.getString(R.string.date_format_match_datetime)
+            val formatter = DateTimeFormatter.ofPattern(dateFormatStr, Locale.KOREAN)
+            it.localDateTime().format(formatter)
+        } catch (e: Exception) { "-" }
+    } ?: ""
 
     Column(
         modifier = GlanceModifier
@@ -109,7 +119,7 @@ fun WidgetContent(match: WidgetMatch?, teamName: String) {
 
         // 경기 시간
         Text(
-            text = context.getString(R.string.widget_scheduled_format, match?.formattedDate ?: ""),
+            text = context.getString(R.string.widget_scheduled_format, formattedDate),
             style = TextStyle(
                 color = textSecondary,
                 fontSize = 9.sp
