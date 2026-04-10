@@ -1,5 +1,6 @@
 package com.wbjang.footballdiary.widget
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
@@ -7,8 +8,8 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.action.actionStartActivity
-import androidx.glance.action.clickable
+import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -21,83 +22,115 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
+import androidx.glance.preview.ExperimentalGlancePreviewApi
+import androidx.glance.preview.Preview
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import com.wbjang.footballdiary.MainActivity
+import androidx.glance.unit.ColorProvider
+import com.wbjang.footballdiary.R
 
 class MatchWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val matches = WidgetPreferences.getMatches(context)
+        val match = WidgetPreferences.getMatch(context)
         val teamName = WidgetPreferences.getTeamName(context)
 
         provideContent {
             GlanceTheme {
-                WidgetContent(matches = matches, teamName = teamName)
+                WidgetContent(match = match, teamName = teamName)
             }
         }
     }
 }
 
+
+@SuppressLint("RestrictedApi")
 @Composable
-private fun WidgetContent(matches: List<WidgetMatch>, teamName: String) {
+fun WidgetContent(match: WidgetMatch?, teamName: String) {
+    val context = LocalContext.current
+    val textPrimary = ColorProvider(R.color.widget_text_primary)
+    val textSecondary = ColorProvider(R.color.widget_text_secondary)
+
     Column(
         modifier = GlanceModifier
-            .fillMaxSize()
-            .background(GlanceTheme.colors.surface)
-            .padding(12.dp)
-            .clickable(actionStartActivity<MainActivity>())
+            .fillMaxWidth()
+            .background(ImageProvider(R.drawable.widget_background))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        // 팔로잉 팀 이름
         Text(
-            text = if (teamName.isNotEmpty()) teamName else "다가오는 경기",
+            text = teamName,
             style = TextStyle(
-                color = GlanceTheme.colors.onSurface,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
-            )
+                color = textSecondary,
+                fontSize = 10.sp
+            ),
+            maxLines = 1
         )
 
-        Spacer(modifier = GlanceModifier.height(8.dp))
+        Spacer(modifier = GlanceModifier.height(4.dp))
 
-        if (matches.isEmpty()) {
+        // 홈팀 vs 어웨이팀 (가운데 정렬)
+        Row(
+            modifier = GlanceModifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = GlanceModifier.defaultWeight())
             Text(
-                text = "다가오는 경기가 없습니다",
+                text = match?.homeTeamShortName ?: "",
                 style = TextStyle(
-                    color = GlanceTheme.colors.onSurfaceVariant,
-                    fontSize = 12.sp
+                    color = textPrimary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
                 )
             )
-        } else {
-            matches.forEach { match ->
-                MatchRow(match = match)
-                Spacer(modifier = GlanceModifier.height(6.dp))
-            }
+            Spacer(modifier = GlanceModifier.width(8.dp))
+            Text(
+                text = context.getString(R.string.widget_vs),
+                style = TextStyle(
+                    color = textSecondary,
+                    fontSize = 10.sp
+                )
+            )
+            Spacer(modifier = GlanceModifier.width(8.dp))
+            Text(
+                text = match?.awayTeamShortName ?: "",
+                style = TextStyle(
+                    color = textPrimary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+            Spacer(modifier = GlanceModifier.defaultWeight())
         }
+
+        Spacer(modifier = GlanceModifier.height(4.dp))
+
+        // 경기 시간
+        Text(
+            text = context.getString(R.string.widget_scheduled_format, match?.formattedDate ?: ""),
+            style = TextStyle(
+                color = textSecondary,
+                fontSize = 9.sp
+            )
+        )
     }
 }
 
+@OptIn(ExperimentalGlancePreviewApi::class)
+@Preview(widthDp = 180, heightDp = 80)
 @Composable
-private fun MatchRow(match: WidgetMatch) {
-    Row(
-        modifier = GlanceModifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = match.formattedDate,
-            style = TextStyle(
-                color = GlanceTheme.colors.onSurfaceVariant,
-                fontSize = 11.sp
+fun WidgetContentPreview() {
+    GlanceTheme {
+        WidgetContent(
+            match = WidgetMatch(
+                homeTeamShortName = "MCI",
+                awayTeamShortName = "ARS",
+                utcDate = "2026-04-15T19:00:00Z",
+                competitionName = "Premier League"
             ),
-            modifier = GlanceModifier.width(72.dp)
-        )
-        Spacer(modifier = GlanceModifier.width(8.dp))
-        Text(
-            text = "${match.homeTeamShortName} vs ${match.awayTeamShortName}",
-            style = TextStyle(
-                color = GlanceTheme.colors.onSurface,
-                fontSize = 12.sp
-            )
+            teamName = "Manchester City"
         )
     }
 }

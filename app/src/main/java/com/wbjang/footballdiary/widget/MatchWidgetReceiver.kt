@@ -40,6 +40,7 @@ class MatchWidgetReceiver : GlanceAppWidgetReceiver() {
         fetchAndUpdate(context)
     }
 
+
     private fun fetchAndUpdate(context: Context) {
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
@@ -52,24 +53,23 @@ class MatchWidgetReceiver : GlanceAppWidgetReceiver() {
                 val teamName = repository.getFollowingTeamName().first() ?: ""
 
                 val today = LocalDate.now()
-                val matches = repository.getTeamMatches(
+                val match = repository.getTeamMatches(
                     teamId = teamId,
                     dateFrom = today.toString(),
                     dateTo = today.plusDays(30).toString()
                 ).getOrNull()
                     ?.filter { it.isUpcoming() }
-                    ?.sortedBy { it.utcDate }
-                    ?.take(5)
-                    ?.map { match ->
+                    ?.minByOrNull { it.utcDate }
+                    ?.let { m ->
                         WidgetMatch(
-                            homeTeamShortName = match.homeTeam.shortName,
-                            awayTeamShortName = match.awayTeam.shortName,
-                            utcDate = match.utcDate,
-                            competitionName = match.competition?.name
+                            homeTeamShortName = m.homeTeam.shortName,
+                            awayTeamShortName = m.awayTeam.shortName,
+                            utcDate = m.utcDate,
+                            competitionName = m.competition?.name
                         )
-                    } ?: emptyList()
+                    }
 
-                WidgetPreferences.saveData(context, teamName, matches)
+                WidgetPreferences.saveData(context, teamName, match)
                 val manager = GlanceAppWidgetManager(context)
                 val glanceIds = manager.getGlanceIds(MatchWidget::class.java)
                 glanceIds.forEach { glanceId ->
