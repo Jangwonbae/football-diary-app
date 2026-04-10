@@ -54,14 +54,6 @@ fun WidgetContent(match: WidgetMatch?, teamName: String) {
     val textPrimary = ColorProvider(R.color.widget_text_primary)
     val textSecondary = ColorProvider(R.color.widget_text_secondary)
 
-    val formattedDate = match?.let {
-        try {
-            val dateFormatStr = context.getString(R.string.date_format_match_datetime)
-            val formatter = DateTimeFormatter.ofPattern(dateFormatStr, Locale.KOREAN)
-            it.localDateTime().format(formatter)
-        } catch (e: Exception) { "-" }
-    } ?: ""
-
     Column(
         modifier = GlanceModifier
             .fillMaxWidth()
@@ -69,7 +61,6 @@ fun WidgetContent(match: WidgetMatch?, teamName: String) {
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 팔로잉 팀 이름
         Text(
             text = teamName,
             style = TextStyle(
@@ -81,50 +72,64 @@ fun WidgetContent(match: WidgetMatch?, teamName: String) {
 
         Spacer(modifier = GlanceModifier.height(4.dp))
 
-        // 홈팀 vs 어웨이팀 (가운데 정렬)
-        Row(
-            modifier = GlanceModifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Spacer(modifier = GlanceModifier.defaultWeight())
+        if (match != null) {
+            val formattedDate = try {
+                val dateFormatStr = context.getString(R.string.date_format_match_datetime)
+                val formatter = DateTimeFormatter.ofPattern(dateFormatStr, Locale.KOREAN)
+                match.localDateTime().format(formatter)
+            } catch (e: Exception) { "-" }
+
+            Row(
+                modifier = GlanceModifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = GlanceModifier.defaultWeight())
+                Text(
+                    text = match.homeTeamShortName,
+                    style = TextStyle(
+                        color = textPrimary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+                Spacer(modifier = GlanceModifier.width(8.dp))
+                Text(
+                    text = context.getString(R.string.widget_vs),
+                    style = TextStyle(
+                        color = textSecondary,
+                        fontSize = 10.sp
+                    )
+                )
+                Spacer(modifier = GlanceModifier.width(8.dp))
+                Text(
+                    text = match.awayTeamShortName,
+                    style = TextStyle(
+                        color = textPrimary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+                Spacer(modifier = GlanceModifier.defaultWeight())
+            }
+
+            Spacer(modifier = GlanceModifier.height(4.dp))
+
             Text(
-                text = match?.homeTeamShortName ?: "",
+                text = context.getString(R.string.widget_scheduled_format, formattedDate),
                 style = TextStyle(
-                    color = textPrimary,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
+                    color = textSecondary,
+                    fontSize = 9.sp
                 )
             )
-            Spacer(modifier = GlanceModifier.width(8.dp))
+        } else {
             Text(
-                text = context.getString(R.string.widget_vs),
+                text = context.getString(R.string.widget_no_matches),
                 style = TextStyle(
                     color = textSecondary,
                     fontSize = 10.sp
                 )
             )
-            Spacer(modifier = GlanceModifier.width(8.dp))
-            Text(
-                text = match?.awayTeamShortName ?: "",
-                style = TextStyle(
-                    color = textPrimary,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-            Spacer(modifier = GlanceModifier.defaultWeight())
         }
-
-        Spacer(modifier = GlanceModifier.height(4.dp))
-
-        // 경기 시간
-        Text(
-            text = context.getString(R.string.widget_scheduled_format, formattedDate),
-            style = TextStyle(
-                color = textSecondary,
-                fontSize = 9.sp
-            )
-        )
     }
 }
 
@@ -140,6 +145,17 @@ fun WidgetContentPreview() {
                 utcDate = "2026-04-15T19:00:00Z",
                 competitionName = "Premier League"
             ),
+            teamName = "Manchester City"
+        )
+    }
+}
+@OptIn(ExperimentalGlancePreviewApi::class)
+@Preview(widthDp = 180, heightDp = 80)
+@Composable
+fun WidgetNullContentPreview() {
+    GlanceTheme {
+        WidgetContent(
+            match = null,
             teamName = "Manchester City"
         )
     }
