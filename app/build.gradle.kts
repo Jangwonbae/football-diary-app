@@ -86,6 +86,9 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+    // Glance (홈 화면 위젯)
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

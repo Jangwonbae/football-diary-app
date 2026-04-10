@@ -1,7 +1,11 @@
 package com.wbjang.footballdiary.ui.main.settings
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
 import android.provider.Settings
+import com.wbjang.footballdiary.widget.MatchWidgetReceiver
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -113,7 +117,15 @@ fun SettingsScreen(
             icon = Icons.Default.Widgets,
             title = stringResource(R.string.settings_widget),
             subtitle = stringResource(R.string.settings_widget_desc),
-            onClick = { /* TODO: 위젯 추가 */ }
+            onClick = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val appWidgetManager = AppWidgetManager.getInstance(context)
+                    val provider = ComponentName(context, MatchWidgetReceiver::class.java)
+                    if (appWidgetManager.isRequestPinAppWidgetSupported) {
+                        appWidgetManager.requestPinAppWidget(provider, null, null)
+                    }
+                }
+            }
         )
 
         HorizontalDivider(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium)))
