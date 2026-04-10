@@ -86,7 +86,6 @@ import java.util.Locale
 @Composable
 fun MatchDetailScreen(
     match: Match,
-    followingTeamId: Int?,
     onBack: () -> Unit,
     onWriteReview: (existingReview: Review?) -> Unit,
     viewModel: MatchDetailViewModel = hiltViewModel()
@@ -96,6 +95,7 @@ fun MatchDetailScreen(
     val showDeleteDialog by viewModel.showDeleteDialog.collectAsStateWithLifecycle()
     val detail = uiState.matchDetail
     val sampleSections = uiState.sampleSections
+    val followingTeamId by viewModel.followingTeamId.collectAsStateWithLifecycle()
     val matchResult = followingTeamId?.let { match.resultFor(it) }
 
     Column(modifier = Modifier.fillMaxSize()) {

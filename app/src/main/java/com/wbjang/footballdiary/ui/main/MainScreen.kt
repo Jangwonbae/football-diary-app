@@ -78,7 +78,6 @@ fun MainScreen(
     val selectedMatch by viewModel.selectedMatch.collectAsStateWithLifecycle()
     val selectedMatchDetail by viewModel.selectedMatchDetail.collectAsStateWithLifecycle()
     val selectedReview by viewModel.selectedReview.collectAsStateWithLifecycle()
-    val followingTeamId by viewModel.followingTeamId.collectAsStateWithLifecycle(initialValue = null)
 
     Scaffold(
         modifier = Modifier.statusBarsPadding(),
@@ -134,7 +133,6 @@ fun MainScreen(
                     }
                     MatchDetailScreen(
                         match = match,
-                        followingTeamId = followingTeamId,
                         onBack = { tabNavController.popBackStack() },
                         onWriteReview = { existingReview ->
                             viewModel.selectReview(existingReview)

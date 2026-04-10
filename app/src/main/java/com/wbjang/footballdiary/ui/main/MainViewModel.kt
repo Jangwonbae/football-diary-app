@@ -24,9 +24,6 @@ class MainViewModel @Inject constructor(
     repository: FootballRepository
 ) : ViewModel() {
 
-    val followingTeamId: Flow<Int?> = repository.getFollowingTeamId()
-    val followingTeamName: Flow<String?> = repository.getFollowingTeamName()
-
     val themeMode: StateFlow<ThemeMode> = repository.getThemeMode()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.SYSTEM)
 

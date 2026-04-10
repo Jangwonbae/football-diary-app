@@ -35,6 +35,9 @@ class MatchDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(MatchDetailUiState())
     val uiState: StateFlow<MatchDetailUiState> = _uiState.asStateFlow()
 
+    val followingTeamId: StateFlow<Int?> = repository.getFollowingTeamId()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     private val _matchId = MutableStateFlow<Int?>(null)
     val review: StateFlow<Review?> = _matchId
         .flatMapLatest { id ->
