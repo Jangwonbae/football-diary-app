@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.repository.FootballRepository
+import com.wbjang.footballdiary.util.AppLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -124,10 +125,18 @@ class WriteReviewViewModel @Inject constructor(
                     rating = state.rating.toFloat(),
                     emotionTags = state.selectedTags,
                     content = state.content,
-                    followingTeamId = repository.getFollowingTeamId().first() ?: 0
+                    followingTeamId = repository.getFollowingTeamId().first()
+                        ?: run {
+                            AppLogger.e(TAG, "followingTeamId null 상태에서 리뷰 저장 시도")
+                            0
+                        }
                 )
             )
             _uiEvent.emit(WriteReviewUiEvent.NavigateBack)
         }
+    }
+
+    companion object {
+        private const val TAG = "WriteReviewViewModel"
     }
 }
