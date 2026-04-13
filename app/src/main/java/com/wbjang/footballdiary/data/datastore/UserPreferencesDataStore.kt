@@ -41,7 +41,8 @@ class UserPreferencesDataStore @Inject constructor(
     }
 
     val themeMode: Flow<ThemeMode> = context.dataStore.data.map { prefs ->
-        ThemeMode.valueOf(prefs[themeModeKey] ?: ThemeMode.SYSTEM.name)
+        val saved = prefs[themeModeKey] ?: ThemeMode.SYSTEM.name
+        ThemeMode.entries.find { it.name == saved } ?: ThemeMode.SYSTEM
     }
 
     val notificationEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
