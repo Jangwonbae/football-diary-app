@@ -30,6 +30,7 @@ object NetworkModule {
         }
 
         val loggingInterceptor = HttpLoggingInterceptor().apply {
+            redactHeader("X-Auth-Token")
             level = if (BuildConfig.DEBUG) {
                 HttpLoggingInterceptor.Level.BODY
             } else {
