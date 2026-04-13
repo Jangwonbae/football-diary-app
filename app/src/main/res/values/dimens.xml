@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 스플래시 -->
+    <dimen name="splash_icon_size">120dp</dimen>
+
     <!-- 기본 패딩 -->
     <dimen name="padding_xsmall">4dp</dimen>
     <dimen name="padding_small">8dp</dimen>

@@ -55,10 +55,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    val startDestination by viewModel.startDestination.collectAsStateWithLifecycle()
                     val navController = rememberNavController()
                     NavGraph(
                         navController = navController,
-                        startDestination = viewModel.startDestination
+                        startDestination = startDestination
                     )
                 }
             }

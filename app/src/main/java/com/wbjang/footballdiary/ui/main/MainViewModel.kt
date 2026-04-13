@@ -9,27 +9,34 @@ import com.wbjang.footballdiary.domain.repository.FootballRepository
 import com.wbjang.footballdiary.ui.navigation.Screen
 import com.wbjang.footballdiary.domain.model.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    repository: FootballRepository
+    private val repository: FootballRepository
 ) : ViewModel() {
 
     val themeMode: StateFlow<ThemeMode> = repository.getThemeMode()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ThemeMode.SYSTEM)
 
-    val startDestination: String = runBlocking {
-        if (repository.getFollowingTeamId().first() != null) Screen.Main.route
-        else Screen.Onboarding.route
+    private val _startDestination = MutableStateFlow<String?>(null)
+    val startDestination: StateFlow<String?> = _startDestination.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val route = if (repository.getFollowingTeamId().first() != null)
+                Screen.Main.route
+            else
+                Screen.Onboarding.route
+            _startDestination.value = route
+        }
     }
 
     private val _selectedMatch = MutableStateFlow<Match?>(null)
