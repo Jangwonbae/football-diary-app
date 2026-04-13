@@ -68,21 +68,19 @@ class DiaryViewModel @Inject constructor(
                 .filter { Instant.parse(it.utcDate).isBefore(Instant.now()) }
             AppLogger.d(TAG, "스코어 갱신 대상 리뷰: ${staleReviews.size}개")
             staleReviews.forEach { review ->
-                    launch {
-                        repository.getMatchDetail(review.matchId)
-                            .getOrNull()?.match
-                            ?.let { match ->
-                                if (!match.isFinished()) {
-                                    AppLogger.d(TAG, "경기 미종료 → 스킵 (matchId=${review.matchId})")
-                                    return@let
-                                }
-                                val home = match.homeScore ?: return@let
-                                val away = match.awayScore ?: return@let
-                                repository.updateReviewScore(review.matchId, home, away)
-                                AppLogger.d(TAG, "스코어 갱신 완료: matchId=${review.matchId}, $home-$away")
-                            }
+                repository.getMatchDetail(review.matchId)
+                    .getOrNull()?.match
+                    ?.let { match ->
+                        if (!match.isFinished()) {
+                            AppLogger.d(TAG, "경기 미종료 → 스킵 (matchId=${review.matchId})")
+                            return@let
+                        }
+                        val home = match.homeScore ?: return@let
+                        val away = match.awayScore ?: return@let
+                        repository.updateReviewScore(review.matchId, home, away)
+                        AppLogger.d(TAG, "스코어 갱신 완료: matchId=${review.matchId}, $home-$away")
                     }
-                }
+            }
         }
     }
 
