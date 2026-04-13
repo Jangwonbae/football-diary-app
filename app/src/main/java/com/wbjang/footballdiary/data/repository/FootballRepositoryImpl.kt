@@ -222,6 +222,10 @@ class FootballRepositoryImpl @Inject constructor(
         reviewDao.deleteReviewByMatchId(matchId)
     }
 
+    override suspend fun updateReviewScore(matchId: Int, homeScore: Int, awayScore: Int) {
+        reviewDao.updateScore(matchId, homeScore, awayScore)
+    }
+
     override fun getThemeMode(): Flow<ThemeMode> = dataStore.themeMode
     override suspend fun saveThemeMode(mode: ThemeMode) = dataStore.saveThemeMode(mode)
 

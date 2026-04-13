@@ -9,7 +9,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.time.Instant
 import javax.inject.Inject
 
 enum class ReviewSortField { MATCH_DATE, WRITTEN_DATE }
@@ -17,7 +21,7 @@ enum class ReviewSortDirection { DESC, ASC }
 
 @HiltViewModel
 class DiaryViewModel @Inject constructor(
-    repository: FootballRepository
+    private val repository: FootballRepository
 ) : ViewModel() {
 
     val sortField = MutableStateFlow(ReviewSortField.MATCH_DATE)
@@ -56,6 +60,26 @@ class DiaryViewModel @Inject constructor(
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    init {
+        viewModelScope.launch {
+            // StateFlow 초기값(emptyList)을 건너뛰고 DB 첫 로드 결과를 사용
+            allReviews.drop(1).first()
+                .filter { it.homeScore == null && it.awayScore == null }
+                .filter { Instant.parse(it.utcDate).isBefore(Instant.now()) }
+                .forEach { review ->
+                    launch {
+                        repository.getMatchDetail(review.matchId)
+                            .getOrNull()?.match
+                            ?.let { match ->
+                                val home = match.homeScore ?: return@let
+                                val away = match.awayScore ?: return@let
+                                repository.updateReviewScore(review.matchId, home, away)
+                            }
+                    }
+                }
+        }
+    }
 
     fun setSortField(field: ReviewSortField) { sortField.value = field }
     fun setSortDirection(dir: ReviewSortDirection) { sortDirection.value = dir }

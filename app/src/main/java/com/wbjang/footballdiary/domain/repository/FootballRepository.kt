@@ -32,6 +32,7 @@ interface FootballRepository {
     fun getReviewByMatchId(matchId: Int): Flow<Review?>
     fun getAllReviews(): Flow<List<Review>>
     suspend fun deleteReview(matchId: Int)
+    suspend fun updateReviewScore(matchId: Int, homeScore: Int, awayScore: Int)
 
     // 테마
     fun getThemeMode(): Flow<ThemeMode>
