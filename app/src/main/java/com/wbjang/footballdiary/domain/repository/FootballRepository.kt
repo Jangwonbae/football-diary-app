@@ -37,4 +37,10 @@ interface FootballRepository {
     // 테마
     fun getThemeMode(): Flow<ThemeMode>
     suspend fun saveThemeMode(mode: ThemeMode)
+
+    // 알림
+    fun getNotificationEnabled(): Flow<Boolean>
+    suspend fun saveNotificationEnabled(enabled: Boolean)
+    fun getLastNotifiedMatchId(): Flow<Int?>
+    suspend fun saveLastNotifiedMatchId(matchId: Int)
 }

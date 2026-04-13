@@ -101,7 +101,7 @@
     <string name="settings_following_team_desc">팔로잉 팀을 변경합니다</string>
     <string name="settings_section_app">앱</string>
     <string name="settings_notification">알림 설정</string>
-    <string name="settings_notification_desc">경기 시작 전 알림을 관리합니다</string>
+    <string name="settings_notification_desc">경기 시작 15분 전에 알림을 받습니다</string>
     <string name="settings_widget">일정 위젯 만들기</string>
     <string name="settings_widget_desc">홈 화면에 경기 일정을 추가합니다</string>
     <string name="settings_theme">테마</string>
@@ -164,6 +164,12 @@
     <string name="widget_no_matches">다가오는 경기가 없습니다</string>
     <string name="widget_vs">vs</string>
     <string name="widget_scheduled_format">● %s 예정</string>
+
+    <!-- 알림 -->
+    <string name="notification_channel_name">경기 알림</string>
+    <string name="notification_channel_description">경기 시작 전 알림</string>
+    <string name="notification_title">경기 시작 15분 전</string>
+    <string name="notification_body_format">%1$s vs %2$s 경기가 곧 시작됩니다</string>
 
     <!-- 경기 상태 (상세) -->
     <string name="match_status_finished">종료</string>

@@ -1,11 +1,12 @@
 package com.wbjang.footballdiary.ui.main.settings
 
+import android.Manifest
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
-import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
-import android.provider.Settings
-import com.wbjang.footballdiary.widget.MatchWidgetReceiver
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -42,10 +44,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wbjang.footballdiary.R
 import com.wbjang.footballdiary.domain.model.ThemeMode
+import com.wbjang.footballdiary.widget.MatchWidgetReceiver
 
 @Composable
 fun SettingsScreen(
@@ -54,8 +58,15 @@ fun SettingsScreen(
 ) {
     val followingTeamName by viewModel.followingTeamName.collectAsStateWithLifecycle()
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+    val notificationEnabled by viewModel.notificationEnabled.collectAsStateWithLifecycle()
     var showThemeDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) viewModel.setNotificationEnabled(true)
+    }
 
     if (showThemeDialog) {
         ThemeDialog(
@@ -99,15 +110,22 @@ fun SettingsScreen(
         // ── 앱 섹션 ──
         SettingsSectionHeader(stringResource(R.string.settings_section_app))
 
-        SettingsItem(
+        SettingsToggleItem(
             icon = Icons.Default.Notifications,
             title = stringResource(R.string.settings_notification),
             subtitle = stringResource(R.string.settings_notification_desc),
-            onClick = {
-                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                    putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+            checked = notificationEnabled,
+            onCheckedChange = { enabled ->
+                if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val granted = ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                    if (!granted) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        return@SettingsToggleItem
+                    }
                 }
-                context.startActivity(intent)
+                viewModel.setNotificationEnabled(enabled)
             }
         )
 
@@ -192,6 +210,49 @@ private fun SettingsItem(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun SettingsToggleItem(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(
+                horizontal = dimensionResource(R.dimen.padding_medium),
+                vertical = dimensionResource(R.dimen.padding_medium)
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small)),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_medium)))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange
         )
     }
 }
