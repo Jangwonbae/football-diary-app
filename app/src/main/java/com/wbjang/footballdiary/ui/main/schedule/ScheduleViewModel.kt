@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -50,21 +52,29 @@ class ScheduleViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     init {
+        // 팀 정보 UI 업데이트 — 세 값 통합 구독
         viewModelScope.launch {
-            repository.getFollowingTeamId().collect { teamId ->
-                _uiState.update { it.copy(followingTeamId = teamId) }
-                teamId?.let { loadMatches(it) }
-            }
+            combine(
+                repository.getFollowingTeamId(),
+                repository.getFollowingTeamName(),
+                repository.getFollowingTeamCrestUrl()
+            ) { id, name, url -> Triple(id, name, url) }
+                .collect { (id, name, url) ->
+                    _uiState.update {
+                        it.copy(
+                            followingTeamId = id,
+                            followingTeamName = name,
+                            followingTeamCrestUrl = url
+                        )
+                    }
+                }
         }
+
+        // 경기 로드 — teamId 실제 변경 시에만 API 호출
         viewModelScope.launch {
-            repository.getFollowingTeamName().collect { name ->
-                _uiState.update { it.copy(followingTeamName = name) }
-            }
-        }
-        viewModelScope.launch {
-            repository.getFollowingTeamCrestUrl().collect { url ->
-                _uiState.update { it.copy(followingTeamCrestUrl = url) }
-            }
+            repository.getFollowingTeamId()
+                .distinctUntilChanged()
+                .collect { teamId -> teamId?.let { loadMatches(it) } }
         }
     }
 
