@@ -10,8 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -65,8 +63,7 @@ class DiaryViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            // StateFlow 초기값(emptyList)을 건너뛰고 DB 첫 로드 결과를 사용
-            val staleReviews = allReviews.drop(1).first()
+            val staleReviews = repository.getAllReviewsOnce()
                 .filter { it.homeScore == null && it.awayScore == null }
                 .filter { Instant.parse(it.utcDate).isBefore(Instant.now()) }
             AppLogger.d(TAG, "스코어 갱신 대상 리뷰: ${staleReviews.size}개")
