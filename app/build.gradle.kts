@@ -91,6 +91,9 @@ dependencies {
     implementation(libs.glance.material3)
     implementation(libs.glance.appwidget.preview)
     implementation(libs.glance.preview)
+    implementation(libs.work.runtime.ktx)
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.work.compiler)
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
