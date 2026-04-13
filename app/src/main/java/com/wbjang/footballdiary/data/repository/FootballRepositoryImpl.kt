@@ -4,16 +4,15 @@ import com.wbjang.footballdiary.data.api.FootballApiService
 import com.wbjang.footballdiary.data.datastore.UserPreferencesDataStore
 import com.wbjang.footballdiary.data.local.dao.ReviewDao
 import com.wbjang.footballdiary.data.local.entity.ReviewEntity
+import com.wbjang.footballdiary.data.mapper.toMatchDomain
+import com.wbjang.footballdiary.data.mapper.toDomain
 import com.wbjang.footballdiary.domain.model.BookingEvent
 import com.wbjang.footballdiary.domain.model.CardType
 import com.wbjang.footballdiary.domain.model.GoalEvent
 import com.wbjang.footballdiary.domain.model.GoalType
 import com.wbjang.footballdiary.domain.model.LineupPlayer
 import com.wbjang.footballdiary.domain.model.Match
-import com.wbjang.footballdiary.domain.model.MatchCompetition
 import com.wbjang.footballdiary.domain.model.MatchDetail
-import com.wbjang.footballdiary.domain.model.MatchStatus
-import com.wbjang.footballdiary.domain.model.MatchTeam
 import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.model.StandingEntry
 import com.wbjang.footballdiary.domain.model.StandingTeam
@@ -100,29 +99,7 @@ class FootballRepositoryImpl @Inject constructor(
                     startYear
             }
             MatchDetail(
-                match = Match(
-                    id = dto.id,
-                    utcDate = dto.utcDate,
-                    status = MatchStatus.from(dto.status),
-                    matchday = dto.matchday,
-                    competition = dto.competition?.let {
-                        MatchCompetition(id = it.id, name = it.name, emblemUrl = it.emblem)
-                    },
-                    homeTeam = MatchTeam(
-                        id = dto.homeTeam.id,
-                        name = dto.homeTeam.name,
-                        shortName = dto.homeTeam.shortName,
-                        crestUrl = dto.homeTeam.crest
-                    ),
-                    awayTeam = MatchTeam(
-                        id = dto.awayTeam.id,
-                        name = dto.awayTeam.name,
-                        shortName = dto.awayTeam.shortName,
-                        crestUrl = dto.awayTeam.crest
-                    ),
-                    homeScore = dto.score.fullTime.home,
-                    awayScore = dto.score.fullTime.away
-                ),
+                match = dto.toMatchDomain(),
                 seasonLabel = seasonLabel,
                 venue = dto.venue,
                 attendance = dto.attendance,
@@ -280,31 +257,7 @@ class FootballRepositoryImpl @Inject constructor(
         return runCatching {
             apiService.getTeamMatches(teamId, dateFrom, dateTo).matches
                 .sortedBy { it.utcDate }
-                .map { dto ->
-                    Match(
-                        id = dto.id,
-                        utcDate = dto.utcDate,
-                        status = MatchStatus.from(dto.status),
-                        matchday = dto.matchday,
-                        competition = dto.competition?.let {
-                            MatchCompetition(id = it.id, name = it.name, emblemUrl = it.emblem)
-                        },
-                        homeTeam = MatchTeam(
-                            id = dto.homeTeam.id,
-                            name = dto.homeTeam.name,
-                            shortName = dto.homeTeam.shortName,
-                            crestUrl = dto.homeTeam.crest
-                        ),
-                        awayTeam = MatchTeam(
-                            id = dto.awayTeam.id,
-                            name = dto.awayTeam.name,
-                            shortName = dto.awayTeam.shortName,
-                            crestUrl = dto.awayTeam.crest
-                        ),
-                        homeScore = dto.score.fullTime.home,
-                        awayScore = dto.score.fullTime.away
-                    )
-                }
+                .map { it.toDomain() }
                 .also { AppLogger.d(TAG, "getTeamMatches 성공: ${it.size}개 경기") }
         }.onFailure { AppLogger.e(TAG, "getTeamMatches 실패: teamId=$teamId", it) }
     }
