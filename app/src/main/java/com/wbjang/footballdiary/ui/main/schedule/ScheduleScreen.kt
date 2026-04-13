@@ -776,7 +776,7 @@ private fun StandingsView(
         }
         else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
             stickyHeader { StandingsHeaderRow() }
-            items(standings) { entry ->
+            items(standings, key = { it.team.id }) { entry ->
                 StandingRow(entry = entry, isFollowing = entry.team.id == followingTeamId)
                 HorizontalDivider(thickness = 0.5.dp)
             }
