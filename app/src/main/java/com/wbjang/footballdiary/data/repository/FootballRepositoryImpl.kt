@@ -4,6 +4,7 @@ import com.wbjang.footballdiary.data.api.FootballApiService
 import com.wbjang.footballdiary.data.datastore.UserPreferencesDataStore
 import com.wbjang.footballdiary.data.local.dao.ReviewDao
 import com.wbjang.footballdiary.data.local.entity.ReviewEntity
+import com.google.gson.Gson
 import com.wbjang.footballdiary.data.mapper.toMatchDomain
 import com.wbjang.footballdiary.data.mapper.toDomain
 import com.wbjang.footballdiary.domain.model.BookingEvent
@@ -189,7 +190,7 @@ class FootballRepositoryImpl @Inject constructor(
                 venue = review.venue,
                 seasonLabel = review.seasonLabel,
                 rating = review.rating,
-                emotionTags = review.emotionTags.joinToString(","),
+                emotionTags = Gson().toJson(review.emotionTags),
                 content = review.content,
                 followingTeamId = review.followingTeamId
             )
@@ -242,7 +243,11 @@ class FootballRepositoryImpl @Inject constructor(
         venue = venue,
         seasonLabel = seasonLabel,
         rating = rating,
-        emotionTags = if (emotionTags.isBlank()) emptyList() else emotionTags.split(","),
+        emotionTags = when {
+            emotionTags.isBlank()       -> emptyList()
+            emotionTags.startsWith("[") -> Gson().fromJson(emotionTags, Array<String>::class.java).toList()
+            else                        -> emptyList()
+        },
         content = content,
         followingTeamId = followingTeamId,
         createdAt = createdAt
