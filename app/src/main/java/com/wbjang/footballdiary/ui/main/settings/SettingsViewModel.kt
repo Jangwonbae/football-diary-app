@@ -11,6 +11,7 @@ import androidx.work.WorkManager
 import com.wbjang.footballdiary.domain.repository.FootballRepository
 import com.wbjang.footballdiary.domain.model.ThemeMode
 import com.wbjang.footballdiary.notification.MatchNotificationWorker
+import com.wbjang.footballdiary.util.AppLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
@@ -40,6 +41,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setNotificationEnabled(enabled: Boolean) {
+        AppLogger.d(TAG, "알림 설정 변경: $enabled")
         viewModelScope.launch {
             repository.saveNotificationEnabled(enabled)
             if (enabled) scheduleNotificationWork() else cancelNotificationWork()
@@ -47,6 +49,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun scheduleNotificationWork() {
+        AppLogger.d(TAG, "알림 Worker 스케줄 등록")
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
@@ -61,10 +64,12 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun cancelNotificationWork() {
+        AppLogger.d(TAG, "알림 Worker 취소")
         WorkManager.getInstance(context).cancelUniqueWork(NOTIFICATION_WORK_NAME)
     }
 
     companion object {
+        private const val TAG = "SettingsViewModel"
         private const val NOTIFICATION_WORK_NAME = "match_notification_work"
     }
 }

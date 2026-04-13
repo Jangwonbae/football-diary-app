@@ -22,6 +22,7 @@ import com.wbjang.footballdiary.domain.model.ThemeMode
 import com.wbjang.footballdiary.domain.model.TeamLineup
 import com.wbjang.footballdiary.domain.model.Team
 import com.wbjang.footballdiary.domain.repository.FootballRepository
+import com.wbjang.footballdiary.util.AppLogger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -33,6 +34,7 @@ class FootballRepositoryImpl @Inject constructor(
 ) : FootballRepository {
 
     override suspend fun getTeamsByLeague(leagueCode: String): Result<List<Team>> {
+        AppLogger.d(TAG, "getTeamsByLeague: leagueCode=$leagueCode")
         return runCatching {
             apiService.getTeamsByLeague(leagueCode).teams
                 .sortedBy { it.name }
@@ -44,7 +46,8 @@ class FootballRepositoryImpl @Inject constructor(
                         crestUrl = dto.crest
                     )
                 }
-        }
+                .also { AppLogger.d(TAG, "getTeamsByLeague 성공: ${it.size}개 팀") }
+        }.onFailure { AppLogger.e(TAG, "getTeamsByLeague 실패", it) }
     }
 
     override fun getFollowingTeamId(): Flow<Int?> = dataStore.followingTeamId
@@ -56,6 +59,7 @@ class FootballRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getStandings(competitionId: Int): Result<List<StandingEntry>> {
+        AppLogger.d(TAG, "getStandings: competitionId=$competitionId")
         return runCatching {
             val totalTable = apiService.getStandings(competitionId)
                 .standings
@@ -79,11 +83,12 @@ class FootballRepositoryImpl @Inject constructor(
                     goalDifference = dto.goalDifference,
                     points = dto.points
                 )
-            }
-        }
+            }.also { AppLogger.d(TAG, "getStandings 성공: ${it.size}개 팀") }
+        }.onFailure { AppLogger.e(TAG, "getStandings 실패", it) }
     }
 
     override suspend fun getMatchDetail(matchId: Int): Result<MatchDetail> {
+        AppLogger.d(TAG, "getMatchDetail: matchId=$matchId")
         return runCatching {
             val dto = apiService.getMatchDetail(matchId)
             val seasonLabel = run {
@@ -180,10 +185,12 @@ class FootballRepositoryImpl @Inject constructor(
                     )
                 }
             )
-        }
+        }.onSuccess { AppLogger.d(TAG, "getMatchDetail 성공: matchId=$matchId") }
+         .onFailure { AppLogger.e(TAG, "getMatchDetail 실패: matchId=$matchId", it) }
     }
 
     override suspend fun saveReview(review: Review) {
+        AppLogger.d(TAG, "saveReview: matchId=${review.matchId}")
         reviewDao.insertReview(
             ReviewEntity(
                 id = review.id,
@@ -269,6 +276,7 @@ class FootballRepositoryImpl @Inject constructor(
         dateFrom: String,
         dateTo: String
     ): Result<List<Match>> {
+        AppLogger.d(TAG, "getTeamMatches: teamId=$teamId, $dateFrom ~ $dateTo")
         return runCatching {
             apiService.getTeamMatches(teamId, dateFrom, dateTo).matches
                 .sortedBy { it.utcDate }
@@ -297,6 +305,11 @@ class FootballRepositoryImpl @Inject constructor(
                         awayScore = dto.score.fullTime.away
                     )
                 }
-        }
+                .also { AppLogger.d(TAG, "getTeamMatches 성공: ${it.size}개 경기") }
+        }.onFailure { AppLogger.e(TAG, "getTeamMatches 실패: teamId=$teamId", it) }
+    }
+
+    companion object {
+        private const val TAG = "FootballRepository"
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import com.wbjang.footballdiary.util.AppLogger
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -42,7 +43,10 @@ class UserPreferencesDataStore @Inject constructor(
 
     val themeMode: Flow<ThemeMode> = context.dataStore.data.map { prefs ->
         val saved = prefs[themeModeKey] ?: ThemeMode.SYSTEM.name
-        ThemeMode.entries.find { it.name == saved } ?: ThemeMode.SYSTEM
+        ThemeMode.entries.find { it.name == saved } ?: run {
+            AppLogger.w("UserPreferencesDataStore", "알 수 없는 ThemeMode 값: $saved → SYSTEM으로 대체")
+            ThemeMode.SYSTEM
+        }
     }
 
     val notificationEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->

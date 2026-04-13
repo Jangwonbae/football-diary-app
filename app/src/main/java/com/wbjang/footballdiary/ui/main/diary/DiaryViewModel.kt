@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.repository.FootballRepository
+import com.wbjang.footballdiary.util.AppLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -64,22 +65,31 @@ class DiaryViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             // StateFlow 초기값(emptyList)을 건너뛰고 DB 첫 로드 결과를 사용
-            allReviews.drop(1).first()
+            val staleReviews = allReviews.drop(1).first()
                 .filter { it.homeScore == null && it.awayScore == null }
                 .filter { Instant.parse(it.utcDate).isBefore(Instant.now()) }
-                .forEach { review ->
+            AppLogger.d(TAG, "스코어 갱신 대상 리뷰: ${staleReviews.size}개")
+            staleReviews.forEach { review ->
                     launch {
                         repository.getMatchDetail(review.matchId)
                             .getOrNull()?.match
                             ?.let { match ->
-                                if (!match.isFinished()) return@let
+                                if (!match.isFinished()) {
+                                    AppLogger.d(TAG, "경기 미종료 → 스킵 (matchId=${review.matchId})")
+                                    return@let
+                                }
                                 val home = match.homeScore ?: return@let
                                 val away = match.awayScore ?: return@let
                                 repository.updateReviewScore(review.matchId, home, away)
+                                AppLogger.d(TAG, "스코어 갱신 완료: matchId=${review.matchId}, $home-$away")
                             }
                     }
                 }
         }
+    }
+
+    companion object {
+        private const val TAG = "DiaryViewModel"
     }
 
     fun setSortField(field: ReviewSortField) { sortField.value = field }

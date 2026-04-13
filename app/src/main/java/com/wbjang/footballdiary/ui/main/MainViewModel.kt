@@ -8,6 +8,7 @@ import com.wbjang.footballdiary.domain.model.Review
 import com.wbjang.footballdiary.domain.repository.FootballRepository
 import com.wbjang.footballdiary.ui.navigation.Screen
 import com.wbjang.footballdiary.domain.model.ThemeMode
+import com.wbjang.footballdiary.util.AppLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,8 +36,13 @@ class MainViewModel @Inject constructor(
                 Screen.Main.route
             else
                 Screen.Onboarding.route
+            AppLogger.d(TAG, "시작 화면 결정: $route")
             _startDestination.value = route
         }
+    }
+
+    companion object {
+        private const val TAG = "MainViewModel"
     }
 
     private val _selectedMatch = MutableStateFlow<Match?>(null)
