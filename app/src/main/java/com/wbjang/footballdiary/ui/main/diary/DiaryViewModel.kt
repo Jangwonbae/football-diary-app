@@ -72,6 +72,7 @@ class DiaryViewModel @Inject constructor(
                         repository.getMatchDetail(review.matchId)
                             .getOrNull()?.match
                             ?.let { match ->
+                                if (!match.isFinished()) return@let
                                 val home = match.homeScore ?: return@let
                                 val away = match.awayScore ?: return@let
                                 repository.updateReviewScore(review.matchId, home, away)
