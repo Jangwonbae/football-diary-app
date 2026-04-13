@@ -100,34 +100,9 @@ class OnboardingViewModel @Inject constructor(
 }
 
 private fun initialLeagues(): List<League> = listOf(
-    League(
-        code = "PL",
-        name = "프리미어리그",
-        country = "잉글랜드",
-        emblemUrl = "https://crests.football-data.org/PL.png"
-    ),
-    League(
-        code = "PD",
-        name = "라리가",
-        country = "스페인",
-        emblemUrl = "https://crests.football-data.org/PD.png"
-    ),
-    League(
-        code = "BL1",
-        name = "분데스리가",
-        country = "독일",
-        emblemUrl = "https://crests.football-data.org/BL1.png"
-    ),
-    League(
-        code = "SA",
-        name = "세리에 A",
-        country = "이탈리아",
-        emblemUrl = "https://crests.football-data.org/SA.png"
-    ),
-    League(
-        code = "FL1",
-        name = "리그 1",
-        country = "프랑스",
-        emblemUrl = "https://crests.football-data.org/FL1.png"
-    )
+    League(code = "PL", emblemUrl = "https://crests.football-data.org/PL.png"),
+    League(code = "PD", emblemUrl = "https://crests.football-data.org/PD.png"),
+    League(code = "BL1", emblemUrl = "https://crests.football-data.org/BL1.png"),
+    League(code = "SA", emblemUrl = "https://crests.football-data.org/SA.png"),
+    League(code = "FL1", emblemUrl = "https://crests.football-data.org/FL1.png")
 )

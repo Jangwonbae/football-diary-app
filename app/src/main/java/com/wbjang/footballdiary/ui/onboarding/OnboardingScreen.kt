@@ -174,20 +174,20 @@ private fun LeagueItem(
         ) {
             AsyncImage(
                 model = league.emblemUrl,
-                contentDescription = league.name,
+                contentDescription = stringResource(league.nameRes()),
                 modifier = Modifier
                     .size(dimensionResource(R.dimen.emblem_league))
             )
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_medium)))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = league.name,
+                    text = stringResource(league.nameRes()),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = league.country,
+                    text = stringResource(league.countryRes()),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -310,8 +310,6 @@ private fun PreviewLeagueItem() {
         LeagueItem(
             league = League(
                 code = "PL",
-                name = "프리미어리그",
-                country = "잉글랜드",
                 emblemUrl = ""
             ),
             onExpandClick = {},
@@ -340,8 +338,6 @@ private fun PreviewOnboardingScreen() {
                 leagues = listOf(
                     League(
                         code = "PL",
-                        name = "프리미어리그",
-                        country = "잉글랜드",
                         emblemUrl = "",
                         isExpanded = true,
                         teams = listOf(
@@ -351,8 +347,6 @@ private fun PreviewOnboardingScreen() {
                     ),
                     League(
                         code = "PD",
-                        name = "라리가",
-                        country = "스페인",
                         emblemUrl = ""
                     )
                 )
