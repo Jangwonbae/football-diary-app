@@ -31,6 +31,7 @@ interface FootballRepository {
     suspend fun saveReview(review: Review)
     fun getReviewByMatchId(matchId: Int): Flow<Review?>
     fun getAllReviews(): Flow<List<Review>>
+    fun getReviewsByTeamId(teamId: Int): Flow<List<Review>>
     suspend fun deleteReview(matchId: Int)
     suspend fun updateReviewScore(matchId: Int, homeScore: Int, awayScore: Int)
 

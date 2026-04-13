@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -32,10 +33,10 @@ class DiaryViewModel @Inject constructor(
     val followingTeamId: StateFlow<Int?> = repository.getFollowingTeamId()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    private val allReviews: StateFlow<List<Review>> = repository.getAllReviews()
-        .combine(followingTeamId) { list, teamId ->
-            if (teamId == null) list
-            else list.filter { it.followingTeamId == teamId }
+    private val allReviews: StateFlow<List<Review>> = followingTeamId
+        .flatMapLatest { teamId ->
+            if (teamId == null) repository.getAllReviews()
+            else repository.getReviewsByTeamId(teamId)
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 

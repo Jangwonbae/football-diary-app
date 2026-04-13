@@ -203,6 +203,9 @@ class FootballRepositoryImpl @Inject constructor(
     override fun getAllReviews(): Flow<List<Review>> =
         reviewDao.getAllReviews().map { list -> list.map { it.toDomain() } }
 
+    override fun getReviewsByTeamId(teamId: Int): Flow<List<Review>> =
+        reviewDao.getReviewsByTeamId(teamId).map { list -> list.map { it.toDomain() } }
+
     override suspend fun deleteReview(matchId: Int) {
         reviewDao.deleteReviewByMatchId(matchId)
     }

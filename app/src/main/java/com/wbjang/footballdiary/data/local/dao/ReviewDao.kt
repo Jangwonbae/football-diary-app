@@ -19,6 +19,9 @@ interface ReviewDao {
     @Query("SELECT * FROM reviews ORDER BY createdAt DESC")
     fun getAllReviews(): Flow<List<ReviewEntity>>
 
+    @Query("SELECT * FROM reviews WHERE followingTeamId = :teamId ORDER BY createdAt DESC")
+    fun getReviewsByTeamId(teamId: Int): Flow<List<ReviewEntity>>
+
     @Query("DELETE FROM reviews WHERE matchId = :matchId")
     suspend fun deleteReviewByMatchId(matchId: Int)
 
