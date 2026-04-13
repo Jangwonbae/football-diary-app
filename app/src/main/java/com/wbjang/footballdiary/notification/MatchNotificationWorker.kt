@@ -78,8 +78,9 @@ class MatchNotificationWorker @AssistedInject constructor(
                 AppLogger.d(TAG, "이미 알림 발송한 경기 → 스킵 (matchId=${nextMatch.id})")
             } else {
                 AppLogger.d(TAG, "알림 발송: ${nextMatch.homeTeam.shortName} vs ${nextMatch.awayTeam.shortName}")
-                showNotification(nextMatch)
-                repository.saveLastNotifiedMatchId(nextMatch.id)
+                if (showNotification(nextMatch)) {
+                    repository.saveLastNotifiedMatchId(nextMatch.id)
+                }
             }
         } else {
             AppLogger.d(TAG, "알림 발송 조건 미충족 (14~16분 범위 아님: ${minutesUntilMatch}분)")
@@ -88,7 +89,12 @@ class MatchNotificationWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    private fun showNotification(match: Match) {
+    private fun showNotification(match: Match): Boolean {
+        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) {
+            AppLogger.w(TAG, "시스템 알림 권한 없음 → 알림 발송 불가")
+            return false
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
@@ -114,11 +120,8 @@ class MatchNotificationWorker @AssistedInject constructor(
             .setAutoCancel(true)
             .build()
 
-        if (NotificationManagerCompat.from(context).areNotificationsEnabled()) {
-            NotificationManagerCompat.from(context).notify(match.id, notification)
-        } else {
-            AppLogger.w(TAG, "시스템 알림 권한 없음 → 알림 발송 불가")
-        }
+        NotificationManagerCompat.from(context).notify(match.id, notification)
+        return true
     }
 
     companion object {
