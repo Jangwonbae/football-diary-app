@@ -62,6 +62,7 @@ class UserPreferencesDataStore @Inject constructor(
             prefs[followingTeamIdKey]       = teamId
             prefs[followingTeamNameKey]     = teamName
             prefs[followingTeamCrestUrlKey] = teamCrestUrl
+            prefs.remove(lastNotifiedMatchIdKey) // 팀 변경 시 마지막 알림 ID 초기화
         }
     }
 
