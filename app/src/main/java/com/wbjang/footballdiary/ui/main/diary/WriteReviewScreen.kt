@@ -67,7 +67,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import coil.compose.AsyncImage
 import com.wbjang.footballdiary.R
 import com.wbjang.footballdiary.domain.model.Match
@@ -89,15 +92,21 @@ fun WriteReviewScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     var showDiscardDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(existingReview?.id) {
         existingReview?.let { viewModel.initWithReview(it) }
-        viewModel.uiEvent.collect { event ->
-            when (event) {
-                is WriteReviewUiEvent.ShowToast ->
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                WriteReviewUiEvent.NavigateBack -> onBack()
+    }
+
+    LaunchedEffect(Unit) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    is WriteReviewUiEvent.ShowToast ->
+                        Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    WriteReviewUiEvent.NavigateBack -> onBack()
+                }
             }
         }
     }
