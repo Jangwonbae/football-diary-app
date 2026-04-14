@@ -24,7 +24,7 @@ data class ReviewEntity(
     val venue: String?,
     val seasonLabel: String?,
     val rating: Float,
-    val emotionTags: String, // 쉼표로 구분된 태그 목록
+    val emotionTags: String, // JSON 배열 문자열 (예: ["승리","짜릿함"])
     val content: String,
     val followingTeamId: Int,
     val createdAt: Long = System.currentTimeMillis()
