@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.wbjang.footballdiary.domain.model.League
 import com.wbjang.footballdiary.domain.model.Team
 import com.wbjang.footballdiary.domain.repository.FootballRepository
+import com.wbjang.footballdiary.notification.NotificationScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +22,8 @@ data class OnboardingUiState(
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val repository: FootballRepository
+    private val repository: FootballRepository,
+    private val notificationScheduler: NotificationScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
@@ -93,6 +95,7 @@ class OnboardingViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
             repository.saveFollowingTeam(team.id, team.name, team.crestUrl)
+            notificationScheduler.refreshScheduling()
             _uiState.update { it.copy(isSaving = false, pendingTeam = null) }
             onComplete()
         }
