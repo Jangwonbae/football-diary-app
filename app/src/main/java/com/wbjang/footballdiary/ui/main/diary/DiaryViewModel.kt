@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -40,7 +41,7 @@ class DiaryViewModel @Inject constructor(
 
     // 작성된 소감에서 시즌 목록 추출 (최신 시즌 순)
     val availableSeasons: StateFlow<List<String>> = allReviews
-        .combine(MutableStateFlow(Unit)) { list, _ ->
+        .map { list ->
             list.mapNotNull { it.seasonLabel }
                 .distinct()
                 .sortedDescending()
