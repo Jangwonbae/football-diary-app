@@ -1,6 +1,8 @@
 package com.wbjang.footballdiary.ui.main
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -110,7 +112,29 @@ fun MainScreen(
             composable(BottomNavItem.Settings.route) {
                 SettingsScreen(onNavigateToOnboarding = onNavigateToOnboarding)
             }
-            composable(ROUTE_WRITE_REVIEW) {
+            composable(
+                route = ROUTE_WRITE_REVIEW,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Start, tween(300)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Start, tween(300)
+                    )
+                },
+                popEnterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.End, tween(300)
+                    )
+                },
+                popExitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.End, tween(300)
+                    )
+                }
+            ) {
                 val match = selectedMatch
                 if (match != null) {
                     WriteReviewScreen(
@@ -121,7 +145,29 @@ fun MainScreen(
                     )
                 }
             }
-            composable(ROUTE_MATCH_DETAIL) {
+            composable(
+                route = ROUTE_MATCH_DETAIL,
+                enterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Start, tween(300)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Start, tween(300)
+                    )
+                },
+                popEnterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.End, tween(300)
+                    )
+                },
+                popExitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.End, tween(300)
+                    )
+                }
+            ) {
                 val detailViewModel: MatchDetailViewModel = hiltViewModel()
                 selectedMatch?.let { match ->
                     LaunchedEffect(match.id) {
