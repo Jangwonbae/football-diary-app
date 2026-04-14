@@ -1,10 +1,15 @@
 package com.wbjang.footballdiary.ui.main.settings
 
 import android.Manifest
+import android.app.AlarmManager
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -33,6 +38,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +52,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wbjang.footballdiary.R
 import com.wbjang.footballdiary.domain.model.ThemeMode
@@ -60,12 +69,35 @@ fun SettingsScreen(
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val notificationEnabled by viewModel.notificationEnabled.collectAsStateWithLifecycle()
     var showThemeDialog by remember { mutableStateOf(false) }
+    var showExactAlarmDialog by remember { mutableStateOf(false) }
+    var pendingEnableAfterPermission by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner, pendingEnableAfterPermission) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME &&
+                pendingEnableAfterPermission &&
+                canScheduleExactAlarms(context)
+            ) {
+                pendingEnableAfterPermission = false
+                viewModel.setNotificationEnabled(true)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        if (isGranted) viewModel.setNotificationEnabled(true)
+        if (isGranted) {
+            if (canScheduleExactAlarms(context)) {
+                viewModel.setNotificationEnabled(true)
+            } else {
+                showExactAlarmDialog = true
+            }
+        }
     }
 
     if (showThemeDialog) {
@@ -76,6 +108,23 @@ fun SettingsScreen(
                 showThemeDialog = false
             },
             onDismiss = { showThemeDialog = false }
+        )
+    }
+
+    if (showExactAlarmDialog) {
+        ExactAlarmPermissionDialog(
+            onGoToSettings = {
+                showExactAlarmDialog = false
+                pendingEnableAfterPermission = true
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val intent = Intent(
+                        Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                        Uri.parse("package:${context.packageName}")
+                    )
+                    context.startActivity(intent)
+                }
+            },
+            onDismiss = { showExactAlarmDialog = false }
         )
     }
 
@@ -124,6 +173,10 @@ fun SettingsScreen(
                         notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                         return@SettingsToggleItem
                     }
+                }
+                if (enabled && !canScheduleExactAlarms(context)) {
+                    showExactAlarmDialog = true
+                    return@SettingsToggleItem
                 }
                 viewModel.setNotificationEnabled(enabled)
             }
@@ -301,4 +354,32 @@ private fun ThemeMode.labelRes() = when (this) {
     ThemeMode.SYSTEM -> R.string.settings_theme_system
     ThemeMode.LIGHT  -> R.string.settings_theme_light
     ThemeMode.DARK   -> R.string.settings_theme_dark
+}
+
+private fun canScheduleExactAlarms(context: Context): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true
+    val alarmManager = context.getSystemService(AlarmManager::class.java)
+    return alarmManager.canScheduleExactAlarms()
+}
+
+@Composable
+private fun ExactAlarmPermissionDialog(
+    onGoToSettings: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.settings_exact_alarm_dialog_title)) },
+        text = { Text(text = stringResource(R.string.settings_exact_alarm_dialog_message)) },
+        confirmButton = {
+            TextButton(onClick = onGoToSettings) {
+                Text(text = stringResource(R.string.settings_exact_alarm_dialog_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.dialog_cancel))
+            }
+        }
+    )
 }

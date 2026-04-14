@@ -110,6 +110,11 @@
     <string name="settings_theme_dark">다크 모드</string>
     <string name="settings_theme_dialog_title">테마 설정</string>
 
+    <!-- 알림 권한 (정확한 알람) -->
+    <string name="settings_exact_alarm_dialog_title">정확한 알람 권한 필요</string>
+    <string name="settings_exact_alarm_dialog_message">경기 시작 15분 전 정확한 시간에 알림을 받으려면 \'알람 및 리마인더\' 권한이 필요합니다.\n\n시스템 설정에서 권한을 허용해주세요.</string>
+    <string name="settings_exact_alarm_dialog_confirm">설정으로 이동</string>
+
     <!-- 다이어리 화면 -->
     <string name="diary_empty_title">작성된 소감이 없습니다</string>
     <string name="diary_empty_subtitle">경기를 관람한 후 소감을 남겨보세요</string>
