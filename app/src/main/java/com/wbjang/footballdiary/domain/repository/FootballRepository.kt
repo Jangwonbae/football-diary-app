@@ -43,6 +43,4 @@ interface FootballRepository {
     // 알림
     fun getNotificationEnabled(): Flow<Boolean>
     suspend fun saveNotificationEnabled(enabled: Boolean)
-    fun getLastNotifiedMatchId(): Flow<Int?>
-    suspend fun saveLastNotifiedMatchId(matchId: Int)
 }

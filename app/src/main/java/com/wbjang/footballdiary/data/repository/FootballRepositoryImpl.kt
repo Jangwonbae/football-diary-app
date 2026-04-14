@@ -223,10 +223,6 @@ class FootballRepositoryImpl @Inject constructor(
     override suspend fun saveNotificationEnabled(enabled: Boolean) {
         dataStore.saveNotificationEnabled(enabled)
     }
-    override fun getLastNotifiedMatchId(): Flow<Int?> = dataStore.lastNotifiedMatchId
-    override suspend fun saveLastNotifiedMatchId(matchId: Int) {
-        dataStore.saveLastNotifiedMatchId(matchId)
-    }
     override suspend fun saveThemeMode(mode: ThemeMode) = dataStore.saveThemeMode(mode)
 
     private fun ReviewEntity.toDomain() = Review(

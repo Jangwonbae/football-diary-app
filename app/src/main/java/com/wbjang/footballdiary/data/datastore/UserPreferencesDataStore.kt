@@ -27,7 +27,6 @@ class UserPreferencesDataStore @Inject constructor(
     private val followingTeamCrestUrlKey = stringPreferencesKey("following_team_crest_url")
     private val themeModeKey             = stringPreferencesKey("theme_mode")
     private val notificationEnabledKey   = booleanPreferencesKey("notification_enabled")
-    private val lastNotifiedMatchIdKey   = intPreferencesKey("last_notified_match_id")
 
     val followingTeamId: Flow<Int?> = context.dataStore.data.map { prefs ->
         prefs[followingTeamIdKey]
@@ -53,16 +52,11 @@ class UserPreferencesDataStore @Inject constructor(
         prefs[notificationEnabledKey] ?: false
     }
 
-    val lastNotifiedMatchId: Flow<Int?> = context.dataStore.data.map { prefs ->
-        prefs[lastNotifiedMatchIdKey]
-    }
-
     suspend fun saveFollowingTeam(teamId: Int, teamName: String, teamCrestUrl: String) {
         context.dataStore.edit { prefs ->
             prefs[followingTeamIdKey]       = teamId
             prefs[followingTeamNameKey]     = teamName
             prefs[followingTeamCrestUrlKey] = teamCrestUrl
-            prefs.remove(lastNotifiedMatchIdKey) // 팀 변경 시 마지막 알림 ID 초기화
         }
     }
 
@@ -75,12 +69,6 @@ class UserPreferencesDataStore @Inject constructor(
     suspend fun saveNotificationEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[notificationEnabledKey] = enabled
-        }
-    }
-
-    suspend fun saveLastNotifiedMatchId(matchId: Int) {
-        context.dataStore.edit { prefs ->
-            prefs[lastNotifiedMatchIdKey] = matchId
         }
     }
 }
