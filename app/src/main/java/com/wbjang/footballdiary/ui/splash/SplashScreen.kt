@@ -26,7 +26,7 @@ fun SplashScreen() {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
-                painter = painterResource(R.drawable.ic_launcher_foreground),
+                painter = painterResource(R.drawable.ic_football_diary),
                 contentDescription = null,
                 modifier = Modifier.size(dimensionResource(R.dimen.splash_icon_size))
             )
