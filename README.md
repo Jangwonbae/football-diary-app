@@ -37,7 +37,7 @@
 - 📅 **경기 일정 조회** — EPL·UCL 등 주요 리그 일정 및 결과, 리그 순위표 확인
 - 📊 **경기 상세** — 라인업 포메이션 시각화, 타임라인, 경기 통계
 - 📝 **소감 기록** — 경기별 별점·감정 태그·텍스트 소감 작성 및 관리
-- 🔔 **경기 알림** — 경기 시작 15분 전 알림 (Android 12+ 정확한 알람 권한 처리)
+- 🔔 **경기 알림** — 경기 시작 15분 전 알림
 - 🏠 **홈 화면 위젯** — 팔로잉 팀의 다음 경기 정보를 홈 화면에서 확인
 - 🌓 **테마** — 다크 / 라이트 / 시스템 설정 연동
 
@@ -270,8 +270,7 @@ Android Studio에서 Run (Min SDK 26 / Android 8.0 이상)
 
 - [ ] 단위 테스트 / UI 테스트 커버리지 확대
 - [ ] 여러 팀 동시 팔로우
-- [ ] 소감 통계 화면 (별점 분포, 감정 태그 분석)
-- [ ] Play Store 배포
+- [ ] 시즌 소감 통계 화면 (별점 분포, 감정 태그 분석)
 - [ ] Compose Multiplatform 마이그레이션 검토
 
 <br>
@@ -282,9 +281,8 @@ Android Studio에서 Run (Min SDK 26 / Android 8.0 이상)
 
 | | |
 |---|---|
-| GitHub | [@wbjang](https://github.com/wbjang) |
-| Email | 이메일 주소 입력 |
-| Blog | 블로그 주소 입력 |
+| GitHub | [@Jangwonbae](https://github.com/Jangwonbae) |
+| Email | wonbae623@naver.com |
 
 <br>
 
