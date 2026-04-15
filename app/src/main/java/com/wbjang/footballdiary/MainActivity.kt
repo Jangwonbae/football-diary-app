@@ -14,6 +14,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
@@ -29,8 +30,13 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // startDestination이 null이면 스플래시 화면 유지
+        splashScreen.setKeepOnScreenCondition {
+            viewModel.startDestination.value == null
+        }
         setContent {
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
             val isDark = when (themeMode) {
@@ -50,17 +56,19 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            val startDestination by viewModel.startDestination.collectAsStateWithLifecycle()
+            val navController = rememberNavController()
             FootballDiaryTheme(darkTheme = isDark) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val startDestination by viewModel.startDestination.collectAsStateWithLifecycle()
-                    val navController = rememberNavController()
-                    NavGraph(
-                        navController = navController,
-                        startDestination = startDestination
-                    )
+                    if (startDestination != null) {
+                        NavGraph(
+                            navController = navController,
+                            startDestination = startDestination!!
+                        )
+                    }
                 }
             }
         }

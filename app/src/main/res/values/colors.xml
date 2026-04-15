@@ -3,6 +3,7 @@
     <!-- Compose 테마에서 관리 (ui/theme/Color.kt 참조) -->
     <!-- XML 윈도우 테마용 최소 색상 -->
     <color name="primary">#FF1565C0</color>
+    <color name="splash_background">#FFFFFFFF</color>
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
     <color name="widget_text_primary">#FF1A1C1E</color>

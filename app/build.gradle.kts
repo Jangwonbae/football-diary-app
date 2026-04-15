@@ -94,6 +94,7 @@ dependencies {
     implementation(libs.work.runtime.ktx)
     implementation(libs.hilt.work)
     ksp(libs.hilt.work.compiler)
+    implementation(libs.androidx.core.splashscreen)
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

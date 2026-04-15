@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.FootballDiary" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- 스플래시 이후 실제 앱 테마 -->
+    <style name="Theme.FootballDiary.Base" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- 런처 테마: 스플래시 화면 설정 -->
+    <style name="Theme.FootballDiary" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.FootballDiary.Base</item>
+    </style>
+
 </resources>
