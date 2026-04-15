@@ -50,7 +50,7 @@
 ### 아키텍처
 
 - **Clean Architecture** — UI / Domain / Data 3계층 분리 + 의존성 역전 
-- **MVVM + StateFlow** 단방향 데이터 흐름(UDF)과 상태 기반 UI
+- **MVVM + StateFlow** — 단방향 데이터 흐름(UDF)과 상태 기반 UI
 - **Repository 패턴** — Remote(Retrofit) / Local(Room) 데이터 소스 추상화  
 
 ```
