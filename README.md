@@ -21,12 +21,20 @@
 
 ## 📱 스크린샷
 
+### 온보딩
+| 팀 선택 |
+|:---:|
+| <img width="200" height="440" alt="온보딩" src="https://github.com/user-attachments/assets/7b2e1002-eb7f-4175-afc2-dc88bb0d9a3c" /> |
 
-| 온보딩 | 경기 일정 | 경기 상세 | 소감 작성 | 위젯 |
-|:---:|:---:|:---:|:---:|:---:|
-| <img width="161" height="360" alt="Image" src="https://github.com/user-attachments/assets/7b2e1002-eb7f-4175-afc2-dc88bb0d9a3c" /> | <img width="160" height="320" alt="Image" src="https://github.com/user-attachments/assets/04c0bc6b-b435-4993-9239-a9ab45494f94" /> | <img width="160" height="320" alt="Image" src="https://github.com/user-attachments/assets/aad7343a-e90b-43dd-854d-0753458afd31" /> | <img width="160" height="320" alt="Image" src="https://github.com/user-attachments/assets/f8d52233-a4e9-44a5-8e4d-3d3f68509074" /> | <img width="160" height="320" alt="Image" src="https://github.com/user-attachments/assets/93165231-744a-41c3-85c5-7bb71239b9db" /> |
-| 팀 선택 | 캘린더/리스트 | 라인업·통계 | 평점·태그·소감 | 홈 화면 |
+### 경기 일정 & 상세
+| 캘린더/리스트 | 라인업·통계 |
+|:---:|:---:|
+| <img width="200" height="400" alt="경기 일정" src="https://github.com/user-attachments/assets/04c0bc6b-b435-4993-9239-a9ab45494f94" /> | <img width="200" height="400" alt="경기 상세" src="https://github.com/user-attachments/assets/aad7343a-e90b-43dd-854d-0753458afd31" /> |
 
+### 소감 기록 & 위젯
+| 평점·태그·소감 | 홈 화면 위젯 |
+|:---:|:---:|
+| <img width="200" height="400" alt="소감 작성" src="https://github.com/user-attachments/assets/f8d52233-a4e9-44a5-8e4d-3d3f68509074" /> | <img width="200" height="400" alt="위젯" src="https://github.com/user-attachments/assets/93165231-744a-41c3-85c5-7bb71239b9db" /> |
 <br>
 
 ---
