@@ -271,11 +271,23 @@ ui ──→ domain ←── data
 ### 🏠 홈 화면 위젯
 
 팔로잉 팀의 다음 경기를 홈 화면에서 바로 확인할 수 있는 Glance 기반 위젯. 갱신 시 WorkManager로 네트워크 요청을 수행해 최신 경기 정보를 가져온 뒤 위젯 데이터를 업데이트 한다.
+
 `Jetpack Glance` `WorkManager 주기 갱신` `탭 시 앱 진입`
 
 <img width="320" src="https://github.com/user-attachments/assets/770e2ba3-bcc8-46d6-b5ab-8b57da4fd1d0" />
 
-<br>
+---
+
+
+### 🌓 테마
+
+라이트·다크·시스템 설정 연동을 지원한다.
+
+`라이트 모드` `다크 모드` `시스템 설정 연동`
+
+<img width="320" height="640" alt="다크테마_360w" src="https://github.com/user-attachments/assets/f3a92bc5-6701-48e3-9aac-c9611f15e02e" />
+
+---
 
 ## 👨‍💻 개발자
 
