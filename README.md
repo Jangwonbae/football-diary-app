@@ -17,28 +17,6 @@
 
 <br>
 
----
-
-## 📱 스크린샷
-
-### 온보딩
-| 팀 선택 |
-|:---:|
-| <img width="200" height="440" alt="온보딩" src="https://github.com/user-attachments/assets/7b2e1002-eb7f-4175-afc2-dc88bb0d9a3c" /> |
-
-### 경기 일정 & 상세
-| 캘린더/리스트 | 라인업·통계 |
-|:---:|:---:|
-| <img width="200" height="400" alt="경기 일정" src="https://github.com/user-attachments/assets/04c0bc6b-b435-4993-9239-a9ab45494f94" /> | <img width="200" height="400" alt="경기 상세" src="https://github.com/user-attachments/assets/aad7343a-e90b-43dd-854d-0753458afd31" /> |
-
-### 소감 기록 & 위젯
-| 평점·태그·소감 | 홈 화면 위젯 |
-|:---:|:---:|
-| <img width="200" height="400" alt="소감 작성" src="https://github.com/user-attachments/assets/f8d52233-a4e9-44a5-8e4d-3d3f68509074" /> | <img width="200" height="400" alt="위젯" src="https://github.com/user-attachments/assets/93165231-744a-41c3-85c5-7bb71239b9db" /> |
-<br>
-
----
-
 ## ✨ 주요 기능
 
 - ⚽ **팀 팔로우** — 응원 팀 설정 및 변경, 팔로잉 팀 경기 표시
@@ -249,31 +227,6 @@ ui ──→ domain ←── data
 
 ---
 
-## 🚀 빌드 방법
-
-**1. 저장소 클론**
-```bash
-git clone https://github.com/wbjang/football-diary.git
-cd football-diary
-```
-
-**2. API 토큰 발급**
-
-[football-data.org](https://www.football-data.org/) 가입 후 이메일로 토큰 수령
-
-**3. local.properties 설정**
-```properties
-FOOTBALL_API_TOKEN=여기에_발급받은_토큰_입력
-```
-
-**4. 실행**
-
-Android Studio에서 Run (Min SDK 26 / Android 8.0 이상)
-
-<br>
-
----
-
 ## 🔮 향후 개선 사항
 
 - [ ] 단위 테스트 / UI 테스트 커버리지 확대
@@ -283,7 +236,34 @@ Android Studio에서 Run (Min SDK 26 / Android 8.0 이상)
 
 <br>
 
----
+## 📱 스크린샷
+
+### 온보딩
+| 팀 선택 |
+|:---:|
+| <img width="200" height="440" alt="온보딩" src="https://github.com/user-attachments/assets/7b2e1002-eb7f-4175-afc2-dc88bb0d9a3c" /> |
+
+### 경기 일정
+| 리스트/캘린더 |
+|:---:|
+| <img width="320" height="640" alt="경기일정_320w" src="https://github.com/user-attachments/assets/25ca4544-d583-4326-804b-6b6167f012d7" /> |
+
+### 경기 상세
+| 라인업·통계 |
+|:---:|
+| <img width="320" height="640" alt="경기상세_320w" src="https://github.com/user-attachments/assets/642906d0-4428-421d-9464-fac7dec0e026" /> |
+
+### 소감 기록
+| 평점·태그·소감 |
+|:---:|
+| <img width="320" height="640" alt="소감작성_320w" src="https://github.com/user-attachments/assets/d3b7f568-8b4c-4df5-a532-4a2f75d1badd" /> |
+
+###  위젯
+| 홈 화면 위젯 |
+|:---:|
+| <img width="320" height="640" alt="홈위젯_320w" src="https://github.com/user-attachments/assets/770e2ba3-bcc8-46d6-b5ab-8b57da4fd1d0" /> |
+
+<br>
 
 ## 👨‍💻 개발자
 
@@ -292,18 +272,3 @@ Android Studio에서 Run (Min SDK 26 / Android 8.0 이상)
 | GitHub | [@Jangwonbae](https://github.com/Jangwonbae) |
 | Email | wonbae623@naver.com |
 
-<br>
-
----
-
-## 📄 License
-
-```
-MIT License
-
-Copyright (c) 2024 wbjang
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction.
-```
