@@ -225,43 +225,55 @@ ui ──→ domain ←── data
 
 <br>
 
+## 📱 화면 구성
+
+
+### 👋 온보딩
+
+앱 최초 진입 시 팔로우할 팀을 선택하는 화면. 선택 완료 후 메인 화면으로 이동하며 백스택에서 제거된다.
+
+`5개 리그 지원` `펼치기/접기 토글` `확인 다이얼로그` `DataStore 저장` `알림·위젯 즉시 갱신`
+
+<img width="320" src="https://github.com/user-attachments/assets/d43ec2f3-d797-47c6-b125-64791797fc41" />
+
 ---
 
-## 🔮 향후 개선 사항
+### 📅 매치 일정
 
-- [ ] 단위 테스트 / UI 테스트 커버리지 확대
-- [ ] 여러 팀 동시 팔로우
-- [ ] 시즌 소감 통계 화면 (별점 분포, 감정 태그 분석)
-- [ ] Compose Multiplatform 마이그레이션 검토
+팔로우 팀의 시즌 경기 일정과 리그 순위를 확인하는 화면. 리스트·캘린더 뷰를 자유롭게 전환할 수 있으며, 다가오는 경기로 자동 스크롤된다.
 
-<br>
+`리스트/캘린더 뷰 토글` `리그 순위표` `소감 작성 여부 뱃지` `월 단위 스와이프` `다가오는 경기 자동 스크롤`
 
-## 📱 스크린샷
+<img width="320" src="https://github.com/user-attachments/assets/25ca4544-d583-4326-804b-6b6167f012d7" />
 
-### 온보딩
-| 팀 선택 |
-|:---:|
-| <img width="320" height="640" alt="온보딩_320w" src="https://github.com/user-attachments/assets/d43ec2f3-d797-47c6-b125-64791797fc41" /> |
+---
 
-### 경기 일정
-| 리스트/캘린더 |
-|:---:|
-| <img width="320" height="640" alt="경기일정_320w" src="https://github.com/user-attachments/assets/25ca4544-d583-4326-804b-6b6167f012d7" /> |
+### 📊 매치 상세
 
-### 경기 상세
-| 라인업·통계 |
-|:---:|
-| <img width="320" height="640" alt="경기상세_320w" src="https://github.com/user-attachments/assets/642906d0-4428-421d-9464-fac7dec0e026" /> |
+선택한 경기의 라인업·타임라인·통계를 한 곳에서 확인하는 화면. 무료 API 미제공 데이터는 샘플 뱃지로 명시한다.
 
-### 소감 기록
-| 평점·태그·소감 |
-|:---:|
-| <img width="320" height="640" alt="소감작성_320w" src="https://github.com/user-attachments/assets/d3b7f568-8b4c-4df5-a532-4a2f75d1badd" /> |
+`포메이션 시각화` `득점·경고·교체 타임라인` `경기 통계` `샘플 데이터 뱃지` `소감 연동 표시`
 
-###  위젯
-| 홈 화면 위젯 |
-|:---:|
-| <img width="320" height="640" alt="홈위젯_320w" src="https://github.com/user-attachments/assets/770e2ba3-bcc8-46d6-b5ab-8b57da4fd1d0" /> |
+<img width="320" src="https://github.com/user-attachments/assets/642906d0-4428-421d-9464-fac7dec0e026" />
+
+---
+
+### 📝 매치 작성 & 매치 다이어리
+
+경기별 별점·감정 태그·텍스트 소감을 작성·수정하는 화면. 기존 리뷰가 있으면 자동으로 프리필되며, 시즌별로 목록을 열람할 수 있다.
+
+`1~5점 별점` `감정 태그 토글` `커스텀 태그 입력` `신규/수정 모드` `시즌 필터 & 정렬` `스코어 자동 보정`
+
+<img width="320" src="https://github.com/user-attachments/assets/d3b7f568-8b4c-4df5-a532-4a2f75d1badd" />
+
+---
+
+### 🏠 홈 화면 위젯
+
+팔로잉 팀의 다음 경기를 홈 화면에서 바로 확인할 수 있는 Glance 기반 위젯. 갱신 시 WorkManager로 네트워크 요청을 수행해 최신 경기 정보를 가져온 뒤 위젯 데이터를 업데이트 한다.
+`Jetpack Glance` `WorkManager 주기 갱신` `탭 시 앱 진입`
+
+<img width="320" src="https://github.com/user-attachments/assets/770e2ba3-bcc8-46d6-b5ab-8b57da4fd1d0" />
 
 <br>
 
