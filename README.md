@@ -24,7 +24,7 @@
 
 | 온보딩 | 경기 일정 | 경기 상세 | 소감 작성 | 위젯 |
 |:---:|:---:|:---:|:---:|:---:|
-| <img width="161" height="360" alt="Image" src="https://github.com/user-attachments/assets/7b2e1002-eb7f-4175-afc2-dc88bb0d9a3c" /> | <img width="160" height="320" alt="Image" src="https://github.com/user-attachments/assets/04c0bc6b-b435-4993-9239-a9ab45494f94" /> | <img width="160" src="docs/screenshot_detail.png"> | <img width="160" src="docs/screenshot_diary.png"> | <img width="160" src="docs/screenshot_widget.png"> |
+| <img width="161" height="360" alt="Image" src="https://github.com/user-attachments/assets/7b2e1002-eb7f-4175-afc2-dc88bb0d9a3c" /> | <img width="160" height="320" alt="Image" src="https://github.com/user-attachments/assets/04c0bc6b-b435-4993-9239-a9ab45494f94" /> | <img width="160" height="320" alt="Image" src="https://github.com/user-attachments/assets/aad7343a-e90b-43dd-854d-0753458afd31" /> | <img width="160" height="320" alt="Image" src="https://github.com/user-attachments/assets/f8d52233-a4e9-44a5-8e4d-3d3f68509074" /> | <img width="160" src="docs/screenshot_widget.png"> |
 | 팀 선택 | 캘린더/리스트 | 라인업·통계 | 평점·태그·소감 | 홈 화면 |
 
 <br>
