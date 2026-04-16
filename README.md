@@ -241,7 +241,7 @@ ui ──→ domain ←── data
 ### 온보딩
 | 팀 선택 |
 |:---:|
-| <img width="200" height="440" alt="온보딩" src="https://github.com/user-attachments/assets/7b2e1002-eb7f-4175-afc2-dc88bb0d9a3c" /> |
+| <img width="320" height="640" alt="온보딩_320w" src="https://github.com/user-attachments/assets/d43ec2f3-d797-47c6-b125-64791797fc41" /> |
 
 ### 경기 일정
 | 리스트/캘린더 |
