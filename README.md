@@ -1,17 +1,6 @@
 <div align="center">
 
-<img width="120" height="120" alt="ic_football_diary" src="https://github.com/user-attachments/assets/fc9dc395-eb40-49fc-967b-0e483cc09a43" />
-
-# Football Diary
-
-> 응원하는 축구팀의 경기 일정을 확인하고, 관전 후 감상을 기록하는 다이어리 앱
-
-<br>
-
-![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-7F52FF?style=flat-square&logo=kotlin&logoColor=white)
-![minSdk](https://img.shields.io/badge/minSdk-26-brightgreen?style=flat-square)
-![targetSdk](https://img.shields.io/badge/targetSdk-36-brightgreen?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
+<img width="100%" alt="Football Diary" src="https://github.com/user-attachments/assets/d70fcff6-5361-4c02-8058-e3cb6703058f" />
 
 </div>
 
