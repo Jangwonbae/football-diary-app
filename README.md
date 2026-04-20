@@ -66,30 +66,6 @@
 
 ---
 
-## 🔥 트러블슈팅
-
-
-### 1. 부팅 후 알람 소실
-
-**문제** — 기기 재시작 후 예약된 경기 알림이 모두 사라짐
-
-**원인** — AlarmManager 알람은 기기 재부팅 시 초기화됨
-
-**해결** — `BOOT_COMPLETED` BroadcastReceiver에서 WorkManager로 알람 재등록
-```kotlin
-class BootReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            MatchNotificationScheduler.rescheduleAll(context)
-        }
-    }
-}
-```
-
-<br>
-
----
-
 ## 🗂 프로젝트 구조
 
 ```
