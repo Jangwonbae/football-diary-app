@@ -1,17 +1,6 @@
 <div align="center">
 
-<img width="120" height="120" alt="ic_football_diary" src="https://github.com/user-attachments/assets/fc9dc395-eb40-49fc-967b-0e483cc09a43" />
-
-# Football Diary
-
-> 응원하는 축구팀의 경기 일정을 확인하고, 관전 후 감상을 기록하는 다이어리 앱
-
-<br>
-
-![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-7F52FF?style=flat-square&logo=kotlin&logoColor=white)
-![minSdk](https://img.shields.io/badge/minSdk-26-brightgreen?style=flat-square)
-![targetSdk](https://img.shields.io/badge/targetSdk-36-brightgreen?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
+<img width="100%" alt="Football Diary" src="https://github.com/user-attachments/assets/d70fcff6-5361-4c02-8058-e3cb6703058f" />
 
 </div>
 
@@ -72,30 +61,6 @@
 - **AlarmManager** — Android 12+ `SCHEDULE_EXACT_ALARM` 권한 분기 처리
 - **BroadcastReceiver** — 부팅 후 알람 재등록 (`BOOT_COMPLETED`)
 - **SplashScreen API** — 시스템 스플래시와 통합, 깜빡임 없는 초기 화면
-
-<br>
-
----
-
-## 🔥 트러블슈팅
-
-
-### 1. 부팅 후 알람 소실
-
-**문제** — 기기 재시작 후 예약된 경기 알림이 모두 사라짐
-
-**원인** — AlarmManager 알람은 기기 재부팅 시 초기화됨
-
-**해결** — `BOOT_COMPLETED` BroadcastReceiver에서 WorkManager로 알람 재등록
-```kotlin
-class BootReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            MatchNotificationScheduler.rescheduleAll(context)
-        }
-    }
-}
-```
 
 <br>
 
